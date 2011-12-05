@@ -7,3 +7,13 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+
+namespace Demo {
+	Game::Game() {
+	
+	}
+
+	Game::~Game() {
+	
+	}
+}

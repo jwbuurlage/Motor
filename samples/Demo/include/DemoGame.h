@@ -7,3 +7,18 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+
+namespace Demo {
+	
+	class Game {
+	public:
+		Game();
+		~Game();
+		
+		void run(); 
+		
+	private:	
+		
+	};
+	
+}

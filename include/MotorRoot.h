@@ -7,3 +7,16 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+
+namespace Motor {
+	
+	class Root {
+	public:
+		Root();
+		~Root();
+		
+	private:
+		
+	};
+
+}

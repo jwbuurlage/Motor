@@ -1,8 +1,11 @@
-#include <iostream>
-using namespace std;
+namespace Motor {
 
-int main() 
-{
-	cout << "Hello World!"; 
-	return 0;
+	Root::Root() {
+	
+	}
+	
+	Root::~Root() {
+		
+	}
+
 }

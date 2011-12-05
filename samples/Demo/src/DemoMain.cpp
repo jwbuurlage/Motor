@@ -7,3 +7,12 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+
+#include "../include/DemoGame.h"
+
+int main() {
+	Game game;
+	game.run(); 
+	
+	return 0;
+}
