@@ -7,6 +7,7 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+#pragma once
 
 namespace Demo {
 	

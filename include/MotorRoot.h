@@ -7,16 +7,21 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+#pragma once
+
 
 namespace Motor {
+	class Renderer;
 	
 	class Root {
 	public:
 		Root();
 		~Root();
 		
+		int initialize();
+		void cleanup();
 	private:
-		
+		Renderer* const renderer;
 	};
 
 }

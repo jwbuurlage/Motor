@@ -7,4 +7,5 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
-#pragma once
+
+#include "MotorRoot.h"

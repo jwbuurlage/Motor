@@ -7,6 +7,7 @@
  * http://www.github.com/jwbuurlage/Motor 
  * 
  */
+#include "DemoGame.h"
 
 namespace Demo {
 	Game::Game() {

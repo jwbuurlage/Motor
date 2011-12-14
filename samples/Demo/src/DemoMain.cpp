@@ -8,11 +8,13 @@
  * 
  */
 
-#include "../include/DemoGame.h"
+#include "Motor.h"
+#include "DemoGame.h"
 
 int main() {
-	Game game;
-	game.run(); 
-	
+	Motor::Root root;
+	Demo::Game game;
+	root.initialize();
+	root.cleanup();
 	return 0;
 }
