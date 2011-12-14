@@ -1,13 +1,16 @@
 #include "MotorRoot.h"
 #include "MotorRenderer.h"
+#include "MotorTimer.h"
+#include "MotorLogger.h"
 #include <SDL/SDL.h>
 
 namespace Motor {
 
-	Root::Root() : renderer(new Renderer) {
+	Root::Root() : renderer(new Renderer), timer(new Timer) {
 	}
 	
 	Root::~Root() {
+		delete timer;
 		delete renderer;
 	}
 
@@ -15,6 +18,7 @@ namespace Motor {
 	{
 		if( SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0 ) return 0;
 		if( !renderer->initialize() ) return 0;
+		timer->initialize();
 		return 1;
 	}
 
@@ -29,6 +33,10 @@ namespace Motor {
 	{
 		bool running = true;
 		SDL_Event Event;
+		//FPS counting
+		int frameCount = 0;
+		float frameTime = 0;
+		timer->getElapsedTime(); //t=0
 		while(running){
 			while(SDL_PollEvent(&Event)) {
 				switch( Event.type ){
@@ -51,6 +59,16 @@ namespace Motor {
 					break;
 				}
 			}
+			float elapsedTime = timer->getElapsedTime();
+			++frameCount;
+			frameTime += elapsedTime;
+			if( frameTime > 1.0f ){
+				Logger::getSingleton().log(Logger::INFO, "FPS: %f (frametime %f)");
+				//printf("Frametime: %f\t\tFPS: %f\n", frameTime/(float)frameCount, (float)frameCount/frameTime);
+				frameCount = 0;
+				frameTime = 0;
+			}
+
 			if( renderOneFrame() == false ) break;
 		}
 	}

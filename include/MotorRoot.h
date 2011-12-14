@@ -12,6 +12,7 @@
 
 namespace Motor {
 	class Renderer;
+	class Timer;
 	
 	class Root {
 	public:
@@ -26,6 +27,7 @@ namespace Motor {
 
 	private:
 		Renderer* const renderer;
+		Timer* const timer;
 	};
 
 }
