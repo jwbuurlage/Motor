@@ -15,6 +15,7 @@ int main() {
 	Motor::Root root;
 	Demo::Game game;
 	root.initialize();
+	root.startRendering();
 	root.cleanup();
 	return 0;
 }

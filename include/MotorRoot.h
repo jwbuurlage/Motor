@@ -20,6 +20,10 @@ namespace Motor {
 		
 		int initialize();
 		void cleanup();
+
+		void startRendering(); //use with FrameListeners
+		bool renderOneFrame();
+
 	private:
 		Renderer* const renderer;
 	};
