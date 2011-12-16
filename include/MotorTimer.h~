@@ -19,7 +19,7 @@ namespace Motor {
 #ifdef __APPLE__
 		uint64_t start, end;
 #endif
-#ifdef __linux__
+#ifdef __LINUX__
 		double previousTime;
 #endif
 	};
