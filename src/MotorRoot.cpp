@@ -16,8 +16,18 @@ namespace Motor {
 
 	int Root::initialize()
 	{
-		if( SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0 ) return 0;
-		if( !renderer->initialize() ) return 0;
+		//TODO: Get window width/height from setting file
+		if( SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0 ){
+			Logger::getSingleton().log(Logger::CRITICALERROR, "SDL_Init failed");
+			return 0;
+		}
+		surface = SDL_SetVideoMode(1024, 768, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL);
+		if( surface == NULL ){
+			Logger::getSingleton().log(Logger::CRITICALERROR, "SDL_SetVideoMode failed");
+			return 0;
+		}
+		SDL_WM_SetCaption("MotorWindow", 0);
+		if( !renderer->initialize(1024, 768) ) return 0;
 		timer->initialize();
 		return 1;
 	}
@@ -25,6 +35,7 @@ namespace Motor {
 	void Root::cleanup()
 	{
 		renderer->cleanup();
+		SDL_FreeSurface(surface);
 		SDL_Quit();
 		return;
 	}
@@ -78,7 +89,9 @@ namespace Motor {
 		//Call frame listeners
 		//for(iterator herp = derp)
 		//	framelistener->preFrame(elapsedTime);
-		return renderer->renderFrame();
+		renderer->renderFrame();
+		SDL_GL_SwapBuffers();
+		return true;
 	}
 
 }

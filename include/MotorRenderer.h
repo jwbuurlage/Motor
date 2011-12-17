@@ -1,8 +1,5 @@
 #pragma once
 
-//forward declarations to avoid unnecessary includes
-struct SDL_Surface;
-
 namespace Motor {
 
 	class Renderer {
@@ -10,13 +7,15 @@ namespace Motor {
 		Renderer();
 		~Renderer();
 		
-		int initialize();
+		int initialize(int width, int height);
 		void cleanup();
+
+		void setWindowSize(int width, int height);
 
 		bool renderFrame();
 
 	private:
-		SDL_Surface* surface;
+		int windowWidth, windowHeight;
 	};
 
 }

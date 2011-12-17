@@ -9,6 +9,8 @@
  */
 #pragma once
 
+//forward declarations to avoid unnecessary includes
+struct SDL_Surface;
 
 namespace Motor {
 	class Renderer;
@@ -28,6 +30,7 @@ namespace Motor {
 	private:
 		Renderer* const renderer;
 		Timer* const timer;
+		SDL_Surface* surface;
 	};
 
 }
