@@ -27,6 +27,7 @@ namespace Motor {
 			return 0;
 		}
 		SDL_WM_SetCaption("MotorWindow", 0);
+
 		if( !renderer->initialize(1024, 768) ) return 0;
 		timer->initialize();
 		return 1;
