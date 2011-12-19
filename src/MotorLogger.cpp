@@ -20,7 +20,7 @@ namespace Motor {
 		return loggerSingleton;
 	}
 
-	void Logger::log(LOGTYPE type, char* logText)
+	void Logger::log(LOGTYPE type, const char* logText)
 	{
 		std::cout << logText << std::endl;
 	}

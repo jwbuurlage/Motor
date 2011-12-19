@@ -1,4 +1,4 @@
-#include "MotorFileSystem.h"
+#include "MotorFilesystem.h"
 #include <fstream>
 #include <algorithm>
 
@@ -35,7 +35,7 @@ namespace Motor {
 		return;
 	}
 #elif __APPLE__
-	std::string Filesystem::initApplicationPath()
+	void Filesystem::initApplicationPath()
 	{
 		char path[1024];
 		uint32_t size = sizeof(path);
@@ -48,7 +48,7 @@ namespace Motor {
 	}
 #elif __linux__
 	#include <unistd.h>
-	std::string Filesystem::initApplicationPath()
+	void Filesystem::initApplicationPath()
 	{
 		char path[1024] = {0};
 		if( readlink("/proc/self/exe", path, 1024) > 0 ){
@@ -59,7 +59,7 @@ namespace Motor {
 		return;
 	}
 #else
-	std::string Filesystem::initApplicationPath()
+	void Filesystem::initApplicationPath()
 	{
 		applicationPath = "./";
 		return;
