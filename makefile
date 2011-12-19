@@ -10,9 +10,9 @@ LIBS = -lSDLmain -lSDL -lGLEW -lGL
 
 IDIR = ./include
 OBJDIR = ./obj
-_OBJ := MotorRenderer.o MotorRoot.o MotorTimer.o MotorWorld.o MotorLogger.o
+_OBJ := MotorRenderer.o MotorRoot.o MotorTimer.o MotorWorld.o MotorLogger.o MotorFilesystem.o MotorShaderManager.o
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
-_DEPS = MotorRenderer.h MotorRoot.h MotorTimer.h MotorWorld.h MotorLogger.h Motor.h
+_DEPS = MotorRenderer.h MotorRoot.h MotorTimer.h MotorWorld.h MotorLogger.h MotorFilesystem.h MotorShaderManager.h Motor.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 MOTOR_TARGET = ./bin/libMotor.a
 

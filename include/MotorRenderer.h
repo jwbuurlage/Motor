@@ -1,6 +1,7 @@
 #pragma once
 
 namespace Motor {
+	class ShaderManager;
 
 	class Renderer {
 	public:
@@ -15,7 +16,13 @@ namespace Motor {
 		bool renderFrame();
 
 	private:
+		bool initialized;
 		int windowWidth, windowHeight;
+		ShaderManager* shaderManager;
+
+		//TODO: the application should decide what shaders to load
+		//Expose ShaderManager in a nice way to application
+		void loadShaders();
 	};
 
 }

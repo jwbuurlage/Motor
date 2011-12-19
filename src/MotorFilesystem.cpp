@@ -97,8 +97,9 @@ namespace Motor {
 		newFile->size = (unsigned int)filestream.tellg();
 		filestream.seekg(0, std::ios::beg);
 
-		//allocate memory
-		newFile->data = new char[newFile->size];
+		//allocate memory + 1 for terminating zero for text files
+		newFile->data = new char[newFile->size+1];
+		newFile->data[newFile->size] = 0;
 
 		filestream.read(newFile->data, newFile->size);
 

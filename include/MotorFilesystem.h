@@ -2,6 +2,9 @@
 //Virtual file system
 //Use this for all file access
 //All paths are relative to the applications directory
+//It will make sure all file data will be followed by at least one 0 in memory so text files are 0-terminated.
+
+//TODO: Functionality to iterate through (virtual) directory tree
 
 #pragma once
 #include <string>
@@ -13,6 +16,7 @@ namespace Motor {
 		char* data;
 		unsigned int size;
 	};
+	typedef const File* pFile;
 
 	class Filesystem
 	{
