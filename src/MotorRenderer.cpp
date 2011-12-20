@@ -67,33 +67,25 @@ namespace Motor {
 	}
 
 	void Renderer::loadShaders(){
-		shaderManager->makeShader("shadowMapVertex", ShaderManager::Vertex, "shaders/shadowMap.vsh");
-		shaderManager->makeShader("shadowMapFragment", ShaderManager::Fragment, "shaders/shadowMap.fsh");
-		shaderManager->makeShaderProgram("shadowMap", "shadowMapVertex", "shadowMapFragment");
+		shaderManager->makeShaderProgram("shadowMap", "shaders/shadowmap.vsh", "shaders/shadowmap.fsh");
 		shaderManager->bindAttrib("shadowMap", "position", AT_VERTEX);
 		shaderManager->linkProgram("shadowMap");
 
-		shaderManager->makeShader("stlVert", ShaderManager::Vertex, "shaders/shadowTextureLightning.vsh");
-		shaderManager->makeShader("stlFrag", ShaderManager::Fragment, "shaders/shadowTextureLightning.fsh");
-		shaderManager->makeShaderProgram("shadowTextureLightning", "stlVert", "stlFrag");
+		shaderManager->makeShaderProgram("shadowTextureLightning", "shaders/shadowtexturelightning.vsh", "shaders/shadowtexturelightning.fsh");
 		shaderManager->bindAttrib("shadowTextureLightning", "textureCoordinate", AT_TEXCOORD);
 		shaderManager->bindAttrib("shadowTextureLightning", "position", AT_VERTEX);
 		shaderManager->bindAttrib("shadowTextureLightning", "color", AT_COLOR);
 		shaderManager->bindAttrib("shadowTextureLightning", "normal", AT_NORMAL);
 		shaderManager->linkProgram("shadowTextureLightning");
 
-		shaderManager->makeShader("TLVertex", ShaderManager::Vertex, "shaders/texturelightning.vsh");
-		shaderManager->makeShader("TLFragment", ShaderManager::Fragment, "shaders/texturelightning.fsh");
-		shaderManager->makeShaderProgram("TextureLightning", "TLVertex", "TLFragment");
+		shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh");
 		shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);
 		shaderManager->bindAttrib("TextureLightning", "position", AT_VERTEX);
 		shaderManager->bindAttrib("TextureLightning", "color", AT_COLOR);
 		shaderManager->bindAttrib("TextureLightning", "normal", AT_NORMAL);
 		shaderManager->linkProgram("TextureLightning");
 
-		shaderManager->makeShader("OrthoVertex", ShaderManager::Vertex, "shaders/orthogonal.vsh");
-		shaderManager->makeShader("OrthoFragment", ShaderManager::Fragment, "shaders/orthogonal.fsh");
-		shaderManager->makeShaderProgram("Ortho", "OrthoVertex", "OrthoFragment");
+		shaderManager->makeShaderProgram("Ortho", "shaders/orthogonal.vsh", "shaders/orthogonal.fsh");
 		shaderManager->bindAttrib("Ortho", "textureCoordinate", AT_TEXCOORD);
 		shaderManager->bindAttrib("Ortho", "position", AT_VERTEX);
 		shaderManager->linkProgram("Ortho");

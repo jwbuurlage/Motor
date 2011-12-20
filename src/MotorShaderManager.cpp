@@ -139,13 +139,12 @@ namespace Motor {
 		}
 	}
 
-	int ShaderManager::makeShader(const char* shaderName, ShaderType type, const char* sourceFile){
+	ShaderManager::Shader* ShaderManager::makeShader(const char* shaderName, ShaderType type, const char* sourceFile){
 		Shader* newShader = new Shader(type);
-		int retval = 1;
-		retval &= newShader->load(sourceFile);
-		retval &= newShader->compile();
+		newShader->load(sourceFile);
+		newShader->compile();
 		shaders.insert(ShaderContainer::value_type(shaderName,newShader));
-		return retval;
+		return newShader;
 	}
 
 	void ShaderManager::createProgram(const char* programName){
@@ -165,10 +164,18 @@ namespace Motor {
 		}
 	}
 
-	void ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderName, const char* fragmentShaderName){
-		createProgram(programName);
-		attachShader(programName, vertexShaderName);
-		attachShader(programName, fragmentShaderName);
+	void ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile){
+		std::string vsName(programName);
+		vsName.append("Vertex");
+		std::string fsName(programName);
+		fsName.append("Fragment");
+		Shader* vsShader = makeShader(vsName.c_str(), Vertex, vertexShaderFile);
+		Shader* fsShader = makeShader(fsName.c_str(), Fragment, fragmentShaderFile);
+		
+		ShaderProgram* newProgram = new ShaderProgram();
+		shaderPrograms.insert(ShaderProgramContainer::value_type(programName, newProgram));
+		newProgram->attachShader(vsShader);
+		newProgram->attachShader(fsShader);
 	}
 
 	void ShaderManager::bindAttrib(const char* programName, const char* attribName, GLuint index){

@@ -66,16 +66,16 @@ namespace Motor {
 		ShaderManager();
 		~ShaderManager();
 		
-		//Making vertex/fragment shaders. This will load and compile
-		int makeShader(const char* shaderName, ShaderType type, const char* sourceFile);
 		
-		//Making programs with the shaders: the shaders must already be cread with makeShader
-		//use createProgram, attachShader if more than one vertex/fragment shader is needed
+		//Making programs with the shaders:
+		//use makeShader, createProgram, attachShader if more than one vertex/fragment shader is needed
 		//use makeShaderProgram if the program has one vertex and one fragment shader
 		//after both of these, do bindAttrib and then linkProgram
+		Shader* makeShader(const char* shaderName, ShaderType type, const char* sourceFile);
 		void createProgram(const char* programName);
 		void attachShader(const char* programName, const char* shaderName);
-		void makeShaderProgram(const char* programName, const char* vertexShaderName, const char* fragmentShaderName);
+
+		void makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile);
 
 		void bindAttrib(const char* programName, const char* attribName, GLuint index);
 		void linkProgram(const char* programName);

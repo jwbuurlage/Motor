@@ -42,8 +42,8 @@ namespace Motor {
 		if (_NSGetExecutablePath(path, &size) == 0){
 			std::string Directory(path);
 			applicationPath = Directory.substr(0, Directory.find_last_of('/') + 1);
-		}
-		applicationPath = "./";
+		}else
+			applicationPath = "./";
 		return;
 	}
 #elif __linux__
@@ -54,8 +54,8 @@ namespace Motor {
 		if( readlink("/proc/self/exe", path, 1024) > 0 ){
 			std::string Directory(path);
 			applicationPath = Directory.substr(0, Directory.find_last_of('/') + 1);
-		}
-		applicationPath = "./";
+		}else
+			applicationPath = "./";
 		return;
 	}
 #else
@@ -68,8 +68,9 @@ namespace Motor {
 
 	const File* Filesystem::getFile(std::string filename)
 	{
+		std::string formattedFilename(filename);
 		//Note: only works for ascii strings:
-		std::transform(filename.begin(), filename.end(), filename.begin(), tolower);
+		std::transform(formattedFilename.begin(), formattedFilename.end(), formattedFilename.begin(), tolower);
 
 		//TODO:
 		//First convert filename to some default format
@@ -77,13 +78,13 @@ namespace Motor {
 		//with a different syntax, it will only be loaded once
 		//Example: "./textures/tex.tga" should be converted to "textures/tex.tga"
 
-		fileIterator loadedFile = loadedFiles.find(filename);
+		fileIterator loadedFile = loadedFiles.find(formattedFilename);
 		if( loadedFile != loadedFiles.end() ){
 			return loadedFile->second;
 		}
 
 		std::string path(applicationPath);
-		path.append(filename);
+		path.append(formattedFilename);
 		std::ifstream filestream;
 		filestream.open( path.c_str(), std::ios::binary );
 		if( filestream.is_open() == false ){
