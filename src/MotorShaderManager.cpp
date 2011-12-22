@@ -140,6 +140,8 @@ namespace Motor {
 	}
 
 	ShaderManager::Shader* ShaderManager::makeShader(const char* shaderName, ShaderType type, const char* sourceFile){
+		ShaderContainer::iterator shader = shaders.find(shaderName);
+		if( shader != shaders.end() ) return shader->second;
 		Shader* newShader = new Shader(type);
 		newShader->load(sourceFile);
 		newShader->compile();
@@ -165,12 +167,9 @@ namespace Motor {
 	}
 
 	void ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile){
-		std::string vsName(programName);
-		vsName.append("Vertex");
-		std::string fsName(programName);
-		fsName.append("Fragment");
-		Shader* vsShader = makeShader(vsName.c_str(), Vertex, vertexShaderFile);
-		Shader* fsShader = makeShader(fsName.c_str(), Fragment, fragmentShaderFile);
+		//Create the shaders with filename as name
+		Shader* vsShader = makeShader(vertexShaderFile, Vertex, vertexShaderFile);
+		Shader* fsShader = makeShader(fragmentShaderFile, Fragment, fragmentShaderFile);
 		
 		ShaderProgram* newProgram = new ShaderProgram();
 		shaderPrograms.insert(ShaderProgramContainer::value_type(programName, newProgram));
