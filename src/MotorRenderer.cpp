@@ -3,6 +3,9 @@
 #include "MotorLogger.h"
 #include <GL/glew.h>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 //Vertex attribute enums
 //See: http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/attributes.php
 //enums for the uniforms and attributes
@@ -43,6 +46,20 @@ namespace Motor {
 		shaderManager = new ShaderManager;
 		loadShaders();
 
+		//Set OpenGL settings
+		glShadeModel(GL_SMOOTH);	
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	
+		glClearDepth(1.0);
+		glEnable(GL_CULL_FACE);
+
+		glViewport(0, 0, (GLsizei)windowWidth, (GLsizei)windowHeight);
+		generateProjectionMatrix();
+
+		//Get graphical settings from setting class (TODO: SettingManager)
+		shadowsEnabled = true;
+
 		initialized = true;
 		return 1;
 	}
@@ -60,9 +77,33 @@ namespace Motor {
 	}
 
 	bool Renderer::renderFrame(){
-		glClearColor(0.0f, 0.5f, 0.0f, 1.0f);
-		glClearDepth(1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//
+		// Three render steps:
+		// 1. Render scene looking from the light for shadow maps
+		// 2. Render scene from camera with shadow maps applied
+		// 3. Call render callbacks: the user interface will register a callback in which it can use
+		//		functions from Renderer to draw UI elements.
+		//
+
+		//
+		//Step 1
+		//
+		if( shadowsEnabled ){
+
+
+		}
+
+		//
+		//Step 2
+		//
+		
+
+		//
+		//Step 3
+		//
+
 		return true;
 	}
 
@@ -91,4 +132,11 @@ namespace Motor {
 		shaderManager->linkProgram("Ortho");
 	}
 
+	void Renderer::generateProjectionMatrix(){
+		float invAspect = (float)windowHeight / (float)windowWidth;
+		float near = 2.0f, far = 80.0f, fov = 60.0f * M_PI/360.0f;
+		float xmax = near * (float)tan(fov);
+		float xmin = -xmax;
+		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);
+	}
 }

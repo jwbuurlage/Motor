@@ -1,4 +1,5 @@
 #pragma once
+#include "matrix.h"
 
 namespace Motor {
 	class ShaderManager;
@@ -23,6 +24,14 @@ namespace Motor {
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application
 		void loadShaders();
+
+		//Matrices that are the same for all frames are saved
+		mat projectionMatrix;
+		mat viewMatrix;
+		void generateProjectionMatrix();
+
+		//Graphical settings
+		bool shadowsEnabled;
 	};
 
 }
