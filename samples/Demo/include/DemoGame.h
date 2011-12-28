@@ -8,18 +8,32 @@
  * 
  */
 #pragma once
+#include "Motor.h"
 
 namespace Demo {
 	
-	class Game {
+	class Game : public Motor::InputListener {
 	public:
 		Game();
 		~Game();
 		
 		void run(); 
 		
-	private:	
-		
+		bool keyDown(int key, bool keyDown);
+		bool mouseDown(Motor::MOUSEBUTTON button, bool buttonDown, int x, int y);
+		bool mouseMoved(int x, int y, int dx, int dy);
+
+	private:
+		Motor::Root* motorRoot;
+
+		//mouse state
+		bool mDraggingLeftMouse;
+		bool mDraggingRightMouse;
+		//For key movement
+		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown;
+		Vector3 getMoveDir();
+
+		Motor::SceneObject* controlledObject;
 	};
 	
 }

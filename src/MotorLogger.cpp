@@ -5,7 +5,6 @@
 
 namespace Motor {
 
-	Logger logger;
 	template<> Logger* Singleton<Logger>::singleton = 0;
 
 	Logger::Logger(void)

@@ -8,16 +8,10 @@
  * 
  */
 
-#include "Motor.h"
 #include "DemoGame.h"
 
 int main() {
-	Motor::Root root;
 	Demo::Game game;
-	root.initialize();
-	Motor::SceneObject* obj = root.getScene()->createObject();
-	obj->mesh = Motor::MeshManager::getSingleton().getMesh("default");
-	root.startRendering();
-	root.cleanup();
+	game.run();
 	return 0;
 }

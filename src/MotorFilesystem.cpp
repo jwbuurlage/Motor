@@ -5,7 +5,6 @@
 namespace Motor {
 	
 	template<> Filesystem* Singleton<Filesystem>::singleton = 0;
-	Filesystem filesystem;
 
 	Filesystem::Filesystem()
 	{

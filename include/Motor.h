@@ -12,3 +12,4 @@
 #include "MotorScene.h"
 #include "MotorSceneObject.h"
 #include "MotorMeshManager.h"
+#include "MotorCamera.h"

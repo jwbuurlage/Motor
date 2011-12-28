@@ -12,9 +12,17 @@ namespace Motor {
 		minCamDist = 3.0f;
 		maxCamDist = 50.0f;
 		freeYaw = false;
+		yaw = 0.0f;
+		pitch = 0.0f;
 	}
 
 	Camera::~Camera(){
+	}
+
+	void Camera::rotateCamera(float Yaw, float Pitch){
+		yaw += Yaw, 
+		pitch += Pitch;
+		updateMatrix = true;
 	}
 
 	bool Camera::updateViewMatrix(mat* outMatrix){

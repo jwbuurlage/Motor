@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "MotorSingleton.h"
+#include <vector>
 
 //forward declarations to avoid unnecessary includes
 struct SDL_Surface;
@@ -20,6 +21,20 @@ namespace Motor {
 	class MaterialManager;
 	class MeshManager;
 	class Timer;
+	class Logger;
+	class Filesystem;
+
+	//These are the constants as SDL uses them, do not change
+	typedef enum { BUTTON_LEFT = 1, BUTTON_MIDDLE, BUTTON_RIGHT, BUTTON_WHEELUP, BUTTON_WHEELDOWN } MOUSEBUTTON;
+
+	//Subclass this to receive input
+	class InputListener{
+	public:
+		//When returning false, next listener will be called. When returning true, the chain stops.
+		virtual bool keyDown(int key, bool keyDown){ return false; }
+		virtual bool mouseDown(MOUSEBUTTON button, bool buttonDown, int x, int y){ return false; }
+		virtual bool mouseMoved(int x, int y, int dx, int dy){ return false; }
+	};
 	
 	class Root : public Singleton<Root> {
 	public:
@@ -32,15 +47,26 @@ namespace Motor {
 		void startRendering(); //use with FrameListeners
 		bool renderOneFrame();
 
+		//TODO: Extra arguments like APPEND_LAST or FRONT or CALL_ALWAYS or something??
+		void addInputListener(InputListener* listener);
+		void removeInputListener(InputListener* listener);
+
 		Scene* getScene(){ return currentScene; }
 		Renderer* getRenderer(){ return renderer; }
 	private:
+		Logger* const logger;
+		Filesystem* const filesystem;
 		Timer* const timer;
 		Renderer* const renderer;
 		TextureManager* const textureManager;
 		MaterialManager* const materialManager;
 		MeshManager* const meshManager;
 		Scene* currentScene;
+
+		std::vector<InputListener*> inputListeners;
+		void keyDown(int key, bool KeyDown);
+		void mouseDown(MOUSEBUTTON button, bool KeyDown, int x, int y);
+		void mouseMoved(int x, int y, int dx, int dy);
 
 		bool SDLinitialized;
 		SDL_Surface* surface;

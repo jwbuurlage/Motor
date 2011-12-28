@@ -13,6 +13,9 @@ namespace Motor {
 
 		//Only for initialization. This is the look-at position of the camera.
 		void setPosition( const Vector3& CamPos ){ position = CamPos; updateMatrix = true; }
+		const Vector3& getPosition() const { return position; }
+		float getYaw() const { return yaw; }
+		float getPitch() const { return pitch; }
 
 		//To make the camera stay looking at an object smoothly,
 		//call setTargetLocation every frame with the object as location

@@ -7,6 +7,7 @@
 #include "MotorMeshManager.h"
 #include "MotorTimer.h"
 #include "MotorLogger.h"
+#include "MotorFilesystem.h"
 #include <SDL/SDL.h>
 #include <sstream>
 
@@ -14,7 +15,9 @@ namespace Motor {
 
 	template<> Root* Singleton<Root>::singleton = 0;
 
-	Root::Root() : timer(new Timer),
+	Root::Root() : logger(new Logger),
+					filesystem(new Filesystem),
+					timer(new Timer),
 					renderer(new Renderer),
 					textureManager(new TextureManager),
 					materialManager(new MaterialManager),
@@ -27,8 +30,11 @@ namespace Motor {
 		cleanup();
 		delete timer;
 		delete renderer;
+		delete meshManager;
 		delete materialManager;
 		delete textureManager;
+		delete filesystem;
+		delete logger;
 	}
 
 	int Root::initialize()
@@ -63,6 +69,8 @@ namespace Motor {
 
 	void Root::cleanup()
 	{
+		inputListeners.clear();
+
 		if( currentScene ){
 			currentScene->cleanup();
 			delete currentScene;
@@ -96,15 +104,15 @@ namespace Motor {
 				switch( Event.type ){
 				case SDL_KEYDOWN:
 				case SDL_KEYUP:
-					//mInputHandler->KeyDown( Event.key.keysym.sym , Event.key.state == SDL_PRESSED );
+					keyDown( Event.key.keysym.sym , Event.key.state == SDL_PRESSED );
 					break;
 				case SDL_MOUSEMOTION:
-					//mInputHandler->MouseMoved( Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel );
+					mouseMoved( Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel );
 					//mRenderer->SetMousePosition( Event.motion.x, Event.motion.y );
 					break;
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_MOUSEBUTTONUP:
-					//mInputHandler->MouseDown( Event.button.button, Event.button.state == SDL_PRESSED, Event.button.x, Event.button.y );
+					mouseDown( (MOUSEBUTTON)Event.button.button, Event.button.state == SDL_PRESSED, Event.button.x, Event.button.y );
 					break;
 				case SDL_QUIT:
 					running = false;
@@ -153,6 +161,35 @@ namespace Motor {
 		renderer->renderFrame();
 		SDL_GL_SwapBuffers();
 		return renderer->checkErrors();
+	}
+
+	void Root::addInputListener(InputListener* listener)
+	{
+		inputListeners.push_back(listener);
+	}
+
+	void Root::removeInputListener(InputListener* listener)
+	{
+		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ){
+			if( *it == listener ) it = inputListeners.erase(it);
+			else ++it;
+		}
+	}
+
+	void Root::keyDown(int key, bool KeyDown){
+		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ++it )
+			if( (*it)->keyDown(key, KeyDown) == true ) break;
+
+	}
+
+	void Root::mouseDown(MOUSEBUTTON button, bool KeyDown, int x, int y){
+		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ++it )
+			if( (*it)->mouseDown(button, KeyDown, x, y) == true ) break;
+	}
+
+	void Root::mouseMoved(int x, int y, int dx, int dy){
+		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ++it )
+			if( (*it)->mouseMoved(x,y, dx, dy) == true ) break;
 	}
 
 }
