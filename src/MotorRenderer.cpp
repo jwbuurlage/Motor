@@ -1,7 +1,12 @@
 #include "MotorRenderer.h"
 #include "MotorShaderManager.h"
 #include "MotorLogger.h"
+#include "MotorSceneObject.h"
+#include "MotorMesh.h"
+#include "MotorMaterial.h"
+#include "MotorTexture.h"
 #include <GL/glew.h>
+#include <sstream>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -31,6 +36,9 @@ namespace Motor {
 	}
 
 	int Renderer::initialize(int width, int height){
+		windowWidth = width;
+		windowHeight = height;
+
 		if( initialized ){
 			Logger::getSingleton().log(Logger::WARNING, "Renderer already initializedd");
 			return 1;
@@ -70,10 +78,20 @@ namespace Motor {
 		return;
 	}
 
-	void Renderer::setWindowSize(int width, int height)
-	{
+	void Renderer::setWindowSize(int width, int height){
 		windowWidth = width;
 		windowHeight = height;
+	}
+
+	bool Renderer::checkErrors(){
+		GLenum err = glGetError();
+		if( err ){
+			std::stringstream errorText;
+			errorText << "OpenGL error occured. Code: " << err;
+			Logger::getSingleton().log(Logger::ERROR, errorText.str().c_str() );
+			return false;
+		}
+		return true;
 	}
 
 	bool Renderer::renderFrame(){
@@ -98,13 +116,90 @@ namespace Motor {
 		//
 		//Step 2
 		//
-		
+		Vector3 lightPos(2.0f, 3.0f, 4.0f);
+		shaderManager->setActiveProgram("TextureLightning");
+		shaderManager->getActiveProgram()->setUniform1i("tex", 0);
+		shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos);
+		for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
+			drawObject( *iter );
+		}
 
 		//
 		//Step 3
 		//
 
 		return true;
+	}
+
+	void Renderer::drawObject(SceneObject* obj){
+		const Mesh* mesh = obj->mesh;
+		if( mesh == 0 ) return;
+
+		mat mMatrix, mvpMatrix;
+
+		//Rotate: first roll, then pitch, then yaw
+		mMatrix.setRotationZ(obj->roll);
+		mMatrix.rotateX(obj->pitch);
+		mMatrix.rotateY(obj->yaw);
+		mMatrix.scale(obj->scale);
+		mMatrix.translate(obj->position);
+
+		mvpMatrix = projectionMatrix * viewMatrix * mMatrix;
+
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", mvpMatrix);
+
+		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+
+		shaderManager->getActiveProgram()->vertexAttribPointer(
+			"position",
+			mesh->dimension,
+			mesh->vertexBufferDataType,
+			false,
+			mesh->stride,
+			mesh->vertexOffset);
+
+		if( mesh->hasColor )
+			shaderManager->getActiveProgram()->vertexAttribPointer(
+				"color",
+				4,
+				mesh->vertexBufferDataType,
+				false,
+				mesh->stride,
+				(GLvoid*)12);
+
+		if( mesh->hasNormal )
+			shaderManager->getActiveProgram()->vertexAttribPointer(
+				"normal",
+				3,
+				mesh->vertexBufferDataType,
+				false,
+				mesh->stride,
+				(GLvoid*)28);
+
+		if( mesh->material ){
+			glEnable(GL_TEXTURE_2D);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mesh->material->texture->handle);
+			shaderManager->getActiveProgram()->vertexAttribPointer(
+				"textureCoordinate",
+				2,
+				mesh->vertexBufferDataType,
+				false,
+				mesh->stride,
+				(GLvoid*)40);
+		}else{
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		if( mesh->hasIndexBuffer ){
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+			glDrawElements(mesh->primitiveType, mesh->indexCount, mesh->indexBufferDataType, 0);
+		}else{
+			glDrawArrays(mesh->primitiveType, 0, mesh->vertexCount);
+		}
+
+		return;
 	}
 
 	void Renderer::loadShaders(){
@@ -134,7 +229,7 @@ namespace Motor {
 
 	void Renderer::generateProjectionMatrix(){
 		float invAspect = (float)windowHeight / (float)windowWidth;
-		float near = 2.0f, far = 80.0f, fov = 60.0f * M_PI/360.0f;
+		float near = 2.0f, far = 80.0f, fov = 60.0f * (float)M_PI/360.0f;
 		float xmax = near * (float)tan(fov);
 		float xmin = -xmax;
 		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);

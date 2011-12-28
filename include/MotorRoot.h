@@ -8,15 +8,20 @@
  * 
  */
 #pragma once
+#include "MotorSingleton.h"
 
 //forward declarations to avoid unnecessary includes
 struct SDL_Surface;
 
 namespace Motor {
 	class Renderer;
+	class Scene;
+	class TextureManager;
+	class MaterialManager;
+	class MeshManager;
 	class Timer;
 	
-	class Root {
+	class Root : public Singleton<Root> {
 	public:
 		Root();
 		~Root();
@@ -27,9 +32,17 @@ namespace Motor {
 		void startRendering(); //use with FrameListeners
 		bool renderOneFrame();
 
+		Scene* getScene(){ return currentScene; }
+		Renderer* getRenderer(){ return renderer; }
 	private:
-		Renderer* const renderer;
 		Timer* const timer;
+		Renderer* const renderer;
+		TextureManager* const textureManager;
+		MaterialManager* const materialManager;
+		MeshManager* const meshManager;
+		Scene* currentScene;
+
+		bool SDLinitialized;
 		SDL_Surface* surface;
 	};
 

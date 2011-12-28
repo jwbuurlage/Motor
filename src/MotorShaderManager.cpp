@@ -4,6 +4,8 @@
 
 namespace Motor {
 
+	template<> ShaderManager* Singleton<ShaderManager>::singleton = 0;
+
 	//
 	// ShaderManager::Shader methods
 	//

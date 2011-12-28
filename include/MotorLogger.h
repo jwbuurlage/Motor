@@ -1,18 +1,17 @@
 //Singleton
 
 #pragma once
+#include "MotorSingleton.h"
 
 namespace Motor {
 
-	class Logger
+	class Logger : public Singleton<Logger>
 	{
 	public:
 		Logger();
 		~Logger();
 
 		enum LOGTYPE{ NONE=0, INFO, WARNING, ERROR, CRITICALERROR };
-
-		static Logger& getSingleton();
 
 		//TODO
 		//support for << operator, with special-end-line so logger knows when error ends

@@ -1,4 +1,5 @@
 #pragma once
+#include "MotorSingleton.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -6,7 +7,7 @@
 
 namespace Motor {
 
-	class ShaderManager  {
+	class ShaderManager : public Singleton<ShaderManager> {
 	public:
 		enum ShaderType{ Vertex, Fragment };
 

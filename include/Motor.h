@@ -9,3 +9,6 @@
  */
 
 #include "MotorRoot.h"
+#include "MotorScene.h"
+#include "MotorSceneObject.h"
+#include "MotorMeshManager.h"

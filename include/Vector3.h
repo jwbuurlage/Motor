@@ -19,6 +19,7 @@ public:
 	Vector3( const float scaler ) : x(scaler), y(scaler), z(scaler) {}
 	~Vector3(void){}
 
+	inline operator float*(){ return &x; }
 
 	inline float operator [] ( const int i ) const { return *(&x+i); }
 	inline float& operator [] ( const int i ) { return *(&x+i); }

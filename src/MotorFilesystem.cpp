@@ -2,9 +2,10 @@
 #include <fstream>
 #include <algorithm>
 
-Motor::Filesystem filesystemSingleton;
-
 namespace Motor {
+	
+	template<> Filesystem* Singleton<Filesystem>::singleton = 0;
+	Filesystem filesystem;
 
 	Filesystem::Filesystem()
 	{
@@ -14,11 +15,6 @@ namespace Motor {
 	Filesystem::~Filesystem()
 	{
 		unloadAllFiles();
-	}
-
-	Filesystem& Filesystem::getSingleton()
-	{
-		return filesystemSingleton;
 	}
 
 	//getApplicationPath

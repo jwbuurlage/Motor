@@ -7,6 +7,7 @@
 //TODO: Functionality to iterate through (virtual) directory tree
 
 #pragma once
+#include "MotorSingleton.h"
 #include <string>
 #include <map>
 
@@ -18,13 +19,11 @@ namespace Motor {
 	};
 	typedef const File* pFile;
 
-	class Filesystem
+	class Filesystem : public Singleton<Filesystem>
 	{
 	public:
 		Filesystem();
 		~Filesystem();
-
-		static Filesystem& getSingleton();
 
 		//With / appended
 		const std::string getApplicationPath(){ return applicationPath; }

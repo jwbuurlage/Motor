@@ -1,5 +1,5 @@
 #include "matrix.h"
-#include "Vector3.h"
+#include "vector3.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -60,26 +60,15 @@ Vector3 mat::multiplyVecDivideW(const Vector3& vec){
 	return result;
 }
 
-//mat& mat::scale(float f) {
-//	for(int i = 0; i < 3; ++i){
-//		for( int j = 0; j < 3; ++j ){
-//			e[i][j] *= f;
-//		}
-//	}
-//}
-//
-//mat& mat::setScale(float f) {
-//    setIdentity();
-//    e[0][0] = f;
-//    e[1][1] = f;
-//    e[2][2] = f;
-//}
-
 mat& mat::translate(float x, float y, float z) {
     e[3][0] += x;
     e[3][1] += y;
     e[3][2] += z;
 	return *this;
+}
+
+mat& mat::translate(const Vector3& vec){
+	return translate(vec.x, vec.y, vec.z);
 }
 
 mat& mat::setTranslation(float x, float y, float z) {
@@ -92,6 +81,15 @@ mat& mat::setTranslation(float x, float y, float z) {
 
 mat& mat::setTranslation(const Vector3& vec){
 	return setTranslation(vec.x, vec.y, vec.z);
+}
+
+mat& mat::scale(float f) {
+	for(int i = 0; i < 3; ++i){
+		for( int j = 0; j < 3; ++j ){
+			e[i][j] *= f;
+		}
+	}
+	return *this;
 }
 
 //------------------------

@@ -44,8 +44,11 @@ public:
 	mat operator * (const mat& m) const;
 	
 	mat& translate(float x, float y, float z);
+	mat& translate(const Vector3& vec);
 	mat& setTranslation(float x, float y, float z);
 	mat& setTranslation(const Vector3& vec);
+
+	mat& scale(float f);
 	
 	mat& setRotationX(float pitch);
 	mat& setRotationY(float yaw);
