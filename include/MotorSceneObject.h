@@ -27,13 +27,17 @@ namespace Motor {
 		bool visible;
 		float scale;
 
-		const Mesh* mesh;
-		//TODO:
-		//pointer to animation state object (contains bone positions and so on)
+		//TODO: reference system? mesh->addRef();
+		void setMesh(const Mesh* _mesh){ mesh = _mesh; }
+		const Mesh* getMesh() const { return mesh; }
 
 	private: //Private constructor/deconstructor so only Scene can create/destroy objects
 		friend class Scene;
 		SceneObject();
 		~SceneObject(void);
+
+		const Mesh* mesh;
+		//TODO:
+		//pointer to animation state object (contains bone positions and so on)
 	};
 }

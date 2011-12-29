@@ -9,16 +9,19 @@
  */
 #pragma once
 #include "Motor.h"
+#include "DemoPlayer.h"
 
 namespace Demo {
 	
-	class Game : public Motor::InputListener {
+	class Game : public Motor::InputListener, public Motor::FrameListener {
 	public:
 		Game();
 		~Game();
 		
 		void run(); 
 		
+		void onFrame(float elapsedTime);
+
 		bool keyDown(int key, bool keyDown);
 		bool mouseDown(Motor::MOUSEBUTTON button, bool buttonDown, int x, int y);
 		bool mouseMoved(int x, int y, int dx, int dy);
@@ -27,13 +30,13 @@ namespace Demo {
 		Motor::Root* motorRoot;
 
 		//mouse state
-		bool mDraggingLeftMouse;
-		bool mDraggingRightMouse;
+		bool draggingLeftMouse;
+		bool draggingRightMouse;
 		//For key movement
 		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown;
 		Vector3 getMoveDir();
 
-		Motor::SceneObject* controlledObject;
+		Player* localPlayer;
 	};
 	
 }

@@ -35,6 +35,13 @@ namespace Motor {
 		virtual bool mouseDown(MOUSEBUTTON button, bool buttonDown, int x, int y){ return false; }
 		virtual bool mouseMoved(int x, int y, int dx, int dy){ return false; }
 	};
+
+	//Subclass to be called every frame
+	class FrameListener{
+	public:
+		//Time is since previous frame
+		virtual void onFrame(float elapsedTime){ return; }
+	};
 	
 	class Root : public Singleton<Root> {
 	public:
@@ -51,6 +58,9 @@ namespace Motor {
 		void addInputListener(InputListener* listener);
 		void removeInputListener(InputListener* listener);
 
+		void addFrameListener(FrameListener* listener);
+		void removeFrameListener(FrameListener* listener);
+
 		Scene* getScene(){ return currentScene; }
 		Renderer* getRenderer(){ return renderer; }
 	private:
@@ -63,6 +73,7 @@ namespace Motor {
 		MeshManager* const meshManager;
 		Scene* currentScene;
 
+		std::vector<FrameListener*> frameListeners;
 		std::vector<InputListener*> inputListeners;
 		void keyDown(int key, bool KeyDown);
 		void mouseDown(MOUSEBUTTON button, bool KeyDown, int x, int y);

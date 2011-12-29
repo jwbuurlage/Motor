@@ -60,6 +60,7 @@ namespace Motor {
 		meshManager->initialize();
 
 		currentScene = new Scene;
+		addFrameListener(currentScene);
 		currentScene->initialize();
 
 		renderer->checkErrors();
@@ -133,8 +134,10 @@ namespace Motor {
 				frameTime = 0;
 			}
 
-			//TODO: Add scene as a framelistener!
-			currentScene->update(elapsedTime);
+			//Call frame listeners
+			for( std::vector<FrameListener*>::iterator it = frameListeners.begin(); it != frameListeners.end(); ++it ){
+				(*it)->onFrame( elapsedTime );
+			}
 
 			if( renderOneFrame() == false ) break;
 		}
@@ -142,10 +145,6 @@ namespace Motor {
 
 	bool Root::renderOneFrame()
 	{
-		//Call frame listeners
-		//for(iterator herp = derp)
-		//	framelistener->preFrame(elapsedTime);
-
 		//Do this every frame because currentScene might switch
 		if( currentScene ){
 			renderer->setObjectList(currentScene->getObjectList());
@@ -172,6 +171,19 @@ namespace Motor {
 	{
 		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ){
 			if( *it == listener ) it = inputListeners.erase(it);
+			else ++it;
+		}
+	}
+
+	void Root::addFrameListener(FrameListener* listener)
+	{
+		frameListeners.push_back(listener);
+	}
+
+	void Root::removeFrameListener(FrameListener* listener)
+	{
+		for( std::vector<FrameListener*>::iterator it = frameListeners.begin(); it != frameListeners.end(); ){
+			if( *it == listener ) it = frameListeners.erase(it);
 			else ++it;
 		}
 	}

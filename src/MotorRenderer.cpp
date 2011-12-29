@@ -132,7 +132,7 @@ namespace Motor {
 	}
 
 	void Renderer::drawObject(SceneObject* obj){
-		const Mesh* mesh = obj->mesh;
+		const Mesh* mesh = obj->getMesh();
 		if( mesh == 0 ) return;
 
 		mat mMatrix, mvpMatrix;

@@ -1,5 +1,6 @@
 //Scene manager, holds objects
 #pragma once
+#include "MotorRoot.h"
 #include <list>
 
 namespace Motor {
@@ -18,7 +19,7 @@ namespace Motor {
 	typedef std::list<Light*> LightContainer;
 	typedef LightContainer::iterator LightIterator;
 
-	class Scene{
+	class Scene : public FrameListener{
 	public:
 		Scene();
 		~Scene();
@@ -28,7 +29,7 @@ namespace Motor {
 		void cleanup();
 		
 		//update all objects
-		void update(float elapsedTime);
+		void onFrame(float elapsedTime);
 
 		//creating objects
 		SceneObject* createObject();

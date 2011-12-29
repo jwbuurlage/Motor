@@ -12,23 +12,39 @@
 namespace Demo {
 	Game::Game(){
 		motorRoot = 0;
+		localPlayer = 0;
+
+		draggingLeftMouse = false;
+		draggingRightMouse = false;
+		goingForward = goingBackward = goingLeft = goingRight = goingUp = goingDown = false;
 	}
 
 	Game::~Game(){
 		if( motorRoot ) delete motorRoot;
 		motorRoot = 0;
+		if( localPlayer ) delete localPlayer;
+		localPlayer = 0;
 	}
 
 	void Game::run(){
 		if( motorRoot == 0 ) motorRoot = new Motor::Root;
 		motorRoot->initialize();
 		motorRoot->addInputListener(this);
+		motorRoot->addFrameListener(this);
 
-		controlledObject = motorRoot->getScene()->createObject();
-		controlledObject->mesh = Motor::MeshManager::getSingleton().getMesh("default");
+		if( localPlayer == 0 ) localPlayer = new Player;
+		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
+		localPlayer->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
 
 		motorRoot->startRendering();
 		motorRoot->cleanup();
+		return;
+	}
+
+	void Game::onFrame(float elapsedTime){
+		if( localPlayer ){
+			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
+		}
 		return;
 	}
 
@@ -52,7 +68,7 @@ namespace Demo {
 		}
 
 		if( DirectionChanged ){
-			if( controlledObject ){
+			if( localPlayer ){
 				Vector3 moveDir(0.0f);
 				if( goingForward ) moveDir.z -= 1.0f;
 				if( goingBackward ) moveDir.z += 1.0f;
@@ -63,7 +79,7 @@ namespace Demo {
 				moveDir.normalise();
 				Motor::Camera* cam = motorRoot->getScene()->getCamera();
 				if( cam ) moveDir.rotateY(cam->getYaw());
-				//controlledObject->movement = moveDir * 10.0f; //10 units per second. should be taken from object->movespeed ?
+				localPlayer->movement = moveDir * 10.0f; //10 units per second. should be taken from player->movespeed ?
 			}
 		}
 		return keyHandled;
@@ -73,9 +89,9 @@ namespace Demo {
 	bool Game::mouseDown(Motor::MOUSEBUTTON button, bool buttonDown, int x, int y){
 		//TODO: Send to UI manager and see if it was handled. If not, then do this:
 		if( button == Motor::BUTTON_LEFT ){
-			mDraggingLeftMouse = (buttonDown == true);
+			draggingLeftMouse = (buttonDown == true);
 		}else if( button == Motor::BUTTON_RIGHT ){
-			mDraggingRightMouse = (buttonDown == true);
+			draggingRightMouse = (buttonDown == true);
 		}else if( button == Motor::BUTTON_WHEELUP ){
 			Motor::Camera* cam = motorRoot->getScene()->getCamera();
 			if( cam ) cam->camZoomSpeed -= 5.0f;
@@ -94,7 +110,7 @@ namespace Demo {
 		//		object->pitch -= (float)dy / 300.0f;
 		//	}
 		//}
-		if( mDraggingRightMouse ){
+		if( draggingRightMouse ){
 			Motor::Camera* cam = motorRoot->getScene()->getCamera();
 			if( cam ){
 				cam->rotateCamera( -(float)dx/250.0f, -(float)dy/250.0f );
