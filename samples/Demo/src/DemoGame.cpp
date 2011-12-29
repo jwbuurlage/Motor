@@ -13,6 +13,10 @@ namespace Demo {
 	Game::Game(){
 		motorRoot = 0;
 		localPlayer = 0;
+		mainLights[0] = 0;
+		mainLights[1] = 0;
+		tempObjects[0] = 0;
+		tempObjects[1] = 0;
 
 		draggingLeftMouse = false;
 		draggingRightMouse = false;
@@ -36,6 +40,17 @@ namespace Demo {
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		localPlayer->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
 
+		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
+		if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
+		tempLightTimer = 0.0f;
+
+		if( tempObjects[0] == 0 ) tempObjects[0] = motorRoot->getScene()->createObject();
+		if( tempObjects[1] == 0 ) tempObjects[1] = motorRoot->getScene()->createObject();
+		tempObjects[0]->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+		tempObjects[0]->scale = 0.2f;
+		tempObjects[1]->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+		tempObjects[1]->scale = 0.2f;
+
 		motorRoot->startRendering();
 		motorRoot->cleanup();
 		return;
@@ -44,6 +59,21 @@ namespace Demo {
 	void Game::onFrame(float elapsedTime){
 		if( localPlayer ){
 			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
+		}
+		tempLightTimer += elapsedTime;
+		if( mainLights[0] ){
+			mainLights[0]->position.x = 3.0f*sin(tempLightTimer);
+			mainLights[0]->position.z = 2.0f*cos(tempLightTimer);
+			if( tempObjects[0] ){
+				tempObjects[0]->position = mainLights[0]->position;
+			}
+		}
+		if( mainLights[1] ){
+			mainLights[1]->position.x = 1.5f*sin(tempLightTimer*2.0f);
+			mainLights[1]->position.y = 4.0f*cos(tempLightTimer*2.0f);
+			if( tempObjects[1] ){
+				tempObjects[1]->position = mainLights[1]->position;
+			}
 		}
 		return;
 	}

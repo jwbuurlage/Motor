@@ -11,5 +11,6 @@
 #include "MotorRoot.h"
 #include "MotorScene.h"
 #include "MotorSceneObject.h"
+#include "MotorLight.h"
 #include "MotorMeshManager.h"
 #include "MotorCamera.h"

@@ -47,7 +47,7 @@ namespace Motor {
 
 	Light* Scene::createLight(){
 		if( lights.size() > 8 ){
-			Logger::getSingleton().log(Logger::WARNING, "More than 8 lights created. Might be slow.");
+			Logger::getSingleton().log(Logger::WARNING, "Can not create more than 8 lights!");
 		}
 		Light* light = new Light;
 		lights.push_back(light);

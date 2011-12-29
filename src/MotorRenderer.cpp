@@ -2,6 +2,7 @@
 #include "MotorShaderManager.h"
 #include "MotorLogger.h"
 #include "MotorSceneObject.h"
+#include "MotorLight.h"
 #include "MotorMesh.h"
 #include "MotorMaterial.h"
 #include "MotorTexture.h"
@@ -99,7 +100,7 @@ namespace Motor {
 
 		//
 		// Three render steps:
-		// 1. Render scene looking from the light for shadow maps
+		// 1. Render scene looking from the lights for shadow maps
 		// 2. Render scene from camera with shadow maps applied
 		// 3. Call render callbacks: the user interface will register a callback in which it can use
 		//		functions from Renderer to draw UI elements.
@@ -116,10 +117,20 @@ namespace Motor {
 		//
 		//Step 2
 		//
-		Vector3 lightPos(2.0f, 3.0f, 4.0f);
 		shaderManager->setActiveProgram("TextureLightning");
 		shaderManager->getActiveProgram()->setUniform1i("tex", 0);
-		shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos);
+		//TODO: get the 8 closests lights!
+		int lightCounter = 0;
+		for( LightIterator iter = lights->begin(); iter != lights->end(); ++iter ){
+			if( (*iter)->enabled ){
+				std::stringstream varname;
+				varname << "lightPosition[" << lightCounter << "]";
+				shaderManager->getActiveProgram()->setUniform3fv(varname.str().c_str(), (*iter)->position );
+				++lightCounter;
+			}
+		}
+		shaderManager->getActiveProgram()->setUniform1i("lightCount", lightCounter);
+
 		for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
 			drawObject( *iter );
 		}
