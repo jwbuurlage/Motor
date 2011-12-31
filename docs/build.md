@@ -16,7 +16,7 @@ $ cd build/
 $ cmake ..
 $ make
 
-If you're still inside the buid folder, you may now run the Demo generated:
+If you're still inside the build folder, you may now run the Demo generated:
 
 $ ./samples/Demo/Demo
 
