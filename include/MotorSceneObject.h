@@ -12,7 +12,7 @@
 //objects may only be created with Scene::createObject
 
 #pragma once
-#include "vector3.h"
+#include "Vector3.h"
 
 namespace Motor {
 

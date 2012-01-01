@@ -1,5 +1,5 @@
 #include "matrix.h"
-#include "vector3.h"
+#include "Vector3.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
