@@ -45,6 +45,7 @@ namespace Motor {
 		cubeModel->setMesh( MeshManager::getSingleton().getMesh("default") );
 		cubeModel->setMaterial( MaterialManager::getSingleton().getMaterial("default") );
 		addResource("default", cubeModel);
+<<<<<<< HEAD
         
         Model* sphereModel = new Model;
 		sphereModel->setMesh( MeshManager::getSingleton().getMesh("sphere") );
@@ -56,6 +57,8 @@ namespace Motor {
 		planeModel->setMaterial( MaterialManager::getSingleton().getMaterial("default") );
 		addResource("plane", planeModel);
 
+=======
+>>>>>>> 9117291af14eb1668182493b8d49252f6c4bdc9c
 	}
 
 }
