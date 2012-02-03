@@ -1,5 +1,6 @@
 #include "MotorScene.h"
 #include "MotorSceneObject.h"
+#include "MotorParticleEffect.h"
 #include "MotorLight.h"
 #include "MotorCamera.h"
 #include "MotorLogger.h"
@@ -42,7 +43,9 @@ namespace Motor {
 	}
 
 	ParticleEffect* Scene::createParticleEffect(){
-		return 0;
+		ParticleEffect* fx = new ParticleEffect;
+		particleEffects.push_back(fx);
+		return fx;
 	}
 
 	Light* Scene::createLight(){
@@ -66,7 +69,14 @@ namespace Motor {
 	}
 
 	void Scene::deleteParticleEffect(ParticleEffect* fx){
-
+		if( fx == 0 ) return;
+		for(EffectIterator iter = particleEffects.begin(); iter != particleEffects.end(); ++iter){
+			if( fx == *iter ){
+				particleEffects.erase(iter);
+				break;
+			}
+		}
+		delete fx;
 	}
 
 	void Scene::deleteLight(Light* light){
