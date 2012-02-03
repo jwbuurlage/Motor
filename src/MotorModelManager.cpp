@@ -44,13 +44,11 @@ namespace Motor {
 		Model* cubeModel = new Model;
 		cubeModel->setMesh( MeshManager::getSingleton().getMesh("default") );
 		cubeModel->setMaterial( MaterialManager::getSingleton().getMaterial("default") );
-		addResource("default", cubeModel);
-        
+		addResource("default", cubeModel);        
         Model* sphereModel = new Model;
 		sphereModel->setMesh( MeshManager::getSingleton().getMesh("sphere") );
 		sphereModel->setMaterial( MaterialManager::getSingleton().getMaterial("default") );
 		addResource("sphere", sphereModel);
-
         Model* planeModel = new Model;
 		planeModel->setMesh( MeshManager::getSingleton().getMesh("plane") );
 		planeModel->setMaterial( MaterialManager::getSingleton().getMaterial("default") );
