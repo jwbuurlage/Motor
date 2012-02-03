@@ -16,10 +16,7 @@ namespace Motor {
 		float invFrequency;
 		__int64 previousTime;
 #endif
-#ifdef __APPLE__
-		uint64_t start, end;
-#endif
-#ifdef __linux__
+#if defined __APPLE__ || defined __linux__
 		double previousTime;
 #endif
 	};

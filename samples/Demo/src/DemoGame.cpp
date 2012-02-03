@@ -102,14 +102,15 @@ namespace Demo {
 		bool DirectionChanged = false;
 
 		switch( key ){
-		case 'w': goingForward = keyDown;	DirectionChanged = true; break;
-		case 's': goingBackward = keyDown;	DirectionChanged = true; break;
-		case 'a': goingLeft = keyDown;		DirectionChanged = true; break;
-		case 'd': goingRight = keyDown;		DirectionChanged = true; break;
-		case 'q': goingUp = keyDown;		DirectionChanged = true; break;
-		case 'e': goingDown = keyDown;		DirectionChanged = true; break;
-		//case 'r': loadGame(); break;
-		//case 'f': useSkill(); break;
+            case 'w': goingForward = keyDown;	DirectionChanged = true; break;
+            case 's': goingBackward = keyDown;	DirectionChanged = true; break;
+            case 'a': goingLeft = keyDown;		DirectionChanged = true; break;
+            case 'd': goingRight = keyDown;		DirectionChanged = true; break;
+            case 'q': goingUp = keyDown;		DirectionChanged = true; break;
+            case 'e': goingDown = keyDown;		DirectionChanged = true; break;
+            case 't': motorRoot->stopRendering(); break;  
+            //case 'r': loadGame(); break;
+            //case 'f': useSkill(); break;
 		default:
 			keyHandled = false;
 			break;

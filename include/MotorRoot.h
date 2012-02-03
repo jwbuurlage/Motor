@@ -54,8 +54,9 @@ namespace Motor {
 		
 		int initialize();
 		void cleanup();
-
+        
 		void startRendering(); //use with FrameListeners
+        void stopRendering(); 
 		bool renderOneFrame();
 
 		//TODO: Extra arguments like APPEND_LAST or FRONT or CALL_ALWAYS or something??
@@ -68,6 +69,8 @@ namespace Motor {
 		Scene* getScene(){ return currentScene; }
 		Renderer* getRenderer(){ return renderer; }
 	private:
+        bool running;
+        
 		Logger* const logger;
 		Filesystem* const filesystem;
 		Timer* const timer;

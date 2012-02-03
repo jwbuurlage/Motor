@@ -23,6 +23,7 @@ namespace Motor {
 					materialManager(new MaterialManager),
 					meshManager(new MeshManager),
 					currentScene(0), mouseX(0), mouseY(0), window(0) {
+        running = false;
 	}
 	
 	Root::~Root() {
@@ -85,7 +86,7 @@ namespace Motor {
 
 	void Root::startRendering()
 	{
-		bool running = true;
+        running = true;
 		sf::Event Event;
 		//FPS counting
 		int frameCount = 0;
@@ -138,6 +139,11 @@ namespace Motor {
 			if( renderOneFrame() == false ) break;
 		}
 	}
+    
+    void Root::stopRendering() {
+        running = false;
+    }
+
 
 	bool Root::renderOneFrame()
 	{
