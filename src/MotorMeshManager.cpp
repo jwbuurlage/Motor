@@ -1,5 +1,6 @@
 #include "MotorMeshManager.h"
 #include "MotorMaterialManager.h"
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 namespace Motor {
@@ -138,11 +139,11 @@ namespace Motor {
         for(int i = 0; i < p; ++i) {
             n = 72 * q * i; //30 per longslice
             //log(n);
-            phi = i * (M_PI/p);
-            phi2 = (i + 1) * (M_PI/p); 
+            phi = i * (float)(M_PI/p);
+            phi2 = (i + 1) * (float)(M_PI/p); 
             for(int j = 0; j < q; ++j) {
-                theta = j * (2*M_PI/q);
-                theta2 = (j + 1) * (2*M_PI/q);
+                theta = j * (float)(2*M_PI/q);
+                theta2 = (j + 1) * (float)(2*M_PI/q);
                 
                 //vary between the current, and the following longitude and latitude.
                 // 
