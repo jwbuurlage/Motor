@@ -46,11 +46,7 @@ namespace Demo {
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		localPlayer->sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
 
-<<<<<<< HEAD
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
-=======
-		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("default", "derpcube");
->>>>>>> 9117291af14eb1668182493b8d49252f6c4bdc9c
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
 		cubeModel->setMaterial( derpMat );
 
