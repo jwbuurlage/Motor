@@ -4,12 +4,7 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 #endif
-#ifdef __APPLE__
-	#include <mach/mach_time.h>
-	#include <time.h>
-	#include <stdio.h>
-#endif
-#ifdef __linux__
+#if defined __linux__ || defined __APPLE__
 	#include <sys/time.h>
 #endif
 
@@ -38,34 +33,7 @@ namespace Motor {
 	}
 #endif
 
-#ifdef __APPLE__
-	void mach_absolute_difference(uint64_t end, uint64_t start, struct timespec *tp) {  
-		uint64_t difference = end - start;  
-		static mach_timebase_info_data_t info = {0,0};  
-    	
-		if (info.denom == 0)  
-			mach_timebase_info(&info);  
-    
-		uint64_t elapsednano = difference * (info.numer / info.denom);  
-    
-		tp->tv_sec = elapsednano * 1e-9;  
-		tp->tv_nsec = elapsednano - (tp->tv_sec * 1e9);  
-	}  
-
-	void Timer::initialize(){
-		getElapsedTime(); //To set initial start time
-	}
-
-	float Timer::getElapsedTime(){
-		struct timespec tp;
-		end = mach_absolute_time();
-		mach_absolute_difference(end, start, &tp);
-		start = mach_absolute_time();
-		return tp.tv_nsec * 1e-9;
-	}
-#endif
-
-#ifdef __linux__
+#if defined __APPLE__ || defined __linux__
 	void Timer::initialize(){
 		getElapsedTime(); //To set initial start time
 	}

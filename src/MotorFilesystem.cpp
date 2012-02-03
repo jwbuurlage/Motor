@@ -30,6 +30,7 @@ namespace Motor {
 		return;
 	}
 #elif __APPLE__
+    #include <mach-o/dyld.h>
 	void Filesystem::initApplicationPath()
 	{
 		char path[1024];
