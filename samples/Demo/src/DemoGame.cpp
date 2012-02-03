@@ -8,7 +8,7 @@
  * 
  */
 #include "DemoGame.h"
-
+#include <iostream>
 namespace Demo {
 	Game::Game(){
 		motorRoot = 0;
@@ -44,16 +44,20 @@ namespace Demo {
 
 		if( localPlayer == 0 ) localPlayer = new Player;
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
-		localPlayer->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+		localPlayer->sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+
+		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
+		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
+		cubeModel->setMaterial( derpMat );
 
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
-        plane->setMesh( Motor::MeshManager::getSingleton().getMesh("plane") );
+        plane->setModel( Motor::ModelManager::getSingleton().getModel("plane") );
         plane->position = Vector3( 0.0f, -5.0f, 0.0f );
         
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;
 			if( balls[i]->sceneObj == 0 ) balls[i]->sceneObj = motorRoot->getScene()->createObject();
-			balls[i]->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("sphere") );
+			balls[i]->sceneObj->setModel( cubeModel );
 			balls[i]->sceneObj->position = Vector3( 2.0f*sin((float)i), 2.0f*cos((float)i), (float)i );
 			balls[i]->sceneObj->scale = 0.2f;
 			balls[i]->movement = Vector3( 0, -1.0f, 0);
@@ -64,6 +68,7 @@ namespace Demo {
 			effects[i]->width = 0.1f;
 			effects[i]->height = 0.1f;
 			effects[i]->position = Vector3( 0.2f, 0.1f, 0 );
+			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
 		}
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
@@ -72,9 +77,9 @@ namespace Demo {
 
 		if( tempObjects[0] == 0 ) tempObjects[0] = motorRoot->getScene()->createObject();
 		if( tempObjects[1] == 0 ) tempObjects[1] = motorRoot->getScene()->createObject();
-		tempObjects[0]->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+		tempObjects[0]->setModel( Motor::ModelManager::getSingleton().getModel("default") );
 		tempObjects[0]->scale = 0.2f;
-		tempObjects[1]->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+		tempObjects[1]->setModel( Motor::ModelManager::getSingleton().getModel("default") );
 		tempObjects[1]->scale = 0.2f;
 
 		motorRoot->startRendering();

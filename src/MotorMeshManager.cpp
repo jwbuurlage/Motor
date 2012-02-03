@@ -22,7 +22,7 @@ namespace Motor {
 		unloadAll();
 	}
 	
-	const Mesh* MeshManager::loadResource( const char* filename ){
+	Mesh* MeshManager::loadResource( const char* filename ){
 		return 0;
 	}
     
@@ -102,8 +102,6 @@ namespace Motor {
 		cubeMesh->vertexOffset = 0;
         
 		cubeMesh->hasIndexBuffer = false;
-		cubeMesh->material = MaterialManager::getSingleton().getMaterial("default");
-        
 		addResource("default", cubeMesh);
         
         //SPHERE
@@ -279,8 +277,6 @@ namespace Motor {
         
         //setting appropriate indexbuffer values
         sphereMesh->hasIndexBuffer = false;
-		sphereMesh->material = MaterialManager::getSingleton().getMaterial("default");
-        
         addResource("sphere", sphereMesh);
         
         //PLANE    
@@ -316,8 +312,6 @@ namespace Motor {
         
         //setting indexbuffer value to false
         planeMesh->hasIndexBuffer = false;
-        planeMesh->material = MaterialManager::getSingleton().getMaterial("default");
-        
         addResource("plane", planeMesh);
        
     }

@@ -13,10 +13,10 @@ namespace Motor {
 		int initialize();
 		void cleanup();
 
-		const Material* getMaterial( const char* filename ){ return getResource(filename); }
+		Material* getMaterial( const char* filename ){ return getResource(filename); }
 
 	private:
-		const Material* loadResource( const char* filename );
+		Material* loadResource( const char* filename );
 
 		void loadDefaultMaterial(); //generates default material for when file can not be found
 	};

@@ -23,6 +23,7 @@ namespace Motor {
 	class TextureManager;
 	class MaterialManager;
 	class MeshManager;
+	class ModelManager;
 	class Timer;
 	class Logger;
 	class Filesystem;
@@ -78,6 +79,7 @@ namespace Motor {
 		TextureManager* const textureManager;
 		MaterialManager* const materialManager;
 		MeshManager* const meshManager;
+		ModelManager* const modelManager;
 		Scene* currentScene;
 
 		std::vector<FrameListener*> frameListeners;

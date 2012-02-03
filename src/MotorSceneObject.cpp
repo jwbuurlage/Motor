@@ -7,7 +7,7 @@ namespace Motor {
 		yaw = pitch = roll = 0.0f;
 		visible = true;
 		scale = 1.0f;
-		mesh = 0;
+		model = 0;
 	}
 
 	SceneObject::~SceneObject(){
