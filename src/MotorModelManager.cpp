@@ -55,7 +55,6 @@ namespace Motor {
 		planeModel->setMesh( MeshManager::getSingleton().getMesh("plane") );
 		planeModel->setMaterial( MaterialManager::getSingleton().getMaterial("default") );
 		addResource("plane", planeModel);
-
 	}
 
 }
