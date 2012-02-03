@@ -18,7 +18,6 @@ namespace Motor {
 	private:
         void loadPrimitives(); 
 		Mesh* loadResource( const char* filename );
-
 		void loadDefaultMesh(); //generates default mesh for when file can not be found
 	};
 
