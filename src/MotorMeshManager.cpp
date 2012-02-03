@@ -102,6 +102,10 @@ namespace Motor {
 		cubeMesh->vertexOffset = 0;
         
 		cubeMesh->hasIndexBuffer = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9117291af14eb1668182493b8d49252f6c4bdc9c
 		addResource("default", cubeMesh);
         
         //SPHERE
