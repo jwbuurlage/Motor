@@ -135,6 +135,11 @@ namespace Motor {
 			drawObject( *iter );
 		}
 
+		//Particle effects
+		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
+
+		}
+
 		//
 		//Step 3
 		//

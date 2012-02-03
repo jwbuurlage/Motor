@@ -57,7 +57,9 @@ namespace Demo {
 
 		for( int i = 0; i < fxCount; ++i ){
 			if( effects[i] == 0 ) effects[i] = motorRoot->getScene()->createParticleEffect();
-			
+			effects[i]->width = 0.1f;
+			effects[i]->height = 0.1f;
+			effects[i]->position = Vector3( 0.2f, 0.1f, 0 );
 		}
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();

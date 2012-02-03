@@ -6,8 +6,7 @@ SET(
 )
 
 SET(
-	PROJECT_SOURCES   
-	"../../src/glew.c"
+	PROJECT_SOURCES
 	"../../src/matrix.cpp"
 	"../../src/MotorCamera.cpp"
 	"../../src/MotorFilesystem.cpp"
@@ -37,8 +36,9 @@ SET(
 
 SET(
 	PROJECT_LIBRARIES
-	"SDLmain"
-	"SDL"
+	"sfml-graphics"
+	"sfml-window"
+	"sfml-system"
 	"GLEW"
 	"GL"
 )

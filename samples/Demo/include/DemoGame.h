@@ -40,6 +40,9 @@ namespace Demo {
 		static const int ballCount = 10;
 		Player* balls[ballCount];
 
+		static const int fxCount = 5;
+		Motor::ParticleEffect* effects[fxCount];
+
 		Player* localPlayer;
 		Motor::SceneObject* tempObjects[2];
 		Motor::Light* mainLights[2];
