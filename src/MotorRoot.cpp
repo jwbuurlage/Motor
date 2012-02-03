@@ -8,7 +8,7 @@
 #include "MotorTimer.h"
 #include "MotorLogger.h"
 #include "MotorFilesystem.h"
-#include <SDL/SDL.h>
+#include <SFML/Window.hpp>
 #include <sstream>
 
 namespace Motor {
@@ -22,8 +22,7 @@ namespace Motor {
 					textureManager(new TextureManager),
 					materialManager(new MaterialManager),
 					meshManager(new MeshManager),
-					currentScene(0) {
-		SDLinitialized = false;
+					currentScene(0), mouseX(0), mouseY(0), window(0) {
 	}
 	
 	Root::~Root() {
@@ -40,17 +39,13 @@ namespace Motor {
 	int Root::initialize()
 	{
 		//TODO: Get window width/height from setting file
-		if( SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0 ){
-			Logger::getSingleton().log(Logger::CRITICALERROR, "SDL_Init failed");
-			return 0;
+		if( !window ){
+			sf::WindowSettings Settings;
+			Settings.DepthBits         = 24; // Request a 24 bits depth buffer
+			Settings.StencilBits       = 8;  // Request a 8 bits stencil buffer
+			Settings.AntialiasingLevel = 2;  // Request 2 levels of antialiasing
+			window = new sf::Window(sf::VideoMode(1024, 768, 32), "OpenGL Window", sf::Style::Close, Settings);
 		}
-		SDLinitialized = true;
-		surface = SDL_SetVideoMode(1024, 768, 32, SDL_HWSURFACE | SDL_GL_DOUBLEBUFFER | SDL_OPENGL);
-		if( surface == NULL ){
-			Logger::getSingleton().log(Logger::CRITICALERROR, "SDL_SetVideoMode failed");
-			return 0;
-		}
-		SDL_WM_SetCaption("MotorWindow", 0);
 
 		if( !renderer->initialize(1024, 768) ) return 0;
 		timer->initialize();
@@ -81,13 +76,9 @@ namespace Motor {
 		materialManager->cleanup();
 		textureManager->cleanup();
 		renderer->cleanup();
-		if( surface ){
-			SDL_FreeSurface(surface);
-			surface = 0;
-		}
-		if( SDLinitialized ){
-			SDL_Quit();
-			SDLinitialized = false;
+		if( window ){
+			delete window;
+			window = 0;
 		}
 		return;
 	}
@@ -95,27 +86,32 @@ namespace Motor {
 	void Root::startRendering()
 	{
 		bool running = true;
-		SDL_Event Event;
+		sf::Event Event;
 		//FPS counting
 		int frameCount = 0;
 		float frameTime = 0;
 		timer->getElapsedTime(); //t=0
-		while(running){
-			while(SDL_PollEvent(&Event)) {
-				switch( Event.type ){
-				case SDL_KEYDOWN:
-				case SDL_KEYUP:
-					keyDown( Event.key.keysym.sym , Event.key.state == SDL_PRESSED );
-					break;
-				case SDL_MOUSEMOTION:
-					mouseMoved( Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel );
+		while(running && window->IsOpened() ){
+			while(window->GetEvent(Event)) {
+				switch( Event.Type ){
+				case sf::Event::KeyPressed:
+					keyDown( Event.Key.Code , true ); break;
+				case sf::Event::KeyReleased:
+					keyDown( Event.Key.Code , false ); break;
+				case sf::Event::MouseMoved:
+					mouseMoved( Event.MouseMove.X, Event.MouseMove.Y );
 					//mRenderer->SetMousePosition( Event.motion.x, Event.motion.y );
 					break;
-				case SDL_MOUSEBUTTONDOWN:
-				case SDL_MOUSEBUTTONUP:
-					mouseDown( (MOUSEBUTTON)Event.button.button, Event.button.state == SDL_PRESSED, Event.button.x, Event.button.y );
+				case sf::Event::MouseWheelMoved:
+					mouseWheelMoved( Event.MouseWheel.Delta );
 					break;
-				case SDL_QUIT:
+				case sf::Event::MouseButtonPressed:
+					mouseDown( (MOUSEBUTTON)Event.MouseButton.Button, true, Event.MouseButton.X, Event.MouseButton.Y );
+					break;
+				case sf::Event::MouseButtonReleased:
+					mouseDown( (MOUSEBUTTON)Event.MouseButton.Button, false, Event.MouseButton.X, Event.MouseButton.Y );
+					break;
+				case sf::Event::Closed:
 					running = false;
 					break;
 				default:
@@ -158,7 +154,7 @@ namespace Motor {
 		}
 
 		renderer->renderFrame();
-		SDL_GL_SwapBuffers();
+		window->Display();
 		return renderer->checkErrors();
 	}
 
@@ -199,7 +195,14 @@ namespace Motor {
 			if( (*it)->mouseDown(button, KeyDown, x, y) == true ) break;
 	}
 
-	void Root::mouseMoved(int x, int y, int dx, int dy){
+	void Root::mouseWheelMoved(int delta){
+		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ++it )
+			if( (*it)->mouseWheelMoved(delta) == true ) break;
+	}
+
+	void Root::mouseMoved(int x, int y){
+		int dx = x - mouseX, dy = y - mouseY;
+		mouseX = x; mouseY = y;
 		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ++it )
 			if( (*it)->mouseMoved(x,y, dx, dy) == true ) break;
 	}

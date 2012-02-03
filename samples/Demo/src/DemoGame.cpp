@@ -17,6 +17,9 @@ namespace Demo {
 		mainLights[1] = 0;
 		tempObjects[0] = 0;
 		tempObjects[1] = 0;
+		for(int i = 0; i < ballCount; ++i){
+			balls[i] = 0;
+		}
 
 		draggingLeftMouse = false;
 		draggingRightMouse = false;
@@ -39,6 +42,15 @@ namespace Demo {
 		if( localPlayer == 0 ) localPlayer = new Player;
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		localPlayer->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+
+		for( int i = 0; i < ballCount; ++i ){
+			if( balls[i] == 0 ) balls[i] = new Player;
+			if( balls[i]->sceneObj == 0 ) balls[i]->sceneObj = motorRoot->getScene()->createObject();
+			balls[i]->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+			balls[i]->sceneObj->position = Vector3( 2.0f*sin((float)i), 2.0f*cos((float)i), (float)i );
+			balls[i]->sceneObj->scale = 0.2f;
+			balls[i]->movement = Vector3( 0, -1.0f, 0);
+		}
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
 		if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
@@ -74,6 +86,12 @@ namespace Demo {
 			if( tempObjects[1] ){
 				tempObjects[1]->position = mainLights[1]->position;
 			}
+		}
+		for( int i = 0; i < ballCount; ++i ){
+			if( balls[i] == 0 ) continue;
+			if( balls[i]->sceneObj == 0 ) continue;
+			balls[i]->sceneObj->position += balls[i]->movement * elapsedTime;
+			if( balls[i]->sceneObj->position.y <= -3.0f || balls[i]->sceneObj->position.y >= 3.0f ) balls[i]->movement = -balls[i]->movement;
 		}
 		return;
 	}
@@ -116,18 +134,23 @@ namespace Demo {
 
 	}
 
+	bool Game::mouseWheelMoved(int delta){
+		if( delta > 0 ){
+			Motor::Camera* cam = motorRoot->getScene()->getCamera();
+			if( cam ) cam->camZoomSpeed -= 5.0f;
+		}else{
+			Motor::Camera* cam = motorRoot->getScene()->getCamera();
+			if( cam ) cam->camZoomSpeed += 5.0f;
+		}
+		return false;
+	}
+
 	bool Game::mouseDown(Motor::MOUSEBUTTON button, bool buttonDown, int x, int y){
 		//TODO: Send to UI manager and see if it was handled. If not, then do this:
 		if( button == Motor::BUTTON_LEFT ){
 			draggingLeftMouse = (buttonDown == true);
 		}else if( button == Motor::BUTTON_RIGHT ){
 			draggingRightMouse = (buttonDown == true);
-		}else if( button == Motor::BUTTON_WHEELUP ){
-			Motor::Camera* cam = motorRoot->getScene()->getCamera();
-			if( cam ) cam->camZoomSpeed -= 5.0f;
-		}else if( button == Motor::BUTTON_WHEELDOWN ){
-			Motor::Camera* cam = motorRoot->getScene()->getCamera();
-			if( cam ) cam->camZoomSpeed += 5.0f;
 		}
 		return false;
 	}

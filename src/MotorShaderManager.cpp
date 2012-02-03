@@ -2,8 +2,6 @@
 #include "MotorFilesystem.h"
 #include "MotorLogger.h"
 
-#include <iostream>
-
 namespace Motor {
 
 	template<> ShaderManager* Singleton<ShaderManager>::singleton = 0;
@@ -29,7 +27,6 @@ namespace Motor {
 	}
 
 	int ShaderManager::Shader::load(const char* filename){
-		std::cout << "File: " << filename << std::endl;
 		pFile shaderFile = Filesystem::getSingleton().getFile(filename);
 		if( !shaderFile ){
 			Logger::getSingleton().log(Logger::ERROR, "Shader file not found.");

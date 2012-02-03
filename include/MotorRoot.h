@@ -13,6 +13,9 @@
 
 //forward declarations to avoid unnecessary includes
 struct SDL_Surface;
+namespace sf{
+	class Window;
+};
 
 namespace Motor {
 	class Renderer;
@@ -24,8 +27,8 @@ namespace Motor {
 	class Logger;
 	class Filesystem;
 
-	//These are the constants as SDL uses them, do not change
-	typedef enum { BUTTON_LEFT = 1, BUTTON_MIDDLE, BUTTON_RIGHT, BUTTON_WHEELUP, BUTTON_WHEELDOWN } MOUSEBUTTON;
+	//These are the constants as SFML uses them, do not change
+	typedef enum { BUTTON_LEFT = 0, BUTTON_RIGHT, BUTTON_MIDDLE, XButton1, XButton2 } MOUSEBUTTON;
 
 	//Subclass this to receive input
 	class InputListener{
@@ -33,6 +36,7 @@ namespace Motor {
 		//When returning false, next listener will be called. When returning true, the chain stops.
 		virtual bool keyDown(int key, bool keyDown){ return false; }
 		virtual bool mouseDown(MOUSEBUTTON button, bool buttonDown, int x, int y){ return false; }
+		virtual bool mouseWheelMoved(int delta){ return false; }
 		virtual bool mouseMoved(int x, int y, int dx, int dy){ return false; }
 	};
 
@@ -77,10 +81,11 @@ namespace Motor {
 		std::vector<InputListener*> inputListeners;
 		void keyDown(int key, bool KeyDown);
 		void mouseDown(MOUSEBUTTON button, bool KeyDown, int x, int y);
-		void mouseMoved(int x, int y, int dx, int dy);
-
-		bool SDLinitialized;
-		SDL_Surface* surface;
+		void mouseWheelMoved(int delta);
+		void mouseMoved(int x, int y);
+		int mouseX, mouseY; //To supply relative movement
+		
+		sf::Window* window;
 	};
 
 }

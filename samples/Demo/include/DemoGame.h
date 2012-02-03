@@ -24,6 +24,7 @@ namespace Demo {
 
 		bool keyDown(int key, bool keyDown);
 		bool mouseDown(Motor::MOUSEBUTTON button, bool buttonDown, int x, int y);
+		bool mouseWheelMoved(int delta);
 		bool mouseMoved(int x, int y, int dx, int dy);
 
 	private:
@@ -35,6 +36,9 @@ namespace Demo {
 		//For key movement
 		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown;
 		Vector3 getMoveDir();
+
+		static const int ballCount = 10;
+		Player* balls[ballCount];
 
 		Player* localPlayer;
 		Motor::SceneObject* tempObjects[2];
