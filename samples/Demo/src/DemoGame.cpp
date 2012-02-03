@@ -46,10 +46,14 @@ namespace Demo {
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		localPlayer->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
 
+        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
+        plane->setMesh( Motor::MeshManager::getSingleton().getMesh("plane") );
+        plane->position = Vector3( 0.0f, -5.0f, 0.0f );
+        
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;
 			if( balls[i]->sceneObj == 0 ) balls[i]->sceneObj = motorRoot->getScene()->createObject();
-			balls[i]->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("default") );
+			balls[i]->sceneObj->setMesh( Motor::MeshManager::getSingleton().getMesh("sphere") );
 			balls[i]->sceneObj->position = Vector3( 2.0f*sin((float)i), 2.0f*cos((float)i), (float)i );
 			balls[i]->sceneObj->scale = 0.2f;
 			balls[i]->movement = Vector3( 0, -1.0f, 0);

@@ -37,7 +37,7 @@ namespace Demo {
 		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown;
 		Vector3 getMoveDir();
 
-		static const int ballCount = 10;
+		static const int ballCount = 5;
 		Player* balls[ballCount];
 
 		static const int fxCount = 5;
