@@ -20,6 +20,9 @@ namespace Demo {
 		for(int i = 0; i < ballCount; ++i){
 			balls[i] = 0;
 		}
+		for(int i = 0; i < fxCount; ++i ){
+			effects[i] = 0;
+		}
 
 		draggingLeftMouse = false;
 		draggingRightMouse = false;
@@ -50,6 +53,11 @@ namespace Demo {
 			balls[i]->sceneObj->position = Vector3( 2.0f*sin((float)i), 2.0f*cos((float)i), (float)i );
 			balls[i]->sceneObj->scale = 0.2f;
 			balls[i]->movement = Vector3( 0, -1.0f, 0);
+		}
+
+		for( int i = 0; i < fxCount; ++i ){
+			if( effects[i] == 0 ) effects[i] = motorRoot->getScene()->createParticleEffect();
+			
 		}
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
@@ -90,8 +98,15 @@ namespace Demo {
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) continue;
 			if( balls[i]->sceneObj == 0 ) continue;
+
 			balls[i]->sceneObj->position += balls[i]->movement * elapsedTime;
-			if( balls[i]->sceneObj->position.y <= -3.0f || balls[i]->sceneObj->position.y >= 3.0f ) balls[i]->movement = -balls[i]->movement;
+
+			const Vector3 gravity(0.0f, -5.0f, 0.0f);
+			balls[i]->movement += gravity * elapsedTime;
+
+			if( balls[i]->sceneObj->position.y <= -3.0f  ){
+				if( balls[i]->movement.y < 0 ) balls[i]->movement.y = - balls[i]->movement.y;
+			}
 		}
 		return;
 	}
