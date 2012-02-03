@@ -14,4 +14,5 @@
 #include "MotorParticleEffect.h"
 #include "MotorLight.h"
 #include "MotorMeshManager.h"
+#include "MotorMaterialManager.h"
 #include "MotorCamera.h"

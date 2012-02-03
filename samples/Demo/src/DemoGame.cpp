@@ -60,6 +60,7 @@ namespace Demo {
 			effects[i]->width = 0.1f;
 			effects[i]->height = 0.1f;
 			effects[i]->position = Vector3( 0.2f, 0.1f, 0 );
+			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.tga");
 		}
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
