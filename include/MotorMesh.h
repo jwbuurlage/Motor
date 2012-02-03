@@ -1,19 +1,27 @@
 //Represents a mesh: vertex data
 
-//Multiple object will have the same mesh
-//The current animation state of the mesh will be saved seperately
-//This Mesh object only holds the static vertex data
+//SceneObjects contains:
+// - Model (pointer to Model)
+// - Animation state (animation being played, current bone positions)
+
+//Model contains:
+// - Mesh (the vertex data)
+// - BoneData
+// - MaterialList
+
+//Several models can share the same mesh
+//A referencecount system is used
 
 #pragma once
 #include <GL/glew.h>
 
 namespace Motor {
 
-	class Material;
-
 	class Mesh{
 	public:
 		Mesh(){
+			referenceCount = 0;
+
 			hasColor = false;
 			hasNormal = false;
 			vertexBuffer = 0;
@@ -29,15 +37,13 @@ namespace Motor {
 			indexBufferSize = 0;
 			indexBufferDataType = 0;
 			indexCount = 0;
-			material = 0;
 		}
 		~Mesh(){
-			//TODO: IMPORTANT
 			if( vertexBuffer ){
-				//delete opengl object
+				glDeleteBuffers(1, &vertexBuffer);
 			}
 			if( indexBuffer ){
-				//delete opengl object
+				glDeleteBuffers(1, &indexBuffer);
 			}
 		};
 
@@ -60,22 +66,10 @@ namespace Motor {
 		GLenum indexBufferDataType; //this should always be GL_UNSIGNED_INT, so this might be unnecessary
 		GLsizei indexCount;
 
-		//material pointer should be zero if mesh has no material
-		const Material* material;
+		void addRef(){ ++referenceCount; };
+		void release(){ --referenceCount; };
+	private:
+		int referenceCount;
 	};
 
 }
-
-
-#if 0
-
-
-class Texture;
-
-class Mesh
-{
-public:
-
-};
-
-#endif

@@ -13,10 +13,10 @@ namespace Motor {
 		int initialize();
 		void cleanup();
 
-		const Texture* getTexture( const char* filename ){ return getResource(filename); }
+		Texture* getTexture( const char* filename ){ return getResource(filename); }
 
 	private:
-		const Texture* loadResource( const char* filename );
+		Texture* loadResource( const char* filename );
 
 		void loadDefaultTexture(); //Generates default texture
 	};

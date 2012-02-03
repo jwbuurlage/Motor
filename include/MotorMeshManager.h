@@ -13,10 +13,10 @@ namespace Motor {
 		int initialize();
 		void cleanup();
 
-		const Mesh* getMesh( const char * filename ){ return getResource(filename); }
+		Mesh* getMesh( const char * filename ){ return getResource(filename); }
 
 	private:
-		const Mesh* loadResource( const char* filename );
+		Mesh* loadResource( const char* filename );
 
 		void loadDefaultMesh(); //generates default mesh for when file can not be found
 	};

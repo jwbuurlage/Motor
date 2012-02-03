@@ -10,7 +10,7 @@ namespace Motor {
 		virtual ~ResourceManager(){ unloadAll(); }
 
 		//Will load the resource if not already loaded
-		const T* getResource( const char* filename )
+		T* getResource( const char* filename )
 		{
 			ResourceContainer::iterator iter = resources.find(filename);
 			if( iter != resources.end() )
@@ -38,7 +38,7 @@ namespace Motor {
 		
 	protected:
 		//Must be implemented by subclass and use addResource to add the resource
-		virtual const T* loadResource( const char* filename )=0;
+		virtual T* loadResource( const char* filename )=0;
 
 		void addResource( const char* name, T* res ){
 			resources.insert( ResourceContainer::value_type( name, res ) );

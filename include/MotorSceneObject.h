@@ -16,7 +16,7 @@
 
 namespace Motor {
 
-	class Mesh;
+	class Model;
 
 	class SceneObject
 	{
@@ -28,15 +28,15 @@ namespace Motor {
 		float scale;
 
 		//TODO: reference system? mesh->addRef();
-		void setMesh(const Mesh* _mesh){ mesh = _mesh; }
-		const Mesh* getMesh() const { return mesh; }
+		void setModel(const Model* _model){ model = _model; }
+		const Model* getModel() const { return model; }
 
 	private: //Private constructor/deconstructor so only Scene can create/destroy objects
 		friend class Scene;
 		SceneObject();
 		~SceneObject(void);
 
-		const Mesh* mesh;
+		const Model* model;
 		//TODO:
 		//pointer to animation state object (contains bone positions and so on)
 	};

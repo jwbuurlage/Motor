@@ -21,7 +21,7 @@ namespace Motor {
 		unloadAll();
 	}
 	
-	const Mesh* MeshManager::loadResource( const char* filename ){
+	Mesh* MeshManager::loadResource( const char* filename ){
 		return 0;
 	}
 
@@ -102,7 +102,6 @@ namespace Motor {
 		cubeMesh->vertexOffset = 0;
 
 		cubeMesh->hasIndexBuffer = false;
-		cubeMesh->material = MaterialManager::getSingleton().getMaterial("default");
 
 		addResource("default", cubeMesh);
 

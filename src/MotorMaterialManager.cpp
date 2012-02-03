@@ -22,7 +22,7 @@ namespace Motor{
 		unloadAll();
 	}
 
-	const Material* MaterialManager::loadResource( const char* filename ){
+	Material* MaterialManager::loadResource( const char* filename ){
 		Material* mat = new Material;
 		//TODO: actually load a material file which holds references to the different
 		//textures that belong to it
@@ -32,7 +32,7 @@ namespace Motor{
 		mat->color[2] = 1.0f;
 		mat->color[3] = 1.0f;
 		addResource(filename, mat);
-		return 0;
+		return mat;
 	}
 
 	void MaterialManager::loadDefaultMaterial(){

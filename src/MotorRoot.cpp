@@ -5,6 +5,7 @@
 #include "MotorTextureManager.h"
 #include "MotorMaterialManager.h"
 #include "MotorMeshManager.h"
+#include "MotorModelManager.h"
 #include "MotorTimer.h"
 #include "MotorLogger.h"
 #include "MotorFilesystem.h"
@@ -22,6 +23,7 @@ namespace Motor {
 					textureManager(new TextureManager),
 					materialManager(new MaterialManager),
 					meshManager(new MeshManager),
+					modelManager(new ModelManager),
 					currentScene(0), mouseX(0), mouseY(0), window(0) {
         running = false;
 	}
@@ -30,6 +32,7 @@ namespace Motor {
 		cleanup();
 		delete timer;
 		delete renderer;
+		delete modelManager;
 		delete meshManager;
 		delete materialManager;
 		delete textureManager;
@@ -54,6 +57,7 @@ namespace Motor {
 		textureManager->initialize();
 		materialManager->initialize();
 		meshManager->initialize();
+		modelManager->initialize();
 
 		currentScene = new Scene;
 		addFrameListener(currentScene);
@@ -73,6 +77,7 @@ namespace Motor {
 			delete currentScene;
 			currentScene = 0;
 		}
+		modelManager->cleanup();
 		meshManager->cleanup();
 		materialManager->cleanup();
 		textureManager->cleanup();

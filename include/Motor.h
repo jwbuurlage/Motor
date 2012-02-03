@@ -9,10 +9,12 @@
  */
 
 #include "MotorRoot.h"
+#include "MotorRenderer.h"
 #include "MotorScene.h"
 #include "MotorSceneObject.h"
 #include "MotorParticleEffect.h"
 #include "MotorLight.h"
+#include "MotorModelManager.h"
 #include "MotorMeshManager.h"
 #include "MotorMaterialManager.h"
 #include "MotorCamera.h"

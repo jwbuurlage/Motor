@@ -3,9 +3,11 @@
 #include "MotorLogger.h"
 #include "MotorSceneObject.h"
 #include "MotorLight.h"
+#include "MotorModel.h"
 #include "MotorMesh.h"
 #include "MotorMaterial.h"
 #include "MotorTexture.h"
+#include "MotorTextureManager.h"
 #include <GL/glew.h>
 #include <sstream>
 
@@ -148,8 +150,11 @@ namespace Motor {
 	}
 
 	void Renderer::drawObject(SceneObject* obj){
-		const Mesh* mesh = obj->getMesh();
+		const Model* model = obj->getModel();
+		if( model == 0 ) return;
+		const Mesh* mesh = model->getMesh();
 		if( mesh == 0 ) return;
+		const Material* material = model->getMaterial();
 
 		mat mMatrix, mvpMatrix;
 
@@ -193,20 +198,21 @@ namespace Motor {
 				mesh->stride,
 				(GLvoid*)28);
 
-		if( mesh->material ){
-			glEnable(GL_TEXTURE_2D);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mesh->material->texture->handle);
-			shaderManager->getActiveProgram()->vertexAttribPointer(
-				"textureCoordinate",
-				2,
-				mesh->vertexBufferDataType,
-				false,
-				mesh->stride,
-				(GLvoid*)40);
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+
+		if( material && material->texture ){
+			glBindTexture(GL_TEXTURE_2D, model->getMaterial()->texture->handle);
 		}else{
-			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
 		}
+		shaderManager->getActiveProgram()->vertexAttribPointer(
+			"textureCoordinate",
+			2,
+			mesh->vertexBufferDataType,
+			false,
+			mesh->stride,
+			(GLvoid*)40);
 
 		if( mesh->hasIndexBuffer ){
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
