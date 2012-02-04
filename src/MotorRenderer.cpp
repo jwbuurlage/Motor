@@ -86,41 +86,41 @@ namespace Motor {
 	}
     
     void Renderer::setUpShadowFBO() {
-            //debug variable
-            GLenum FBOstatus;
+
+		// Create the texture for the shadow map
+
+		glGenTextures(1, &shadowTexMapHandle);
+		glBindTexture(GL_TEXTURE_2D, shadowTexMapHandle);
+		//Set parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+		//Make it 1024*1024 with only a depth component (8 bits).
+		//By setting the data pointer to 0 it will allocate a buffer and not fill it yet
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+
+		//Create the framebuffer object
+
+		glGenFramebuffersEXT(1, &shadowFBOHandle);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadowFBOHandle);
+
+		//This will make sure that only depth data is drawn to and read from the framebuffer
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+
+		//Attach the texture to the framebuffer object
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, shadowTexMapHandle, 0);
             
-            //try to use a texture depth component
-            glGenTextures(1, &shadowTexMapHandle);
-            glBindTexture(GL_TEXTURE_2D, shadowTexMapHandle);
-            
-            //we set some parameters to minimize unwanted artifacts
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
-            
-            //create and bind a texture that will hold the shadowmap
-            glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,  1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            
-            //create a framebuffer object
-            glGenFramebuffersEXT(1, &shadowFBOHandle);
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadowFBOHandle);
-            
-            //we need to instruct opengl that we're just interested in depth data
-            glDrawBuffer(GL_NONE);
-            glReadBuffer(GL_NONE);
-            
-            //we now attach the texture to the depth component of the FBO
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D, shadowTexMapHandle, 0);
-            
-            //we need to debug the link
-            FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-            if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
-                printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
-            
-            //finally we switch back to the window-system buffer
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		//Debug:
+
+		//GLenum FBOstatus;
+		//FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		//if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
+		//	printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
+
+		//Unbind the shadow framebuffer object
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
         return;
     }
@@ -172,7 +172,7 @@ namespace Motor {
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,shadowFBOHandle);	
             glViewport(0,0,1024,1024);
-            glClear( GL_DEPTH_BUFFER_BIT);
+            glClear(GL_DEPTH_BUFFER_BIT);
             
             glCullFace(GL_FRONT);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); 
@@ -210,7 +210,7 @@ namespace Motor {
 
             shaderManager->setActiveProgram("shadowTextureLightning");
             shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
-            mat lightningProjection = biasMatrix * projectionMatrix * lightViewMatrix;
+            mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
             shaderManager->getActiveProgram()->setUniformMatrix4fv("lightMatrix", lightningProjection);
             
             shaderManager->getActiveProgram()->setUniform1i("tex", 0);
@@ -286,7 +286,6 @@ namespace Motor {
         }
         
         shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", mvpMatrix);
-        
 
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
@@ -374,6 +373,8 @@ namespace Motor {
 		float xmin = -xmax;
 		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);
         
+		xmax = 5.0f;
+		xmin = -5.0f;
         projectionMatrixShadow.setPerspective(xmin, xmax, xmin, xmax, near, far);
     }
 }
