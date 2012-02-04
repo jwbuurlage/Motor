@@ -223,7 +223,7 @@ const int POSITIONUPDATE	= 1003;
 					connected = true;
 					std::cout << "Instantly connected!\n";
 				}
-				timeUntilRetry = 10.0f;
+				timeUntilRetry = 8.0f;
 			}else{
 				sf::SelectorTCP selector;
 				selector.Add(socket);
@@ -260,7 +260,7 @@ const int POSITIONUPDATE	= 1003;
 			}else if( status != sf::Socket::NotReady ){
 				socket.Close();
 				connected = false;
-				timeUntilRetry = 3.0f;
+				timeUntilRetry = 2.0f;
 				std::cout << "Disconnected from server.\n";
 			}
 		}
