@@ -14,8 +14,9 @@ namespace Demo {
 	
 	class Player {
 	public:
-		Player(){ sceneObj = 0; movement = Vector3(0.0f); }
+		Player(){ clientID = 0; sceneObj = 0; movement = Vector3(0.0f); }
 		~Player(){}
+		int clientID;
 		Vector3 movement;
 		Motor::SceneObject* sceneObj;
 	};

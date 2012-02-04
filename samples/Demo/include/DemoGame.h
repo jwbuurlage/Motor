@@ -10,6 +10,8 @@
 #pragma once
 #include "Motor.h"
 #include "DemoPlayer.h"
+#include <vector>
+#include <SFML/Network.hpp>
 
 namespace Demo {
 	
@@ -29,6 +31,15 @@ namespace Demo {
 
 	private:
 		Motor::Root* motorRoot;
+
+		sf::SocketTCP socket;
+		bool connected;
+		float timeUntilRetry;
+		float timeUntilPosUpdate;
+		void doNetworkStuff(float elapsedTime);
+		
+		int myClientID;
+		std::vector<Player> remotePlayers;
 
 		//mouse state
 		bool draggingLeftMouse;

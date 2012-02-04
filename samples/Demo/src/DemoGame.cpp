@@ -9,6 +9,7 @@
  */
 #include "DemoGame.h"
 #include <iostream>
+
 namespace Demo {
 	Game::Game(){
 		motorRoot = 0;
@@ -82,12 +83,19 @@ namespace Demo {
 		tempObjects[1]->setModel( Motor::ModelManager::getSingleton().getModel("default") );
 		tempObjects[1]->scale = 0.2f;
 
+		connected = false;
+		timeUntilRetry = 0.0f;
+		timeUntilPosUpdate = 0.0f;
+		socket.SetBlocking(false);
+
 		motorRoot->startRendering();
 		motorRoot->cleanup();
 		return;
 	}
 
 	void Game::onFrame(float elapsedTime){
+		doNetworkStuff(elapsedTime);
+
 		if( localPlayer ){
 			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
 		}
@@ -197,6 +205,141 @@ namespace Demo {
 			}
 		}
 		return false;
+	}
+
+//PACKET COMMAND CODES
+const int YOURCLIENTID		= 999;
+const int PLAYERLIST		= 1000;
+const int NEWPLAYER			= 1001;
+const int PLAYERDISCONNECT	= 1002;
+const int POSITIONUPDATE	= 1003;
+
+	void Game::doNetworkStuff(float elapsedTime){
+		if( !connected ){
+			timeUntilRetry -= elapsedTime;
+			if( timeUntilRetry <= 0.0f ){
+				if( socket.Connect(1337, "192.168.1.40") == sf::Socket::Done ){
+					connected = true;
+					std::cout << "Instantly connected!\n";
+				}
+				timeUntilRetry = 10.0f;
+			}else{
+				sf::SelectorTCP selector;
+				selector.Add(socket);
+				if( selector.Wait(0.001f) ){
+					//Copied from SocketTCP.cpp :
+
+					// At this point the connection may have been either accepted or refused.
+					// To know whether it's a success or a failure, we try to retrieve the name of the connected peer
+					sockaddr_in SockAddr;
+					memset(SockAddr.sin_zero, 0, sizeof(SockAddr.sin_zero));
+					sf::SocketHelper::LengthType Size = sizeof(SockAddr);
+					if (getpeername(*(SOCKET*)&socket, reinterpret_cast<sockaddr*>(&SockAddr), &Size) != -1)
+					{
+						connected = true;
+						std::cout << "Connected!\n";
+					}
+				}
+			}
+		}else{ //connected
+			sf::Packet packet;
+
+			timeUntilPosUpdate -= elapsedTime;
+			if( timeUntilPosUpdate <= 0.0f ){
+				if( localPlayer && localPlayer->sceneObj ){
+					packet << POSITIONUPDATE << myClientID;
+					packet << localPlayer->sceneObj->position.x;
+					packet << localPlayer->sceneObj->position.y;
+					packet << localPlayer->sceneObj->position.z;
+					socket.Send(packet);
+				}
+				timeUntilPosUpdate = 0.020f;
+			}
+
+			sf::Socket::Status status = socket.Receive(packet);
+			if( status == sf::Socket::Done ){
+				//Received something
+				unsigned int packetCmd;
+				packet >> packetCmd;
+				switch( packetCmd ){
+				case YOURCLIENTID:
+					packet >> myClientID;
+					break;
+				case PLAYERLIST:
+					{
+						//clear old list:
+						for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+							if( remotePlayers[i].sceneObj )
+								motorRoot->getScene()->deleteObject(remotePlayers[i].sceneObj);
+						}
+						remotePlayers.clear();
+
+						unsigned int playerCount;
+						packet >> playerCount;
+						std::cout << "Received playerlist with " << playerCount << " players from server.\n";
+						for( unsigned int i = 0; i < playerCount; ++i ){
+							int clientID;
+							packet >> clientID;
+							std::cout << "Player: ID = " << clientID << std::endl;
+							if( clientID != myClientID ){
+								Player newPlayer;
+								newPlayer.sceneObj = motorRoot->getScene()->createObject();
+								newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+								newPlayer.clientID = clientID;
+								remotePlayers.push_back(newPlayer);
+							}
+						}
+					}
+					break;
+				case NEWPLAYER:
+					{
+						int clientID;
+						packet >> clientID;
+						if( clientID != myClientID ){
+							Player newPlayer;
+							newPlayer.sceneObj = motorRoot->getScene()->createObject();
+							newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+							newPlayer.clientID = clientID;
+							remotePlayers.push_back(newPlayer);
+						}
+					}
+					break;
+				case PLAYERDISCONNECT:
+					{
+						int clientID;
+						packet >> clientID;
+						for( std::vector<Player>::iterator iter = remotePlayers.begin(); iter != remotePlayers.end(); ++iter ){
+							if( iter->clientID == clientID ){
+								if( iter->sceneObj ) motorRoot->getScene()->deleteObject(iter->sceneObj);
+								remotePlayers.erase(iter);
+								break;
+							}
+						}
+					}
+					break;
+				case POSITIONUPDATE:
+					{
+						unsigned int clientID;
+						float x,y,z;
+						packet >> clientID >> x >> y >> z;
+						for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+							if( remotePlayers[i].clientID == clientID ){
+								remotePlayers[i].sceneObj->position = Vector3(x,y,z);
+								break;
+							}
+						}
+					}
+					break;
+				default:
+					break;
+				};
+			}else if( status != sf::Socket::NotReady ){
+				socket.Close();
+				connected = false;
+				timeUntilRetry = 3.0f;
+				std::cout << "Disconnected!\n";
+			}
+		}
 	}
 
 }
