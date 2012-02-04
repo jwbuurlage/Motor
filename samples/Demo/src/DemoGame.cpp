@@ -235,7 +235,7 @@ const int POSITIONUPDATE	= 1003;
 					sockaddr_in SockAddr;
 					memset(SockAddr.sin_zero, 0, sizeof(SockAddr.sin_zero));
 					sf::SocketHelper::LengthType Size = sizeof(SockAddr);
-					if (getpeername(*(SOCKET*)&socket, reinterpret_cast<sockaddr*>(&SockAddr), &Size) != -1)
+					if (getpeername(*(int*)&socket, reinterpret_cast<sockaddr*>(&SockAddr), &Size) != -1)
 					{
 						connected = true;
 						std::cout << "Connected!\n";
