@@ -101,8 +101,9 @@ namespace Demo {
 		}
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
-			mainLights[0]->position.x = 3.0f*sin(tempLightTimer);
-			mainLights[0]->position.z = 2.0f*cos(tempLightTimer);
+			mainLights[0]->position.x = 6.0f*sin(tempLightTimer);
+            mainLights[0]->position.y = 10.0f;
+			mainLights[0]->position.z = 6.0f*cos(tempLightTimer);
 			if( tempObjects[0] ){
 				tempObjects[0]->position = mainLights[0]->position;
 			}
