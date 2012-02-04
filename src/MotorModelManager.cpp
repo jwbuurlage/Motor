@@ -33,8 +33,18 @@ namespace Motor {
 			return newModel;
 		}
 	}
+    
+    Model* ModelManager::loadCOLLADA( const char* filename ){
+        //we will load the vertex data before anything else.
+        //use tinyxml to extract data
+    
+        return 0;
+    }
 
 	Model* ModelManager::loadResource( const char* filename ){
+        //for now only COLLADA is supported
+        loadCOLLADA(filename);
+        
 		return 0;
 	}
 

@@ -22,7 +22,7 @@ namespace Motor {
 
 	private:
 		Model* loadResource( const char* filename );
-
+        Model* loadCOLLADA( const char* filename );
 		void loadDefaultModel();
 	};
 }

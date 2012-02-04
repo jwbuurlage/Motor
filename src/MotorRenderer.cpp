@@ -278,7 +278,7 @@ namespace Motor {
 		mMatrix.translate(obj->position);
         
         if(depthOnly) {
-            mvpMatrix = projectionMatrix * lightViewMatrix * mMatrix;
+            mvpMatrix = projectionMatrixShadow * lightViewMatrix * mMatrix;
         }
         else {
             mvpMatrix = projectionMatrix * viewMatrix * mMatrix;
@@ -373,5 +373,7 @@ namespace Motor {
 		float xmax = near * (float)tan(fov);
 		float xmin = -xmax;
 		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);
-	}
+        
+        projectionMatrixShadow.setPerspective(xmin, xmax, xmin, xmax, near, far);
+    }
 }

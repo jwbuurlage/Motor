@@ -42,6 +42,7 @@ namespace Motor {
 
 		//Matrices that are the same for all frames are saved
 		mat projectionMatrix;
+        mat projectionMatrixShadow;
 		mat viewMatrix;
         mat lightViewMatrix;
         mat biasMatrix;
