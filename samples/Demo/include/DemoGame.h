@@ -45,7 +45,7 @@ namespace Demo {
 
 		Player* localPlayer;
 		Motor::SceneObject* tempObjects[2];
-		Motor::Light* mainLights[2];
+		Motor::Light* mainLights[3];
 		float tempLightTimer;
 	};
 	

@@ -1,6 +1,7 @@
 #pragma once
 #include "matrix.h"
 #include "MotorScene.h" //For ObjectContainer definitions
+#include <GL/glew.h>
 
 namespace Motor {
 	class ShaderManager;
@@ -34,7 +35,8 @@ namespace Motor {
 		ShaderManager* shaderManager;
 
 		void drawObject(SceneObject* obj);
-
+        void drawObjectDepthOnly(SceneObject* obj);
+        
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application
 		void loadShaders();
@@ -42,11 +44,19 @@ namespace Motor {
 		//Matrices that are the same for all frames are saved
 		mat projectionMatrix;
 		mat viewMatrix;
+        mat lightViewMatrix;
+        mat biasMatrix;
 		void generateProjectionMatrix();
+        
+        ////////// SHADOW SUPPORT ///////////
+        void setUpShadowFBO();
+        GLuint shadowTexMapHandle;
+        GLuint shadowFBOHandle;
 
 		ObjectContainer* objects;
 		EffectContainer* effects;
 		LightContainer* lights;
+        
 
 		//Graphical settings
 		bool shadowsEnabled;
