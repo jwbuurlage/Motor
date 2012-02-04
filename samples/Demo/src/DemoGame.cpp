@@ -228,17 +228,14 @@ const int POSITIONUPDATE	= 1003;
 				sf::SelectorTCP selector;
 				selector.Add(socket);
 				if( selector.Wait(0.001f) ){
-					//Copied from SocketTCP.cpp :
-
-					// At this point the connection may have been either accepted or refused.
-					// To know whether it's a success or a failure, we try to retrieve the name of the connected peer
-					sockaddr_in SockAddr;
-					memset(SockAddr.sin_zero, 0, sizeof(SockAddr.sin_zero));
-					sf::SocketHelper::LengthType Size = sizeof(SockAddr);
-					if (getpeername(*(SOCKET*)&socket, reinterpret_cast<sockaddr*>(&SockAddr), &Size) != -1)
-					{
+					//To check if the socket is connected, we try to read from it:
+					sf::Packet pak;
+					sf::Socket::Status status = socket.Receive(pak);
+					if( status == sf::Socket::Done ){
 						connected = true;
-						std::cout << "Connected!\n";
+						handlePacket(&pak);
+					}else if( status == sf::Socket::NotReady ){ //connected but not ready to read
+						connected = true;
 					}
 				}
 			}
@@ -259,88 +256,90 @@ const int POSITIONUPDATE	= 1003;
 
 			sf::Socket::Status status = socket.Receive(packet);
 			if( status == sf::Socket::Done ){
-				//Received something
-				unsigned int packetCmd;
-				packet >> packetCmd;
-				switch( packetCmd ){
-				case YOURCLIENTID:
-					packet >> myClientID;
-					break;
-				case PLAYERLIST:
-					{
-						//clear old list:
-						for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
-							if( remotePlayers[i].sceneObj )
-								motorRoot->getScene()->deleteObject(remotePlayers[i].sceneObj);
-						}
-						remotePlayers.clear();
-
-						unsigned int playerCount;
-						packet >> playerCount;
-						std::cout << "Received playerlist with " << playerCount << " players from server.\n";
-						for( unsigned int i = 0; i < playerCount; ++i ){
-							int clientID;
-							packet >> clientID;
-							std::cout << "Player: ID = " << clientID << std::endl;
-							if( clientID != myClientID ){
-								Player newPlayer;
-								newPlayer.sceneObj = motorRoot->getScene()->createObject();
-								newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
-								newPlayer.clientID = clientID;
-								remotePlayers.push_back(newPlayer);
-							}
-						}
-					}
-					break;
-				case NEWPLAYER:
-					{
-						int clientID;
-						packet >> clientID;
-						if( clientID != myClientID ){
-							Player newPlayer;
-							newPlayer.sceneObj = motorRoot->getScene()->createObject();
-							newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
-							newPlayer.clientID = clientID;
-							remotePlayers.push_back(newPlayer);
-						}
-					}
-					break;
-				case PLAYERDISCONNECT:
-					{
-						int clientID;
-						packet >> clientID;
-						for( std::vector<Player>::iterator iter = remotePlayers.begin(); iter != remotePlayers.end(); ++iter ){
-							if( iter->clientID == clientID ){
-								if( iter->sceneObj ) motorRoot->getScene()->deleteObject(iter->sceneObj);
-								remotePlayers.erase(iter);
-								break;
-							}
-						}
-					}
-					break;
-				case POSITIONUPDATE:
-					{
-						unsigned int clientID;
-						float x,y,z;
-						packet >> clientID >> x >> y >> z;
-						for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
-							if( remotePlayers[i].clientID == clientID ){
-								remotePlayers[i].sceneObj->position = Vector3(x,y,z);
-								break;
-							}
-						}
-					}
-					break;
-				default:
-					break;
-				};
+				handlePacket(&packet);
 			}else if( status != sf::Socket::NotReady ){
 				socket.Close();
 				connected = false;
 				timeUntilRetry = 3.0f;
-				std::cout << "Disconnected!\n";
+				std::cout << "Disconnected from server.\n";
 			}
 		}
+	}
+
+	void Game::handlePacket(sf::Packet* pak){
+		//Received something
+		unsigned int packetCmd;
+		*pak >> packetCmd;
+		switch( packetCmd ){
+		case YOURCLIENTID:
+			*pak >> myClientID;
+			break;
+		case PLAYERLIST:
+			{
+				//clear old list:
+				for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+					if( remotePlayers[i].sceneObj )
+						motorRoot->getScene()->deleteObject(remotePlayers[i].sceneObj);
+				}
+				remotePlayers.clear();
+
+				unsigned int playerCount;
+				*pak >> playerCount;
+				for( unsigned int i = 0; i < playerCount; ++i ){
+					int clientID;
+					*pak >> clientID;
+					if( clientID != myClientID ){
+						Player newPlayer;
+						newPlayer.sceneObj = motorRoot->getScene()->createObject();
+						newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+						newPlayer.clientID = clientID;
+						remotePlayers.push_back(newPlayer);
+					}
+				}
+			}
+			break;
+		case NEWPLAYER:
+			{
+				int clientID;
+				*pak >> clientID;
+				if( clientID != myClientID ){
+					Player newPlayer;
+					newPlayer.sceneObj = motorRoot->getScene()->createObject();
+					newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+					newPlayer.clientID = clientID;
+					remotePlayers.push_back(newPlayer);
+				}
+			}
+			break;
+		case PLAYERDISCONNECT:
+			{
+				int clientID;
+				*pak >> clientID;
+				for( std::vector<Player>::iterator iter = remotePlayers.begin(); iter != remotePlayers.end(); ++iter ){
+					if( iter->clientID == clientID ){
+						if( iter->sceneObj ) motorRoot->getScene()->deleteObject(iter->sceneObj);
+						remotePlayers.erase(iter);
+						break;
+					}
+				}
+			}
+			break;
+		case POSITIONUPDATE:
+			{
+				unsigned int clientID;
+				float x,y,z;
+				*pak >> clientID >> x >> y >> z;
+				for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+					if( remotePlayers[i].clientID == clientID ){
+						remotePlayers[i].sceneObj->position = Vector3(x,y,z);
+						break;
+					}
+				}
+			}
+			break;
+		default:
+			break;
+		};
 	}
 
 }

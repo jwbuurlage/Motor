@@ -37,6 +37,7 @@ namespace Demo {
 		float timeUntilRetry;
 		float timeUntilPosUpdate;
 		void doNetworkStuff(float elapsedTime);
+		void handlePacket(sf::Packet* pak);
 		
 		int myClientID;
 		std::vector<Player> remotePlayers;
