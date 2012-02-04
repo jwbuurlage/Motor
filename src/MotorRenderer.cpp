@@ -178,7 +178,10 @@ namespace Motor {
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); 
 
             Vector3 lightPos = lights->empty() ? Vector3(0,0,0) : lights->front()->position;
+           
+            //this should actually be a property of the light
             Vector3 lookAt = Vector3(0.0f, -3.2f, 0.0f);
+            
             Vector3 relativePosition = lightPos - lookAt;
 
             mat rotationMat, translateMat, mvpMatrix;
@@ -193,7 +196,7 @@ namespace Motor {
             shaderManager->setActiveProgram("shadowMap");
             
             for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                drawObjectDepthOnly( *iter );
+                drawObject( *iter, true );
             }
             
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -214,19 +217,17 @@ namespace Motor {
             shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
             
             for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                drawObject( *iter );
+                drawObject( *iter, false );
             }
-
-
 
 		}
         else {
             shaderManager->setActiveProgram("TextureLightning");
         
-
             //
             //Step 2
             //
+            
             shaderManager->getActiveProgram()->setUniform1i("tex", 0);
             //TODO: get the 8 closests lights!
             int lightCounter = 0;
@@ -241,7 +242,7 @@ namespace Motor {
             shaderManager->getActiveProgram()->setUniform1i("lightCount", lightCounter);
 
             for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                drawObject( *iter );
+                drawObject( *iter, false );
             }
                 
         }
@@ -259,87 +260,8 @@ namespace Motor {
 
 		return true;
 	}
-    
-    void Renderer::drawObjectDepthOnly(SceneObject* obj) {
-        
-        const Model* model = obj->getModel();
-		if( model == 0 ) return;
-		const Mesh* mesh = model->getMesh();
-		if( mesh == 0 ) return;
-		const Material* material = model->getMaterial();
-        
-		mat mMatrix, mvpMatrix;
-        
-		//Rotate: first roll, then pitch, then yaw
-		mMatrix.setRotationZ(obj->roll);
-		mMatrix.rotateX(obj->pitch);
-		mMatrix.rotateY(obj->yaw);
-		mMatrix.scale(obj->scale);
-		mMatrix.translate(obj->position);
-        
-		mvpMatrix = projectionMatrix * viewMatrix * mMatrix;
-                
-        mvpMatrix = projectionMatrix * lightViewMatrix * mMatrix;
-        
-        //set the uniform
-        shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", mvpMatrix);
-		
-        glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
-        
-		shaderManager->getActiveProgram()->vertexAttribPointer(
-                                                               "position",
-                                                               mesh->dimension,
-                                                               mesh->vertexBufferDataType,
-                                                               false,
-                                                               mesh->stride,
-                                                               mesh->vertexOffset);
-        
-		if( mesh->hasColor )
-			shaderManager->getActiveProgram()->vertexAttribPointer(
-                                                                   "color",
-                                                                   4,
-                                                                   mesh->vertexBufferDataType,
-                                                                   false,
-                                                                   mesh->stride,
-                                                                   (GLvoid*)12);
-        
-		if( mesh->hasNormal )
-			shaderManager->getActiveProgram()->vertexAttribPointer(
-                                                                   "normal",
-                                                                   3,
-                                                                   mesh->vertexBufferDataType,
-                                                                   false,
-                                                                   mesh->stride,
-                                                                   (GLvoid*)28);
-        
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-        
-		if( material && material->texture ){
-			glBindTexture(GL_TEXTURE_2D, model->getMaterial()->texture->handle);
-		}else{
-			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
-		}
-		shaderManager->getActiveProgram()->vertexAttribPointer(
-                                                               "textureCoordinate",
-                                                               2,
-                                                               mesh->vertexBufferDataType,
-                                                               false,
-                                                               mesh->stride,
-                                                               (GLvoid*)40);
-        
-		if( mesh->hasIndexBuffer ){
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
-			glDrawElements(mesh->primitiveType, mesh->indexCount, mesh->indexBufferDataType, 0);
-		}else{
-			glDrawArrays(mesh->primitiveType, 0, mesh->vertexCount);
-		}
-        
-		return;
 
-    }
-
-	void Renderer::drawObject(SceneObject* obj){
+	void Renderer::drawObject(SceneObject* obj, bool depthOnly){
 		const Model* model = obj->getModel();
 		if( model == 0 ) return;
 		const Mesh* mesh = model->getMesh();
@@ -354,11 +276,17 @@ namespace Motor {
 		mMatrix.rotateY(obj->yaw);
 		mMatrix.scale(obj->scale);
 		mMatrix.translate(obj->position);
-
-		mvpMatrix = projectionMatrix * viewMatrix * mMatrix;
-
-		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
-		shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", mvpMatrix);
+        
+        if(depthOnly) {
+            mvpMatrix = projectionMatrix * lightViewMatrix * mMatrix;
+        }
+        else {
+            mvpMatrix = projectionMatrix * viewMatrix * mMatrix;
+            shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+        }
+        
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", mvpMatrix);
+        
 
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
@@ -387,7 +315,7 @@ namespace Motor {
 				false,
 				mesh->stride,
 				(GLvoid*)28);
-
+        
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 

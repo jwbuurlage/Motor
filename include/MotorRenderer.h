@@ -34,8 +34,7 @@ namespace Motor {
 		int windowWidth, windowHeight;
 		ShaderManager* shaderManager;
 
-		void drawObject(SceneObject* obj);
-        void drawObjectDepthOnly(SceneObject* obj);
+		void drawObject(SceneObject* obj, bool depthOnly);
         
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application
