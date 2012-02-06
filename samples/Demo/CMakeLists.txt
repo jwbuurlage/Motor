@@ -15,6 +15,8 @@ SET(
 	"../../src/MotorMaterialManager.cpp"
 	"../../src/MotorMesh.cpp"
 	"../../src/MotorMeshManager.cpp"
+	"../../src/MotorModelManager.cpp"
+	"../../src/MotorParticleEffect.cpp"
 	"../../src/MotorRenderer.cpp"
 	"../../src/MotorRoot.cpp"
 	"../../src/MotorScene.cpp"
@@ -36,6 +38,7 @@ SET(
 
 SET(
 	PROJECT_LIBRARIES
+	"sfml-network"
 	"sfml-graphics"
 	"sfml-window"
 	"sfml-system"

@@ -57,6 +57,8 @@ namespace Motor {
 		shaderManager = new ShaderManager;
 		loadShaders();
 
+		checkErrors();
+
 		//Set OpenGL settings
 		glShadeModel(GL_SMOOTH);	
 		glEnable(GL_DEPTH_TEST);
@@ -80,6 +82,7 @@ namespace Motor {
         biasMatrix.scale(0.5f);
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
+		checkErrors();
 
 		initialized = true;
 		return 1;
@@ -134,6 +137,7 @@ namespace Motor {
 	void Renderer::setWindowSize(int width, int height){
 		windowWidth = width;
 		windowHeight = height;
+		generateProjectionMatrix();
 	}
 
 	bool Renderer::checkErrors(){
@@ -211,7 +215,7 @@ namespace Motor {
             shaderManager->setActiveProgram("shadowTextureLightning");
             shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
             mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
-            shaderManager->getActiveProgram()->setUniformMatrix4fv("lightMatrix", lightningProjection);
+            shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
             
             shaderManager->getActiveProgram()->setUniform1i("tex", 0);
             shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
@@ -373,8 +377,8 @@ namespace Motor {
 		float xmin = -xmax;
 		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);
         
-		xmax = 5.0f;
-		xmin = -5.0f;
+		xmax = 4.0f;
+		xmin = -4.0f;
         projectionMatrixShadow.setPerspective(xmin, xmax, xmin, xmax, near, far);
     }
 }

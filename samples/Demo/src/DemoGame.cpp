@@ -72,7 +72,7 @@ namespace Demo {
 			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
 		}
 
-		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
+		//if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
 		if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
 		tempLightTimer = 0.0f;
 
