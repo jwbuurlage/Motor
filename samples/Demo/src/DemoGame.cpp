@@ -47,14 +47,14 @@ namespace Demo {
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		localPlayer->sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
 
-		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("default", "derpcube");
+        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
+        plane->setModel( Motor::ModelManager::getSingleton().getModel("plane") );
+        plane->position = Vector3( 0.0f, -3.0f, 0.0f );
+        
+		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
 		cubeModel->setMaterial( derpMat );
 
-        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
-        plane->setModel( Motor::ModelManager::getSingleton().getModel("plane") );
-        plane->position = Vector3( 0.0f, -5.0f, 0.0f );
-        
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;
 			if( balls[i]->sceneObj == 0 ) balls[i]->sceneObj = motorRoot->getScene()->createObject();
@@ -72,8 +72,8 @@ namespace Demo {
 			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
 		}
 
-		//if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
-		if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
+		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
+		//if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
 		tempLightTimer = 0.0f;
 
 		if( tempObjects[0] == 0 ) tempObjects[0] = motorRoot->getScene()->createObject();
@@ -121,10 +121,10 @@ namespace Demo {
 
 			balls[i]->sceneObj->position += balls[i]->movement * elapsedTime;
 
-			const Vector3 gravity(0.0f, -5.0f, 0.0f);
+			const Vector3 gravity(0.0f, -8.0f, 0.0f);
 			balls[i]->movement += gravity * elapsedTime;
 
-			if( balls[i]->sceneObj->position.y <= -3.0f  ){
+			if( balls[i]->sceneObj->position.y <= -2.8f  ){
 				if( balls[i]->movement.y < 0 ) balls[i]->movement.y = - balls[i]->movement.y;
 			}
 		}

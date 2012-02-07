@@ -114,13 +114,11 @@ namespace Motor {
 
 		//Attach the texture to the framebuffer object
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, shadowTexMapHandle, 0);
-            
-		//Debug:
 
-		//GLenum FBOstatus;
-		//FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-		//if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
-		//	printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
+		GLenum FBOstatus;
+		FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
+			printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
 
 		//Unbind the shadow framebuffer object
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -377,8 +375,9 @@ namespace Motor {
 		float xmin = -xmax;
 		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);
         
-		xmax = 4.0f;
-		xmin = -4.0f;
+		fov = 70.0f * (float)M_PI/360.0f;
+		xmax = near * (float)tan(fov);
+		xmin = -xmax;
         projectionMatrixShadow.setPerspective(xmin, xmax, xmin, xmax, near, far);
     }
 }
