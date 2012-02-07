@@ -8,7 +8,7 @@ namespace Motor {
 
 	class Model{
 	public:
-		Model(){ mesh = 0; material = 0; }
+		Model(){ mesh = 0; material = 0; animated = false; }
 		~Model(){
 			if( mesh ){
 				mesh->release();
@@ -32,10 +32,15 @@ namespace Motor {
 			material = newMaterial;
 		}
 		Material* getMaterial() const { return material; }
+        
+        bool getAnimated() { return animated; }
 
 	private:
+        friend class MD2Model;
+
 		Mesh* mesh;
 		Material* material;
+        bool animated;
 	};
 
 }

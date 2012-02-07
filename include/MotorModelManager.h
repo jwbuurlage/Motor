@@ -2,6 +2,8 @@
 #include "MotorSingleton.h"
 #include "MotorResourceManager.h"
 #include "MotorModel.h"
+#include "MotorMD2Model.h"
+#include "MotorFilesystem.h"
 
 namespace Motor {
 
@@ -22,6 +24,7 @@ namespace Motor {
 
 	private:
 		Model* loadResource( const char* filename );
+        Model* loadMD2( const char* filename );
         Model* loadCOLLADA( const char* filename );
 		void loadDefaultModel();
 	};

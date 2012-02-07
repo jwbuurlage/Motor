@@ -55,6 +55,11 @@ namespace Demo {
         plane->setModel( Motor::ModelManager::getSingleton().getModel("plane") );
         plane->position = Vector3( 0.0f, -5.0f, 0.0f );
         
+        Motor::SceneObject* md2model = motorRoot->getScene()->createObject();
+        plane->setModel( Motor::ModelManager::getSingleton().getModel("models/Hep.md2") );
+        plane->position = Vector3( 0.0f, -5.0f, 0.0f );
+        
+        
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;
 			if( balls[i]->sceneObj == 0 ) balls[i]->sceneObj = motorRoot->getScene()->createObject();
