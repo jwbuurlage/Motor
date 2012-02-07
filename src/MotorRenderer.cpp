@@ -152,113 +152,78 @@ namespace Motor {
 	bool Renderer::renderFrame(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//
 		// Three render steps:
 		// 1. Render scene looking from the lights for shadow maps
 		// 2. Render scene from camera with shadow maps applied
 		// 3. Call render callbacks: the user interface will register a callback in which it can use
 		//		functions from Renderer to draw UI elements.
-		//
-
-		if( shadowsEnabled ){
-            //render to shadowmap
-            
-            //
-            //Step 1
-            //
 
 
-            ////////////////////////////////////////////////////////////////////////////
-            // First pass: We render the scene from the light and save the texture map /
-            ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        // Step 1: We render the scene from the light and save the texture map     /
+        ////////////////////////////////////////////////////////////////////////////
 
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,shadowFBOHandle);	
-            glViewport(0,0,1024,1024);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            
-            glCullFace(GL_FRONT);
-            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); 
-
-            Vector3 lightPos = lights->empty() ? Vector3(0,0,0) : lights->front()->position;
-           
-            //this should actually be a property of the light
-            Vector3 lookAt = Vector3(0.0f, -3.2f, 0.0f);
-            
-            Vector3 relativePosition = lightPos - lookAt;
-
-            mat rotationMat, translateMat, mvpMatrix;
-            
-            float pitch = (float)(M_PI / 2) - acos(relativePosition.y / relativePosition.length());
-            float yaw = atan2(relativePosition.x, relativePosition.z);
-            
-            rotationMat.setRotationXYZ( pitch, -yaw, 0 );
-            translateMat.setTranslation(-lightPos);
-            lightViewMatrix = rotationMat * translateMat;
-            
-            shaderManager->setActiveProgram("shadowMap");
-            
-            for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                drawObject( *iter, true );
-            }
-            
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-            glViewport(0,0,windowWidth,windowHeight);
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            glCullFace(GL_BACK);
-            
-            //
-            //Step 2
-            //
-
-            shaderManager->setActiveProgram("shadowTextureLightning");
-            shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
-            mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
-            shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
-            
-            shaderManager->getActiveProgram()->setUniform1i("tex", 0);
-            shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
-            
-            for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                drawObject( *iter, false );
-            }
-
-		}
-        else {
-            shaderManager->setActiveProgram("TextureLightning");
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,shadowFBOHandle);	
+        glViewport(0,0,1024,1024);
+        glClear(GL_DEPTH_BUFFER_BIT);
         
-            //
-            //Step 2
-            //
-            
-            shaderManager->getActiveProgram()->setUniform1i("tex", 0);
-            //TODO: get the 8 closests lights!
-            int lightCounter = 0;
-            for( LightIterator iter = lights->begin(); iter != lights->end(); ++iter ){
-                if( (*iter)->enabled ){
-                    std::stringstream varname;
-                    varname << "lightPosition[" << lightCounter << "]";
-                    shaderManager->getActiveProgram()->setUniform3fv(varname.str().c_str(), (*iter)->position );
-                    ++lightCounter;
-                }
-            }
-            shaderManager->getActiveProgram()->setUniform1i("lightCount", lightCounter);
+        glCullFace(GL_FRONT);
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); 
 
-            for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                drawObject( *iter, false );
-            }
-                
+        Vector3 lightPos = lights->empty() ? Vector3(0,0,0) : lights->front()->position;
+       
+        //this should actually be a property of the light
+        Vector3 lookAt = Vector3(0.0f, -3.2f, 0.0f);
+        
+        Vector3 relativePosition = lightPos - lookAt;
+
+        mat rotationMat, translateMat, mvpMatrix;
+        
+        float pitch = (float)(M_PI / 2) - acos(relativePosition.y / relativePosition.length());
+        float yaw = atan2(relativePosition.x, relativePosition.z);
+        
+        rotationMat.setRotationXYZ( pitch, -yaw, 0 );
+        translateMat.setTranslation(-lightPos);
+        lightViewMatrix = rotationMat * translateMat;
+        
+        shaderManager->setActiveProgram("shadowMap");
+        
+        for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
+            drawObject( *iter, true );
         }
         
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        glViewport(0,0,windowWidth,windowHeight);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glCullFace(GL_BACK);
+        
+        
+        /////////////////////////////////////////////////////////////////////////////
+        // Step 2: We render the scene, and read out the values from the shadow map /
+        /////////////////////////////////////////////////////////////////////////////
+        
+        shaderManager->setActiveProgram("shadowTextureLightning");
+        shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
+        mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
+        
+        shaderManager->getActiveProgram()->setUniform1i("tex", 0);
+        shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
+        
+        for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
+            drawObject( *iter, false );
+        }
+
         shaderManager->setActiveProgram("TextureLightning");
 
 		//Particle effects
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
 
 		}
-
-		//
-		//Step 3
-		//
+            
+        /////////////////////////////////////////////////////////////////////////////
+        // Step 3: Callbacks (project specific, UI, etc.)                           /
+        /////////////////////////////////////////////////////////////////////////////
 
 		return true;
 	}
@@ -292,30 +257,15 @@ namespace Motor {
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
 		shaderManager->getActiveProgram()->vertexAttribPointer(
-			"position",
-			mesh->dimension,
-			mesh->vertexBufferDataType,
-			false,
-			mesh->stride,
-			mesh->vertexOffset);
+            "position", mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, mesh->vertexOffset);
 
 		if( mesh->hasColor )
-			shaderManager->getActiveProgram()->vertexAttribPointer(
-				"color",
-				4,
-				mesh->vertexBufferDataType,
-				false,
-				mesh->stride,
-				(GLvoid*)12);
+            shaderManager->getActiveProgram()->vertexAttribPointer(
+				"color", 4, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)12);
 
 		if( mesh->hasNormal )
 			shaderManager->getActiveProgram()->vertexAttribPointer(
-				"normal",
-				3,
-				mesh->vertexBufferDataType,
-				false,
-				mesh->stride,
-				(GLvoid*)28);
+				"normal", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)28);
         
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
