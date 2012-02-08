@@ -43,7 +43,7 @@ namespace Motor {
 		windowHeight = height;
 
 		if( initialized ){
-			Logger::getSingleton().log(Logger::WARNING, "Renderer already initializedd");
+			Logger::getSingleton().log(Logger::WARNING, "Renderer already initialized");
 			return 1;
 		}
 		if( glewInit() != GLEW_OK ){
@@ -202,11 +202,20 @@ namespace Motor {
         // Step 2: We render the scene, and read out the values from the shadow map /
         /////////////////////////////////////////////////////////////////////////////
         
+        mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
+
+        // set uniforms for non-animated objects
         shaderManager->setActiveProgram("shadowTextureLightning");
         shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
-        mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
+        shaderManager->getActiveProgram()->setUniform1i("tex", 0);
+        shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
         
+        // set the same uniforms for animated objects 
+        // (there is something called uniform buffer objects, which we might want to look into)
+        shaderManager->setActiveProgram("shadowTextureLightningMD2");
+        shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);        
         shaderManager->getActiveProgram()->setUniform1i("tex", 0);
         shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
         
@@ -234,6 +243,31 @@ namespace Motor {
 		const Mesh* mesh = model->getMesh();
 		if( mesh == 0 ) return;
 		const Material* material = model->getMaterial();
+        
+        bool animation = false;
+        int vertexOffset = 0;
+        int vertexOffsetNext = 0;
+        
+        if(!depthOnly) {
+            if(obj->getState()) {
+                shaderManager->setActiveProgram("shadowTextureLightningMD2");
+                
+                float timeperframe = (float)1/obj->getState()->fps;
+                float interpolation = obj->getState()->timetracker / timeperframe;
+                
+                shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
+                
+                animation = true;
+                if(obj->getState()->curr_frame > -1) {
+                    vertexOffset = obj->getState()->curr_frame * (model->verticesPerFrame()) * 12 * 4;
+                    vertexOffsetNext = obj->getState()->next_frame * (model->verticesPerFrame()) * 12 * 4;
+                }
+            }
+            else {
+                shaderManager->setActiveProgram("shadowTextureLightning");
+                animation = false;
+            }
+        }
 
 		mat mMatrix, mvpMatrix;
 
@@ -257,15 +291,15 @@ namespace Motor {
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
 		shaderManager->getActiveProgram()->vertexAttribPointer(
-            "position", mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, mesh->vertexOffset);
+            "position", mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)vertexOffset);
 
 		if( mesh->hasColor )
             shaderManager->getActiveProgram()->vertexAttribPointer(
-				"color", 4, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)12);
+				"color", 4, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffset + 12));
 
 		if( mesh->hasNormal )
 			shaderManager->getActiveProgram()->vertexAttribPointer(
-				"normal", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)28);
+				"normal", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffset + 28));
         
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
@@ -281,15 +315,25 @@ namespace Motor {
 			mesh->vertexBufferDataType,
 			false,
 			mesh->stride,
-			(GLvoid*)40);
+			(GLvoid*)(vertexOffset + 40));
+        
+        if (model->isAnimated()) {
+            shaderManager->getActiveProgram()->vertexAttribPointer(
+                                                                   "position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext));
+            
+            shaderManager->getActiveProgram()->vertexAttribPointer(
+                                                                   "normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext + 28));
+        }
 
 		if( mesh->hasIndexBuffer ){
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
 			glDrawElements(mesh->primitiveType, mesh->indexCount, mesh->indexBufferDataType, 0);
-		}else{
+		} else{
 			glDrawArrays(mesh->primitiveType, 0, mesh->vertexCount);
 		}
 
+
+        
 		return;
 	}
 
@@ -304,6 +348,15 @@ namespace Motor {
 		shaderManager->bindAttrib("shadowTextureLightning", "color", AT_COLOR);
 		shaderManager->bindAttrib("shadowTextureLightning", "normal", AT_NORMAL);
 		shaderManager->linkProgram("shadowTextureLightning");
+        
+        shaderManager->makeShaderProgram("shadowTextureLightningMD2", "shaders/shadowtexturelightningmd2.vsh", "shaders/shadowtexturelightningmd2.fsh");
+		shaderManager->bindAttrib("shadowTextureLightningMD2", "textureCoordinate", AT_TEXCOORD);
+		shaderManager->bindAttrib("shadowTextureLightningMD2", "position", AT_VERTEX);
+		shaderManager->bindAttrib("shadowTextureLightningMD2", "color", AT_COLOR);
+		shaderManager->bindAttrib("shadowTextureLightningMD2", "normal", AT_NORMAL);
+        shaderManager->bindAttrib("shadowTextureLightningMD2", "normal_next", AT_NORMAL_NEXT);
+        shaderManager->bindAttrib("shadowTextureLightningMD2", "position_next", AT_VERTEX_NEXT);
+		shaderManager->linkProgram("shadowTextureLightningMD2");
 
 		shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh");
 		shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);

@@ -9,6 +9,7 @@
 #pragma once
 
 namespace Motor {
+    struct AnimState;
     
     typedef GLfloat vec3[3];
     
@@ -65,11 +66,43 @@ namespace Motor {
         unsigned short   tex[3];     // indexes to vertices' texture coorinates
         
     } triangle;
-
     
+
+    // We now define an animation list of an md2 model for easier access:
+    typedef enum {
+        STAND,
+        RUN,
+        ATTACK,
+        PAIN_A,
+        PAIN_B,
+        PAIN_C,
+        JUMP,
+        FLIP,
+        SALUTE,
+        FALLBACK,
+        WAVE,
+        POINT,
+        CROUCH_STAND,
+        CROUCH_WALK,
+        CROUCH_ATTACK,
+        CROUCH_PAIN,
+        CROUCH_DEATH, 
+        DEATH_FALLBACK,
+        DEATH_FALLFORWARD,
+        DEATH_FALLBACKSLOW,
+        BOOM,
+        MAX_ANIMATIONS
+    } animationType;
+
+    typedef struct {
+        int firstFrame; // first frame of the animation
+        int lastFrame;  // number of frames
+        int fps;        // number of frames per second
+    } animation;
+
     class MD2Model : public Model {
     public:
-        MD2Model() { mesh = 0; material = 0; animated = false; frameCount = 0; frameSize = 0; triangleCount = 0; textureHandle = 0; timetracker = 0.0f; };
+        MD2Model();
         ~MD2Model();
         
         //VARIABLES
@@ -79,11 +112,15 @@ namespace Motor {
         int triangleCount;
         int textureHandle;
         
+        virtual void updateAnimationState(struct AnimState* state, float timeElapsed) const;
+        virtual void setAnimation(struct AnimState* state, int _type) const;
+        
+        virtual int verticesPerFrame() const { return triangleCount * 3; }
+        
         static vec3 anorms[162];
         
     private:
-                
-        
+        static animation animationList[21];
         float timetracker;
         
     };

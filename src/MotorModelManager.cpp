@@ -107,6 +107,8 @@ vec3 MD2Model::anorms[] = {
         int frameCount = head.nFrames;
         int triangleCount = head.nTriangles;
         
+        model->triangleCount = head.nTriangles;
+        
         Mesh* modelMesh = new Mesh;
         
         char* texCooBuffer = new char[sizeof(texCoo) * head.nTexCoo];
@@ -122,42 +124,52 @@ vec3 MD2Model::anorms[] = {
         texCooPtr = (texCoo*)texCooBuffer; 
                 
         // 6) Create our VBO and elements object.
-		GLfloat* vertices = new GLfloat[(triangleCount * 3) * 12];
+		GLfloat* vertices = new GLfloat[(triangleCount * 3) * 12 * frameCount];
         
 		framePtr = (frame*)buffer;
         
-		for( int k = 0; k < triangleCount; k++ )
-		{
-			for(int m = 0; m < 3; m++) {
-				int index = trianglePtr[k].vert[m];
-				int texcooindex = trianglePtr[k].tex[m];
-                
-				//vertices
-				vertices[(12 * (3*k + m)) + 0] = (framePtr->verts[index].v[1] * framePtr->scale[1]) + framePtr->translate[1];
-				vertices[(12 * (3*k + m)) + 1] = (framePtr->verts[index].v[2] * framePtr->scale[2]) + framePtr->translate[2];
-				vertices[(12 * (3*k + m)) + 2] = -((framePtr->verts[index].v[0] * framePtr->scale[0]) + framePtr->translate[0]);
-                
-                //color
-				vertices[(12 * (3*k + m)) + 3] = 1.0f;
-				vertices[(12 * (3*k + m)) + 4] = 1.0f;
-				vertices[(12 * (3*k + m)) + 5] = 1.0f;
-				vertices[(12 * (3*k + m)) + 6] = 1.0f;
+        for( int j = 0; j < frameCount; j++ )
+        {
+            //we need to adjust our pointer every loop (frame)
+            framePtr = (frame*)&buffer[j * head.frameSize];
+            
+            for( int k = 0; k < triangleCount; k++ )
+            {
+                for(int m = 0; m < 3; m++) {
+                    int index = trianglePtr[k].vert[m];
+                    int texcooindex = trianglePtr[k].tex[m];
+                    
+                    int frameOffset = (j * (triangleCount * 3) * 12);
+                    int triangleOffset = (12 * (3*k + m));
+                    
+                    //vertices
+                    vertices[frameOffset + triangleOffset + 0] = (framePtr->verts[index].v[1] * framePtr->scale[1]) + framePtr->translate[1];
+                    vertices[frameOffset + triangleOffset + 1] = (framePtr->verts[index].v[2] * framePtr->scale[2]) + framePtr->translate[2];
+                    vertices[frameOffset + triangleOffset + 2] = -((framePtr->verts[index].v[0] * framePtr->scale[0]) + framePtr->translate[0]);
+                    
+                    //color
+                    vertices[frameOffset + triangleOffset + 3] = 1.0f;
+                    vertices[frameOffset + triangleOffset + 4] = 1.0f;
+                    vertices[frameOffset + triangleOffset + 5] = 1.0f;
+                    vertices[frameOffset + triangleOffset + 6] = 1.0f;
 
-				//normals
-				vertices[(12 * (3*k + m)) + 7] = model->anorms[framePtr->verts[index].lightnormalindex][1];
-				vertices[(12 * (3*k + m)) + 8] = model->anorms[framePtr->verts[index].lightnormalindex][2];
-				vertices[(12 * (3*k + m)) + 9] = -model->anorms[framePtr->verts[index].lightnormalindex][0];
-                
-				//texcoo
-				vertices[(12 * (3*k + m)) + 10] = (float)texCooPtr[texcooindex].s / head.textureWidth;
-				vertices[(12 * (3*k + m)) + 11] = ((float)texCooPtr[texcooindex].t / head.textureHeight);
-			}
-		}
+                    //normals
+                    vertices[frameOffset + triangleOffset + 7] = model->anorms[framePtr->verts[index].lightnormalindex][1];
+                    vertices[frameOffset + triangleOffset + 8] = model->anorms[framePtr->verts[index].lightnormalindex][2];
+                    vertices[frameOffset + triangleOffset + 9] = -model->anorms[framePtr->verts[index].lightnormalindex][0];
+                    
+                    //texcoo
+                    vertices[frameOffset + triangleOffset + 10] = (float)texCooPtr[texcooindex].s / head.textureWidth;
+                    vertices[frameOffset + triangleOffset + 11] = ((float)texCooPtr[texcooindex].t / head.textureHeight);
+                }
+            }
+            
+        }
         
 		// 7) Bind these buffers
 		glGenBuffers(1, &modelMesh->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, modelMesh->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * triangleCount * 3 * 12, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * triangleCount * 3 * 12 * frameCount, vertices, GL_STATIC_DRAW);
 
         modelMesh->hasColor = true;
         modelMesh->hasNormal = true;

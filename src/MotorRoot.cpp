@@ -1,6 +1,7 @@
 #include "MotorRoot.h"
 #include "MotorRenderer.h"
 #include "MotorScene.h"
+#include "MotorSceneObject.h"
 #include "MotorCamera.h"
 #include "MotorTextureManager.h"
 #include "MotorMaterialManager.h"
@@ -49,7 +50,7 @@ namespace Motor {
 			Settings.StencilBits       = 8;  // Request a 8 bits stencil buffer
 			Settings.AntialiasingLevel = 2;  // Request 2 levels of antialiasing
 			//window = new sf::Window(sf::VideoMode(1024, 768, 32), "OpenGL Window", sf::Style::Close, Settings);
-            window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Fullscreen, Settings);
+            window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Close, Settings);
 		}
 
 		if( !renderer->initialize(window->GetWidth(), window->GetHeight()) ) return 0;
@@ -126,7 +127,7 @@ namespace Motor {
 				}
 			}
 
-			float elapsedTime = timer->getElapsedTime();
+            float elapsedTime = timer->getElapsedTime();
 			++frameCount;
 			frameTime += elapsedTime;
 			if( frameTime > 1.0f ){
@@ -136,6 +137,12 @@ namespace Motor {
 				frameCount = 0;
 				frameTime = 0;
 			}
+            
+            //update models
+            ObjectContainer* objects = currentScene->getObjectList();
+            for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
+                (*iter)->update(elapsedTime);
+            }
 
 			//Call frame listeners
 			for( std::vector<FrameListener*>::iterator it = frameListeners.begin(); it != frameListeners.end(); ++it ){
@@ -164,6 +171,9 @@ namespace Motor {
 			renderer->setEffectList(0);
 			renderer->setLightList(0);
 		}
+        
+
+
 
 		renderer->renderFrame();
 		window->Display();

@@ -5,6 +5,7 @@
 #include "MotorMaterial.h"
 
 namespace Motor {
+    struct AnimState;
 
 	class Model{
 	public:
@@ -26,6 +27,8 @@ namespace Motor {
 			}
 		}
 		Mesh* getMesh() const { return mesh; }
+        
+        void update(float timeElapsed) { return; }
 
 		void setMaterial(Material* newMaterial){
 			//TODO: release/addRef
@@ -33,7 +36,12 @@ namespace Motor {
 		}
 		Material* getMaterial() const { return material; }
         
-        bool getAnimated() { return animated; }
+        virtual void updateAnimationState(struct AnimState* state, float timeElapsed) const { };
+        virtual void setAnimation(struct AnimState* state, int _type) const { };
+        
+        virtual int verticesPerFrame() const { return 0; }
+        
+        bool isAnimated() const { return animated; }
 
 	protected:
 		Mesh* mesh;
