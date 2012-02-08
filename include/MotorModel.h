@@ -35,9 +35,7 @@ namespace Motor {
         
         bool getAnimated() { return animated; }
 
-	private:
-        friend class MD2Model;
-
+	protected:
 		Mesh* mesh;
 		Material* material;
         bool animated;

@@ -56,9 +56,15 @@ namespace Demo {
         plane->position = Vector3( 0.0f, -5.0f, 0.0f );
         
         Motor::SceneObject* md2model = motorRoot->getScene()->createObject();
-        plane->setModel( Motor::ModelManager::getSingleton().getModel("models/Hep.md2") );
-        plane->position = Vector3( 0.0f, -5.0f, 0.0f );
+        md2model->scale = 0.1f;
+        md2model->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
+        md2model->position = Vector3( 2.0f, -3.0f, 2.0f );
         
+        Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
+        md2model2->scale = 0.1f;
+        md2model2->setModel(Motor::ModelManager::getSingleton().getModel("Ogros"));
+        md2model2->position = Vector3( -2.0f, -3.0f, -2.0f );
+
         
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;
@@ -114,8 +120,8 @@ namespace Demo {
 			}
 		}
 		if( mainLights[1] ){
-			mainLights[1]->position.x = 1.5f*sin(tempLightTimer*2.0f);
-			mainLights[1]->position.y = 4.0f*cos(tempLightTimer*2.0f);
+			mainLights[1]->position.x = 5.5f*sin(tempLightTimer);
+			mainLights[1]->position.z = 4.0f*cos(tempLightTimer);
 			if( tempObjects[1] ){
 				tempObjects[1]->position = mainLights[1]->position;
 			}

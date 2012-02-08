@@ -73,21 +73,25 @@ vec3 MD2Model::anorms[] = {
         //Define pointers and other variables
         ModelHeader     head;
         //pointers
-        char*           buffer;
-        char*           triangleBuffer;
-        char*           texCooBuffer;
         frame*          framePtr;
         triangle*       trianglePtr;
         texCoo*			texCooPtr;
-                
+        
+        int readPosition = 0;
+        
         //Open the file
-		const File* modelfile = Filesystem::getSingleton().getFile(filename);
+        std::string location;
+        location += "models/";
+        location += filename;
+        location += ".md2";
+		const File* modelfile = Filesystem::getSingleton().getFile(location.c_str());
         
         if(!modelfile->data)
             return NULL;
         
         //Read the header
         memcpy(&head, modelfile->data, sizeof(ModelHeader));        
+        readPosition += sizeof(ModelHeader);
         
         // 1) Check if the model is an md2 file
         // 2) Check if it's md2 version 8 (we will require this)
@@ -104,22 +108,23 @@ vec3 MD2Model::anorms[] = {
         int triangleCount = head.nTriangles;
         
         Mesh* modelMesh = new Mesh;
-        model->setMesh(modelMesh);
-        model->getMesh()->vertexCount = model->triangleCount * 3;
-
-        std::cout << "INFO: " << head.oFrames << std::endl;
         
-        memcpy(&texCooBuffer, modelfile->data, frameSize * frameCount);
-        memcpy(&texCooBuffer, modelfile->data + head.oTexCoo, sizeof(texCoo) * head.nTexCoo);
-        memcpy(&triangleBuffer, modelfile->data + head.oTriangles, sizeof(triangle) * triangleCount * frameCount);
+        char* texCooBuffer = new char[sizeof(texCoo) * head.nTexCoo];
+        memcpy(texCooBuffer, modelfile->data + head.oTexCoo, sizeof(texCoo) * head.nTexCoo);
+        
+        char* buffer = new char[frameSize * frameCount];
+        memcpy(buffer, modelfile->data + head.oFrames, frameSize * frameCount);
+       
+        char* triangleBuffer = new char[sizeof(triangle) * triangleCount * frameCount];
+        memcpy(triangleBuffer, modelfile->data + head.oTriangles, sizeof(triangle) * triangleCount * frameCount);
  
         trianglePtr = (triangle*)triangleBuffer;
         texCooPtr = (texCoo*)texCooBuffer; 
                 
         // 6) Create our VBO and elements object.
-		GLfloat* vertices = new GLfloat[(triangleCount * 3) * 8];
+		GLfloat* vertices = new GLfloat[(triangleCount * 3) * 12];
         
-		framePtr = (frame*)&buffer;
+		framePtr = (frame*)buffer;
         
 		for( int k = 0; k < triangleCount; k++ )
 		{
@@ -128,26 +133,50 @@ vec3 MD2Model::anorms[] = {
 				int texcooindex = trianglePtr[k].tex[m];
                 
 				//vertices
-				vertices[(8 * (3*k + m)) + 0] = (framePtr->verts[index].v[1] * framePtr->scale[1]) + framePtr->translate[1];
-				vertices[(8 * (3*k + m)) + 1] = (framePtr->verts[index].v[2] * framePtr->scale[2]) + framePtr->translate[2];
-				vertices[(8 * (3*k + m)) + 2] = -((framePtr->verts[index].v[0] * framePtr->scale[0]) + framePtr->translate[0]);
+				vertices[(12 * (3*k + m)) + 0] = (framePtr->verts[index].v[1] * framePtr->scale[1]) + framePtr->translate[1];
+				vertices[(12 * (3*k + m)) + 1] = (framePtr->verts[index].v[2] * framePtr->scale[2]) + framePtr->translate[2];
+				vertices[(12 * (3*k + m)) + 2] = -((framePtr->verts[index].v[0] * framePtr->scale[0]) + framePtr->translate[0]);
                 
+                //color
+				vertices[(12 * (3*k + m)) + 3] = 1.0f;
+				vertices[(12 * (3*k + m)) + 4] = 1.0f;
+				vertices[(12 * (3*k + m)) + 5] = 1.0f;
+				vertices[(12 * (3*k + m)) + 6] = 1.0f;
+
 				//normals
-				vertices[(8 * (3*k + m)) + 3] = model->anorms[framePtr->verts[index].lightnormalindex][1];
-				vertices[(8 * (3*k + m)) + 4] = model->anorms[framePtr->verts[index].lightnormalindex][2];
-				vertices[(8 * (3*k + m)) + 5] = -model->anorms[framePtr->verts[index].lightnormalindex][0];
+				vertices[(12 * (3*k + m)) + 7] = model->anorms[framePtr->verts[index].lightnormalindex][1];
+				vertices[(12 * (3*k + m)) + 8] = model->anorms[framePtr->verts[index].lightnormalindex][2];
+				vertices[(12 * (3*k + m)) + 9] = -model->anorms[framePtr->verts[index].lightnormalindex][0];
                 
 				//texcoo
-				vertices[(8 * (3*k + m)) + 6] = (float)texCooPtr[texcooindex].s / head.textureWidth;
-				vertices[(8 * (3*k + m)) + 7] = 1-((float)texCooPtr[texcooindex].t / head.textureHeight);
+				vertices[(12 * (3*k + m)) + 10] = (float)texCooPtr[texcooindex].s / head.textureWidth;
+				vertices[(12 * (3*k + m)) + 11] = ((float)texCooPtr[texcooindex].t / head.textureHeight);
 			}
 		}
         
 		// 7) Bind these buffers
 		glGenBuffers(1, &modelMesh->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, modelMesh->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * (model->triangleCount * 3) * 8, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * triangleCount * 3 * 12, vertices, GL_STATIC_DRAW);
 
+        modelMesh->hasColor = true;
+        modelMesh->hasNormal = true;
+        modelMesh->hasIndexBuffer = false;
+        modelMesh->vertexCount = triangleCount * 3;
+        modelMesh->vertexBufferSize = sizeof(GLfloat) * triangleCount * 3 * 12;
+        modelMesh->vertexBufferDataType = GL_FLOAT;
+        modelMesh->primitiveType = GL_TRIANGLES;
+        modelMesh->dimension = 3;
+        modelMesh->stride = 48;
+        modelMesh->vertexOffset = 0;
+        
+        model->setMesh(modelMesh);
+        
+        std::string location_texture;
+        location_texture += "textures/";
+        location_texture += filename;
+        location_texture += ".tga";
+        model->setMaterial( MaterialManager::getSingleton().getMaterial(location_texture.c_str()) );
 
         // 8) Clean up, release data
         delete [] buffer;
@@ -156,7 +185,7 @@ vec3 MD2Model::anorms[] = {
 
 		addResource(filename, model);
         
-        return model;
+        return getResource(filename);;
     }
     
     Model* ModelManager::loadCOLLADA( const char* filename ){
@@ -168,9 +197,7 @@ vec3 MD2Model::anorms[] = {
 
 	Model* ModelManager::loadResource( const char* filename ){
         //for now only MD2 is supported
-        loadMD2(filename);
-        
-		return 0;
+		return loadMD2(filename);;
 	}
 
 	void ModelManager::loadDefaultModel(){
