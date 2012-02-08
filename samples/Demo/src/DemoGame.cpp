@@ -45,15 +45,30 @@ namespace Demo {
 
 		if( localPlayer == 0 ) localPlayer = new Player;
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
-		localPlayer->sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
-
+        
+        Motor::Model* woodBoxModel =  Motor::ModelManager::getSingleton().createModelCopy("default", "woodenbox");
+        Motor::Material* woodMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
+        woodBoxModel->setMaterial(woodMat);
+		localPlayer->sceneObj->setModel(woodBoxModel);
+        
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
         plane->setModel( Motor::ModelManager::getSingleton().getModel("plane") );
         plane->position = Vector3( 0.0f, -3.0f, 0.0f );
         
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
-		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
+		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
 		cubeModel->setMaterial( derpMat );
+        
+        Motor::SceneObject* md2model = motorRoot->getScene()->createObject();
+        md2model->scale = 0.1f;
+        md2model->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
+        md2model->position = Vector3( 5.0f, -0.7f, 5.0f );
+        
+        Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
+        md2model2->scale = 0.1f;
+        md2model2->setModel(Motor::ModelManager::getSingleton().getModel("Ogros"));
+        md2model2->position = Vector3( -5.0f, -0.7f, -5.0f );
+
 
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;

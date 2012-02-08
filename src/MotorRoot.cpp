@@ -48,10 +48,11 @@ namespace Motor {
 			Settings.DepthBits         = 24; // Request a 24 bits depth buffer
 			Settings.StencilBits       = 8;  // Request a 8 bits stencil buffer
 			Settings.AntialiasingLevel = 2;  // Request 2 levels of antialiasing
-			window = new sf::Window(sf::VideoMode(1024, 768, 32), "OpenGL Window", sf::Style::Close, Settings);
+			//window = new sf::Window(sf::VideoMode(1024, 768, 32), "OpenGL Window", sf::Style::Close, Settings);
+            window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Fullscreen, Settings);
 		}
 
-		if( !renderer->initialize(1024, 768) ) return 0;
+		if( !renderer->initialize(window->GetWidth(), window->GetHeight()) ) return 0;
 		timer->initialize();
 
 		textureManager->initialize();
