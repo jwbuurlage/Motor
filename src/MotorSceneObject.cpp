@@ -56,12 +56,12 @@ namespace Motor {
     void SceneObject::setAnimation(int anim) {
         if(!state)
             state = new AnimState;
-        
-        model->setAnimation(state, anim);
+        if( model )
+			model->setAnimation(state, anim);
     }
 
     void SceneObject::update(float timeElapsed) {
-        if(state) {
+        if(state && model) {
             model->updateAnimationState(state, timeElapsed);
         }
     }
