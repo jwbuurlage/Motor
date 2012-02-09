@@ -46,9 +46,8 @@ namespace Demo {
 		if( localPlayer == 0 ) localPlayer = new Player;
 		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
         
-        Motor::Model* woodBoxModel =  Motor::ModelManager::getSingleton().createModelCopy("default", "woodenbox");
-        Motor::Material* woodMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
-        woodBoxModel->setMaterial(woodMat);
+        Motor::Model* woodBoxModel =  Motor::ModelManager::getSingleton().getModel("Jeep");
+        localPlayer->sceneObj->scale = 0.01f;
 		localPlayer->sceneObj->setModel(woodBoxModel);
         
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
@@ -60,10 +59,35 @@ namespace Demo {
 		cubeModel->setMaterial( derpMat );
         
         Motor::SceneObject* md2model = motorRoot->getScene()->createObject();
-        md2model->scale = 0.1f;
-        md2model->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
-        md2model->position = Vector3( 5.0f, -0.7f, 5.0f );
+        md2model->scale = 0.01f;
+        md2model->setModel( Motor::ModelManager::getSingleton().getModel("Dolphin"));
+        md2model->position = Vector3( 5.0f, -0.7f, -5.0f );
         
+        Motor::SceneObject* hepModel = motorRoot->getScene()->createObject();
+        hepModel->scale = 0.1f;
+        hepModel->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
+        hepModel->position = Vector3( 5.0f, -0.7f, 5.0f );
+
+        Motor::SceneObject* archvileModel = motorRoot->getScene()->createObject();
+        archvileModel->scale = 0.1f;
+        archvileModel->setModel( Motor::ModelManager::getSingleton().getModel("Imp"));
+        archvileModel->position = Vector3( -5.0f, -0.7f, 5.0f );
+
+        Motor::SceneObject* bosscubeModel = motorRoot->getScene()->createObject();
+        bosscubeModel->scale = 0.2f;
+        bosscubeModel->setModel( Motor::ModelManager::getSingleton().getModel("Bosscube"));
+        bosscubeModel->position = Vector3( -10.0f, -0.7f, 5.0f );
+        
+        Motor::SceneObject* cyberModel = motorRoot->getScene()->createObject();
+        cyberModel->scale = 0.05f;
+        cyberModel->setModel( Motor::ModelManager::getSingleton().getModel("Cyber"));
+        cyberModel->position = Vector3( 10.0f, -0.7f, 5.0f );
+
+        Motor::SceneObject* lostSoulModel = motorRoot->getScene()->createObject();
+        lostSoulModel->scale = 0.1f;
+        lostSoulModel->setModel( Motor::ModelManager::getSingleton().getModel("Lost_Soul"));
+        lostSoulModel->position = Vector3( 5.0f, -0.7f, -10.0f ); 
+
         Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
         md2model2->scale = 0.1f;
         md2model2->setModel(Motor::ModelManager::getSingleton().getModel("Ogros"));
@@ -117,7 +141,7 @@ namespace Demo {
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
 			mainLights[0]->position.x = 6.0f*sin(tempLightTimer);
-            mainLights[0]->position.y = 10.0f;
+            mainLights[0]->position.y = 14.0f + 8.0f*cos(tempLightTimer);
 			mainLights[0]->position.z = 6.0f*cos(tempLightTimer);
 			if( tempObjects[0] ){
 				tempObjects[0]->position = mainLights[0]->position;

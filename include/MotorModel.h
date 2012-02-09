@@ -42,11 +42,11 @@ namespace Motor {
         virtual int verticesPerFrame() const { return 0; }
         
         bool isAnimated() const { return animated; }
+        bool animated;
 
 	protected:
 		Mesh* mesh;
 		Material* material;
-        bool animated;
 	};
 
 }

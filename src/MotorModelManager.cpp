@@ -107,6 +107,10 @@ vec3 MD2Model::anorms[] = {
         int frameCount = head.nFrames;
         int triangleCount = head.nTriangles;
         
+        if (frameCount > 1) {
+            model->animated = true;
+        }
+            
         model->triangleCount = head.nTriangles;
         
         Mesh* modelMesh = new Mesh;
@@ -194,6 +198,9 @@ vec3 MD2Model::anorms[] = {
         delete [] buffer;
         delete [] triangleBuffer;
         delete [] texCooBuffer;
+        
+        // delete file
+        Filesystem::getSingleton().unloadFile(modelfile);
 
 		addResource(filename, model);
         

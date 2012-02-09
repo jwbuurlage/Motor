@@ -185,9 +185,7 @@ namespace Motor {
         rotationMat.setRotationXYZ( pitch, -yaw, 0 );
         translateMat.setTranslation(-lightPos);
         lightViewMatrix = rotationMat * translateMat;
-        
-        shaderManager->setActiveProgram("shadowMap");
-        
+                
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, true );
         }
@@ -268,6 +266,26 @@ namespace Motor {
                 animation = false;
             }
         }
+        else {
+            if(obj->getState()) {
+                shaderManager->setActiveProgram("shadowMapMD2");
+                
+                float timeperframe = (float)1/obj->getState()->fps;
+                float interpolation = obj->getState()->timetracker / timeperframe;
+                
+                shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
+                
+                animation = true;
+                if(obj->getState()->curr_frame > -1) {
+                    vertexOffset = obj->getState()->curr_frame * (model->verticesPerFrame()) * 12 * 4;
+                    vertexOffsetNext = obj->getState()->next_frame * (model->verticesPerFrame()) * 12 * 4;
+                }
+            }
+            else {
+                shaderManager->setActiveProgram("shadowMap");
+                animation = false;
+            }
+        }
 
 		mat mMatrix, mvpMatrix;
 
@@ -342,6 +360,11 @@ namespace Motor {
 		shaderManager->bindAttrib("shadowMap", "position", AT_VERTEX);
 		shaderManager->linkProgram("shadowMap");
 
+        shaderManager->makeShaderProgram("shadowMapMD2", "shaders/shadowmapmd2.vsh", "shaders/shadowmapmd2.fsh");
+		shaderManager->bindAttrib("shadowMapMD2", "position", AT_VERTEX);
+        shaderManager->bindAttrib("shadowMapMD2", "position_next", AT_VERTEX_NEXT);
+		shaderManager->linkProgram("shadowMapMD2");
+        
 		shaderManager->makeShaderProgram("shadowTextureLightning", "shaders/shadowtexturelightning.vsh", "shaders/shadowtexturelightning.fsh");
 		shaderManager->bindAttrib("shadowTextureLightning", "textureCoordinate", AT_TEXCOORD);
 		shaderManager->bindAttrib("shadowTextureLightning", "position", AT_VERTEX);

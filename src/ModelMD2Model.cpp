@@ -45,7 +45,7 @@ namespace Motor {
     MD2Model::MD2Model() { 
         mesh = 0; 
         material = 0; 
-        animated = true; 
+        animated = false; 
         frameCount = 0; 
         frameSize = 0; 
         triangleCount = 0; 
