@@ -110,7 +110,7 @@ namespace Motor {
 		for( fileIterator fileIter = loadedFiles.begin(); fileIter != loadedFiles.end(); ++fileIter ){
 			if( file == fileIter->second ){
 				loadedFiles.erase(fileIter);
-				delete[] file->data;
+				if( file->data ) delete[] file->data;
 				delete file;
 				break;
 			}
@@ -120,7 +120,7 @@ namespace Motor {
 	void Filesystem::unloadAllFiles()
 	{
 		for( fileIterator file = loadedFiles.begin(); file != loadedFiles.end(); ++file ){
-			delete[] file->second->data;
+			if( file->second->data ) delete[] file->second->data;
 			delete file->second;
 		}
 		loadedFiles.clear();

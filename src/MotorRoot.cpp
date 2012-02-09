@@ -50,7 +50,7 @@ namespace Motor {
 			Settings.StencilBits       = 8;  // Request a 8 bits stencil buffer
 			Settings.AntialiasingLevel = 2;  // Request 2 levels of antialiasing
 			//window = new sf::Window(sf::VideoMode(1024, 768, 32), "OpenGL Window", sf::Style::Close, Settings);
-            window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Fullscreen, Settings);
+            window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Close, Settings);
 		}
 
 		if( !renderer->initialize(window->GetWidth(), window->GetHeight()) ) return 0;
@@ -171,10 +171,7 @@ namespace Motor {
 			renderer->setEffectList(0);
 			renderer->setLightList(0);
 		}
-        
-
-
-
+		
 		renderer->renderFrame();
 		window->Display();
 		return renderer->checkErrors();

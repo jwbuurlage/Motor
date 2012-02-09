@@ -325,11 +325,8 @@ namespace Motor {
 			(GLvoid*)(vertexOffset + 40));
         
         if (model->isAnimated()) {
-            shaderManager->getActiveProgram()->vertexAttribPointer(
-                                                                   "position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext));
-            
-            shaderManager->getActiveProgram()->vertexAttribPointer(
-                                                                   "normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext + 28));
+            shaderManager->getActiveProgram()->vertexAttribPointer("position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext));
+            shaderManager->getActiveProgram()->vertexAttribPointer("normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext + 28));
         }
 
 		if( mesh->hasIndexBuffer ){
@@ -338,8 +335,6 @@ namespace Motor {
 		} else{
 			glDrawArrays(mesh->primitiveType, 0, mesh->vertexCount);
 		}
-
-
         
 		return;
 	}

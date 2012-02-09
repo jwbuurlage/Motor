@@ -33,7 +33,7 @@ namespace Motor {
 		}
 
 	private:
-		typedef std::map<std::string,void*> ResourceContainer;
+		typedef std::multimap<std::string,void*> ResourceContainer;
 		ResourceContainer resources;
 		
 	protected:
