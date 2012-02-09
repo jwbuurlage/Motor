@@ -48,7 +48,7 @@ namespace Motor {
     
     void SceneObject::setModel(const Motor::Model *_model) {
         model = _model;
-        if(_model->isAnimated()) {
+        if( model && model->isAnimated() ) {
             setAnimation(0);
         }
     }

@@ -25,6 +25,7 @@ SET(
 	"../../src/MotorTextureManager.cpp"
 	"../../src/MotorTimer.cpp"
 	"../../src/MotorWorld.cpp"
+	"../../src/ModelMD2Model.cpp"
 	
 	"src/DemoGame.cpp"
 	"src/DemoMain.cpp"

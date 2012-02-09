@@ -59,6 +59,8 @@ namespace Motor {
 
 		checkErrors();
 
+		Logger::getSingleton().log(Logger::INFO, "Shaders loaded");
+
 		//Set OpenGL settings
 		glShadeModel(GL_SMOOTH);	
 		glEnable(GL_DEPTH_TEST);
@@ -79,7 +81,7 @@ namespace Motor {
         glActiveTexture(GL_TEXTURE0);
         
         biasMatrix.setIdentity();
-        biasMatrix.scale(0.5f);
+        biasMatrix.scale(0.5f);				
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
 		checkErrors();
@@ -118,7 +120,7 @@ namespace Motor {
 		GLenum FBOstatus;
 		FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 		if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
-			printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
+			Logger::getSingleton().log(Logger::WARNING, "Unable to create Framebuffer object for shadowmapping");
 
 		//Unbind the shadow framebuffer object
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -292,15 +294,15 @@ namespace Motor {
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
 		shaderManager->getActiveProgram()->vertexAttribPointer(
-            "position", mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)vertexOffset);
+            "position", mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset));
 
 		if( mesh->hasColor )
             shaderManager->getActiveProgram()->vertexAttribPointer(
-				"color", 4, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffset + 12));
+				"color", 4, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 12));
 
 		if( mesh->hasNormal )
 			shaderManager->getActiveProgram()->vertexAttribPointer(
-				"normal", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffset + 28));
+				"normal", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 28));
         
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
@@ -316,11 +318,11 @@ namespace Motor {
 			mesh->vertexBufferDataType,
 			false,
 			mesh->stride,
-			(GLvoid*)(vertexOffset + 40));
+			reinterpret_cast<GLvoid*>(vertexOffset + 40));
         
         if (model->isAnimated()) {
-            shaderManager->getActiveProgram()->vertexAttribPointer("position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext));
-            shaderManager->getActiveProgram()->vertexAttribPointer("normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, (GLvoid*)(vertexOffsetNext + 28));
+            shaderManager->getActiveProgram()->vertexAttribPointer("position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
+            shaderManager->getActiveProgram()->vertexAttribPointer("normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
         }
 
 		if( mesh->hasIndexBuffer ){

@@ -283,7 +283,7 @@ const int MOVEMENTUPDATE	= 1003;
 		if( !connected ){
 			timeUntilRetry -= elapsedTime;
 			if( timeUntilRetry <= 0.0f ){
-				if( socket.Connect(1337, "192.168.137.5") == sf::Socket::Done ){
+				if( socket.Connect(1337, "127.0.0.1") == sf::Socket::Done ){
 					connected = true;
 					std::cout << "Instantly connected!\n";
 				}

@@ -1,6 +1,7 @@
 #include "MotorModelManager.h"
 #include "MotorMeshManager.h"
 #include "MotorMaterialManager.h"
+#include "MotorLogger.h"
 
 #include <iostream>
 
@@ -84,8 +85,10 @@ vec3 MD2Model::anorms[] = {
         location += ".md2";
 		const File* modelfile = Filesystem::getSingleton().getFile(location.c_str());
         
-        if(!modelfile->data)
+        if(!modelfile){
+			Logger::getSingleton().log(Logger::WARNING, "Could not load model file");
             return NULL;
+		}
         
 		head = (ModelHeader*)modelfile->data;
 
@@ -95,8 +98,6 @@ vec3 MD2Model::anorms[] = {
             std::cout << "ERROR: " << filename << " is not a valid md2 model." << std::endl;
             return NULL;
         }
-        
-        std::cout << "LOADED: " << filename << " , an awesome model." << head->version << std::endl;
         
         // 3) Copy the header data into our classvariables        
         int frameSize = head->frameSize;

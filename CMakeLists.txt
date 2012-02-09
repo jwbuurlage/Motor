@@ -7,3 +7,4 @@ project (Motor)
 
 #-- Then build each samples respectively
 add_subdirectory(samples/Demo)
+add_subdirectory(samples/DemoServer)

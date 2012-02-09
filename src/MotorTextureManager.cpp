@@ -51,7 +51,7 @@ namespace Motor {
 	void TextureManager::loadDefaultTexture(){
 		if( resourceLoaded("default") ) return;
 
-		/* Texture* defaultTex = new Texture;
+		Texture* defaultTex = new Texture;
 		defaultTex->handle = 0;
 		defaultTex->width = 4;
 		defaultTex->height = 4;
@@ -72,9 +72,10 @@ namespace Motor {
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, defaultTex->width, defaultTex->height, 0, GL_RGBA, GL_FLOAT, imageData );
 
-		delete[] imageData; */
+		delete[] imageData;
 
-		addResource("default", getResource("textures/stone.tga"));
+		addResource("default", defaultTex);
+		
 		return;
 	}
 }

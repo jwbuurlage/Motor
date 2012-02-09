@@ -67,6 +67,8 @@ namespace Motor {
 
 		renderer->checkErrors();
 
+		Logger::getSingleton().log(Logger::INFO, "Motor initialized");
+
 		return 1;
 	}
 
@@ -93,6 +95,8 @@ namespace Motor {
 
 	void Root::startRendering()
 	{
+		Logger::getSingleton().log(Logger::INFO, "Motor renderloop started");
+
         running = true;
 		sf::Event Event;
 		//FPS counting
