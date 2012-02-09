@@ -32,7 +32,8 @@ public:
 	
 	//Cast to float*
 	//So you can do glUniformXX( .. , matrix );
-	operator float*(){ return value; }
+	operator float*() { return value; }
+	operator const float*() const { return value; }
 	
 	//For using Vector3 with matrix:
 	//vector2 = matrix1 * vector1;

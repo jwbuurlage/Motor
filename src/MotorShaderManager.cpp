@@ -115,10 +115,10 @@ namespace Motor {
 	void ShaderManager::ShaderProgram::setUniform1i(const char* varname, int value){
 		glUniform1i(getUniformLocation(varname), value);
 	}
-	void ShaderManager::ShaderProgram::setUniform3fv(const char* varname, float* values){
+	void ShaderManager::ShaderProgram::setUniform3fv(const char* varname,const  float* values){
 		glUniform3fv(getUniformLocation(varname), 1, values);
 	}
-	void ShaderManager::ShaderProgram::setUniformMatrix4fv(const char* varname, float* mat){
+	void ShaderManager::ShaderProgram::setUniformMatrix4fv(const char* varname, const float* mat){
 		glUniformMatrix4fv(getUniformLocation(varname), 1, false, mat);
 	}
 

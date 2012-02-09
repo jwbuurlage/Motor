@@ -25,7 +25,20 @@ namespace Motor {
 	}
 
 	void Scene::unloadAllObjects(){
+		for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter){
+			delete *iter;
+		}
+		objects.clear();
 
+		for(EffectIterator iter = particleEffects.begin(); iter != particleEffects.end(); ++iter){
+			delete *iter;
+		}
+		particleEffects.clear();
+
+		for(LightIterator iter = lights.begin(); iter != lights.end(); ++iter){
+			delete *iter;
+		}
+		lights.clear();
 	}
 
 	void Scene::onFrame(float elapsedTime){
@@ -40,6 +53,11 @@ namespace Motor {
 		SceneObject* obj = new SceneObject;
 		objects.push_back(obj);
 		return obj;
+	}
+
+	SceneObject* Scene::createChildObject(SceneObject* parent){
+		if( parent ) return parent->attachChild(createObject());	
+		return createObject();
 	}
 
 	ParticleEffect* Scene::createParticleEffect(){
@@ -59,13 +77,41 @@ namespace Motor {
 
 	void Scene::deleteObject(SceneObject* obj){
 		if( obj == 0 ) return;
-		for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter){
-			if( obj == *iter ){
-				objects.erase(iter);
-				break;
+
+		if( obj->childNodes.empty() ){
+
+			for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter){
+				if( obj == *iter ){
+					objects.erase(iter);
+					break;
+				}
 			}
+			delete obj;
+
+		}else{
+
+			//This should be safe for any nodes hvaing their parents as childs and all that kinds of stuff
+			std::vector<SceneObject*> deleteList;
+			deleteList.push_back( obj );
+
+			while( !deleteList.empty() ){
+				SceneObject* current = deleteList.back();
+				deleteList.pop_back();
+				//Add its childs to delete list
+				for( std::vector<SceneObject*>::iterator iter = current->childNodes.begin(); iter != current->childNodes.end(); ++iter ){
+					deleteList.push_back( *iter );
+				}
+				//Delete this item
+				for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter){
+					if( current == *iter ){
+						objects.erase(iter);
+						delete current;
+						break;
+					}
+				}
+			}
+
 		}
-		delete obj;
 	}
 
 	void Scene::deleteParticleEffect(ParticleEffect* fx){

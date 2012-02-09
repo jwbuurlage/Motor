@@ -46,68 +46,70 @@ namespace Demo {
 		motorRoot->addInputListener(this);
 		motorRoot->addFrameListener(this);
 
+		motorRoot->getScene()->unloadAllObjects();
+
 		if( localPlayer == 0 ) localPlayer = new Player;
-		if( localPlayer->sceneObj == 0 ) localPlayer->sceneObj = motorRoot->getScene()->createObject();
-        
-        Motor::Model* woodBoxModel =  Motor::ModelManager::getSingleton().getModel("Jeep");
-        localPlayer->sceneObj->scale = 0.01f;
-		localPlayer->sceneObj->position.y = -3.0f;
-		localPlayer->sceneObj->setModel(woodBoxModel);
+		localPlayer->sceneObj = motorRoot->getScene()->createObject();
+		Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(localPlayer->sceneObj);
+		jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+		jeepObject->setScale(0.01f);
+		jeepObject->setYaw(1.5708f);
+		localPlayer->sceneObj->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
         Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
         Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/baan.png");
         planeCopy->setMaterial(baanMat);
         plane->setModel(planeCopy);
-        plane->scale = 3.0f;
-        plane->position = Vector3( 0.0f, -3.0f, 0.0f );
+        plane->setScale(3.0f);
+        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
 		cubeModel->setMaterial( derpMat );
         
         Motor::SceneObject* md2model = motorRoot->getScene()->createObject();
-        md2model->scale = 0.01f;
+        md2model->setScale(0.01f);
         md2model->setModel( Motor::ModelManager::getSingleton().getModel("Dolphin"));
-        md2model->position = Vector3( 5.0f, -0.7f, -5.0f );
+        md2model->setPosition( Vector3( 5.0f, -0.7f, -5.0f ) );
         
         Motor::SceneObject* hepModel = motorRoot->getScene()->createObject();
-        hepModel->scale = 0.1f;
+        hepModel->setScale(0.1f);
         hepModel->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
-        hepModel->position = Vector3( 5.0f, -0.7f, 5.0f );
+        hepModel->setPosition( Vector3( 5.0f, -0.7f, 5.0f ) );
 
         Motor::SceneObject* archvileModel = motorRoot->getScene()->createObject();
-        archvileModel->scale = 0.1f;
+        archvileModel->setScale(0.1f);
         archvileModel->setModel( Motor::ModelManager::getSingleton().getModel("Imp"));
-        archvileModel->position = Vector3( -5.0f, -0.7f, 5.0f );
+        archvileModel->setPosition( Vector3( -5.0f, -0.7f, 5.0f ) );
 
         Motor::SceneObject* bosscubeModel = motorRoot->getScene()->createObject();
-        bosscubeModel->scale = 0.2f;
+        bosscubeModel->setScale(0.2f);
         bosscubeModel->setModel( Motor::ModelManager::getSingleton().getModel("Bosscube"));
-        bosscubeModel->position = Vector3( -10.0f, -0.7f, 5.0f );
+        bosscubeModel->setPosition( Vector3( -10.0f, -0.7f, 5.0f ) );
         
         Motor::SceneObject* cyberModel = motorRoot->getScene()->createObject();
-        cyberModel->scale = 0.05f;
+        cyberModel->setScale(0.05f);
         cyberModel->setModel( Motor::ModelManager::getSingleton().getModel("Cyber"));
-        cyberModel->position = Vector3( 10.0f, -0.7f, 5.0f );
+        cyberModel->setPosition( Vector3( 10.0f, -0.7f, 5.0f ) );
 
         Motor::SceneObject* lostSoulModel = motorRoot->getScene()->createObject();
-        lostSoulModel->scale = 0.1f;
+        lostSoulModel->setScale(0.1f);
         lostSoulModel->setModel( Motor::ModelManager::getSingleton().getModel("Lost_Soul"));
-        lostSoulModel->position = Vector3( 5.0f, -0.7f, -10.0f ); 
+        lostSoulModel->setPosition( Vector3( 5.0f, -0.7f, -10.0f ) ); 
 
         Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
-        md2model2->scale = 0.1f;
+        md2model2->setScale(0.1f);
         md2model2->setModel(Motor::ModelManager::getSingleton().getModel("Ogros"));
-        md2model2->position = Vector3( -5.0f, -0.7f, -5.0f );
+        md2model2->setPosition( Vector3( -5.0f, -0.7f, -5.0f ) );
 
 
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) balls[i] = new Player;
 			if( balls[i]->sceneObj == 0 ) balls[i]->sceneObj = motorRoot->getScene()->createObject();
 			balls[i]->sceneObj->setModel( cubeModel );
-			balls[i]->sceneObj->position = Vector3( 2.0f*sin((float)i), 2.0f*cos((float)i), (float)i );
-			balls[i]->sceneObj->scale = 0.2f;
+			balls[i]->sceneObj->setPosition( Vector3( 2.0f*sin((float)i), 2.0f*cos((float)i), (float)i ) );
+			balls[i]->sceneObj->setScale(0.4f);
 			balls[i]->movement = Vector3( 0, -1.0f, 0);
 		}
 
@@ -126,9 +128,9 @@ namespace Demo {
 		if( tempObjects[0] == 0 ) tempObjects[0] = motorRoot->getScene()->createObject();
 		if( tempObjects[1] == 0 ) tempObjects[1] = motorRoot->getScene()->createObject();
 		tempObjects[0]->setModel( Motor::ModelManager::getSingleton().getModel("sphere") );
-		tempObjects[0]->scale = 0.2f;
+		tempObjects[0]->setScale(0.2f);
 		tempObjects[1]->setModel( Motor::ModelManager::getSingleton().getModel("sphere") );
-		tempObjects[1]->scale = 0.2f;
+		tempObjects[1]->setScale(0.2f);
 
 		connected = false;
 		timeUntilRetry = 0.0f;
@@ -145,18 +147,19 @@ namespace Demo {
 
 		if( localPlayer ){
             Motor::Camera* cam = motorRoot->getScene()->getCamera();
+			const Vector3& playerPos = localPlayer->sceneObj->getPosition();
 			if( cam ){
-				cam->setTargetLocation(localPlayer->sceneObj->position, false);
+				cam->setTargetLocation(playerPos, false);
 				if( rotatingLeft && !rotatingRight ){
 					cam->rotateCamera( 1.5f * elapsedTime , 0.0f );
 				}else if( rotatingRight && !rotatingLeft ){
 					cam->rotateCamera( -1.5f * elapsedTime , 0.0f );
 				}
-				localPlayer->sceneObj->yaw = cam->getYaw() + 1.5708f;
+				localPlayer->sceneObj->setYaw( cam->getYaw() );
 				localPlayer->movement = moveDir * (usingTurbo ? 50.0f : 20.0f);
 				localPlayer->movement.rotateY(cam->getYaw());
 			}
-			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
+			localPlayer->sceneObj->setPosition( playerPos + localPlayer->movement * elapsedTime );
 		}
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
@@ -164,29 +167,34 @@ namespace Demo {
             mainLights[0]->position.y = 14.0f + 8.0f*cos(tempLightTimer);
 			mainLights[0]->position.z = 6.0f*cos(tempLightTimer);
 			if( tempObjects[0] ){
-				tempObjects[0]->position = mainLights[0]->position;
+				tempObjects[0]->setPosition( mainLights[0]->position );
 			}
 		}
 		if( mainLights[1] ){
 			mainLights[1]->position.x = 5.5f*sin(tempLightTimer);
 			mainLights[1]->position.z = 4.0f*cos(tempLightTimer);
 			if( tempObjects[1] ){
-				tempObjects[1]->position = mainLights[1]->position;
+				tempObjects[1]->setPosition( mainLights[1]->position );
 			}
 		}
 		for( int i = 0; i < ballCount; ++i ){
 			if( balls[i] == 0 ) continue;
 			if( balls[i]->sceneObj == 0 ) continue;
 
-			balls[i]->sceneObj->position += balls[i]->movement * elapsedTime;
-
-			const Vector3 gravity(0.0f, -8.0f, 0.0f);
+			const Vector3 gravity(0.0f, -20.0f, 0.0f);
 			balls[i]->movement += gravity * elapsedTime;
 
-			if( balls[i]->sceneObj->position.y <= -2.8f  ){
+			const Vector3& pos = balls[i]->sceneObj->getPosition();
+			if( pos.y <= -2.8f  ){
 				if( balls[i]->movement.y < 0 ) balls[i]->movement.y = - balls[i]->movement.y;
 			}
+			balls[i]->sceneObj->setPosition( pos + balls[i]->movement * elapsedTime );
 		}
+
+		for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+			remotePlayers[i].sceneObj->setPosition( remotePlayers[i].sceneObj->getPosition() + remotePlayers[i].movement * elapsedTime );
+		}
+
 		return;
 	}
 
@@ -269,7 +277,7 @@ const int YOURCLIENTID		= 999;
 const int PLAYERLIST		= 1000;
 const int NEWPLAYER			= 1001;
 const int PLAYERDISCONNECT	= 1002;
-const int POSITIONUPDATE	= 1003;
+const int MOVEMENTUPDATE	= 1003;
 
 	void Game::doNetworkStuff(float elapsedTime){
 		if( !connected ){
@@ -301,13 +309,18 @@ const int POSITIONUPDATE	= 1003;
 			timeUntilPosUpdate -= elapsedTime;
 			if( timeUntilPosUpdate <= 0.0f ){
 				if( localPlayer && localPlayer->sceneObj ){
-					packet << POSITIONUPDATE << myClientID;
-					packet << localPlayer->sceneObj->position.x;
-					packet << localPlayer->sceneObj->position.y;
-					packet << localPlayer->sceneObj->position.z;
+					const Vector3& pos = localPlayer->sceneObj->getPosition();
+					packet << MOVEMENTUPDATE << myClientID;
+					packet << pos.x << pos.y << pos.z;
+					packet << localPlayer->sceneObj->getPitch();
+					packet << localPlayer->sceneObj->getYaw();
+					packet << localPlayer->sceneObj->getRoll();
+					packet << localPlayer->movement.x;
+					packet << localPlayer->movement.y;
+					packet << localPlayer->movement.z;
 					socket.Send(packet);
 				}
-				timeUntilPosUpdate = 0.020f;
+				timeUntilPosUpdate = 0.050f;
 			}
 
 			sf::Socket::Status status = socket.Receive(packet);
@@ -347,9 +360,13 @@ const int POSITIONUPDATE	= 1003;
 					if( clientID != myClientID ){
 						Player newPlayer;
 						newPlayer.sceneObj = motorRoot->getScene()->createObject();
-						newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
-						newPlayer.sceneObj->scale = 0.01f;
 						newPlayer.clientID = clientID;
+
+						Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(newPlayer.sceneObj);
+						jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+						jeepObject->setScale(0.01f);
+						jeepObject->setYaw(1.5708f);
+
 						remotePlayers.push_back(newPlayer);
 					}
 				}
@@ -362,9 +379,13 @@ const int POSITIONUPDATE	= 1003;
 				if( clientID != myClientID ){
 					Player newPlayer;
 					newPlayer.sceneObj = motorRoot->getScene()->createObject();
-					newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
-					newPlayer.sceneObj->scale = 0.01f;
 					newPlayer.clientID = clientID;
+
+					Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(newPlayer.sceneObj);
+					jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+					jeepObject->setScale(0.01f);
+					jeepObject->setYaw(1.5708f);
+
 					remotePlayers.push_back(newPlayer);
 				}
 			}
@@ -382,14 +403,20 @@ const int POSITIONUPDATE	= 1003;
 				}
 			}
 			break;
-		case POSITIONUPDATE:
+		case MOVEMENTUPDATE:
 			{
 				unsigned int clientID;
 				float x,y,z;
-				*pak >> clientID >> x >> y >> z;
+				float pitch, yaw, roll;
+				float movX, movY, movZ;
+				*pak >> clientID >> x >> y >> z >> pitch >> yaw >> roll >> movX >> movY >> movZ;
 				for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
 					if( remotePlayers[i].clientID == clientID ){
-						remotePlayers[i].sceneObj->position = Vector3(x,y,z);
+						remotePlayers[i].sceneObj->setPosition( Vector3(x,y,z) );
+						remotePlayers[i].sceneObj->setPitch(pitch);
+						remotePlayers[i].sceneObj->setYaw(yaw);
+						remotePlayers[i].sceneObj->setRoll(roll);
+						remotePlayers[i].movement = Vector3( movX, movY, movZ );
 						break;
 					}
 				}

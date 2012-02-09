@@ -33,6 +33,7 @@ namespace Motor {
 
 		//creating objects
 		SceneObject* createObject();
+		SceneObject* createChildObject(SceneObject* parent);
 		ParticleEffect* createParticleEffect();
 		Light* createLight();
 		//deleting objects

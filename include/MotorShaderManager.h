@@ -48,8 +48,8 @@ namespace Motor {
 			GLuint getUniformLocation(const char* varname);
 			void setUniform1f(const char* varname, float value);
 			void setUniform1i(const char* varname, int value);
-			void setUniform3fv(const char* varname, float* values);
-			void setUniformMatrix4fv(const char* varname, float* mat);
+			void setUniform3fv(const char* varname,const float* values);
+			void setUniformMatrix4fv(const char* varname,const  float* mat);
 		private:
 			bool linked;
 			GLuint handle;

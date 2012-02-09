@@ -236,6 +236,7 @@ namespace Motor {
 	}
 
 	void Renderer::drawObject(SceneObject* obj, bool depthOnly){
+		if( obj->visible == false ) return;
 		const Model* model = obj->getModel();
 		if( model == 0 ) return;
 		const Mesh* mesh = model->getMesh();
@@ -274,16 +275,9 @@ namespace Motor {
             }
             animation = false;
         }
-    
-    
-		mat mMatrix, mvpMatrix;
 
-		//Rotate: first roll, then pitch, then yaw
-		mMatrix.setRotationZ(obj->roll);
-		mMatrix.rotateX(obj->pitch);
-		mMatrix.rotateY(obj->yaw);
-		mMatrix.scale(obj->scale);
-		mMatrix.translate(obj->position);
+		const mat& mMatrix = obj->getFullMoveMatrix();
+		mat mvpMatrix;
         
         if(depthOnly) {
             mvpMatrix = projectionMatrixShadow * lightViewMatrix * mMatrix;
