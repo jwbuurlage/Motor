@@ -29,6 +29,7 @@ namespace Demo {
 		draggingRightMouse = false;
 		goingForward = goingBackward = goingLeft = goingRight = goingUp = goingDown = false;
 		rotatingLeft = rotatingRight = false;
+		moveDir.x = moveDir.y = moveDir.z = 0.0f;
 	}
 
 	Game::~Game(){
@@ -123,9 +124,9 @@ namespace Demo {
 
 		if( tempObjects[0] == 0 ) tempObjects[0] = motorRoot->getScene()->createObject();
 		if( tempObjects[1] == 0 ) tempObjects[1] = motorRoot->getScene()->createObject();
-		tempObjects[0]->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+		tempObjects[0]->setModel( Motor::ModelManager::getSingleton().getModel("sphere") );
 		tempObjects[0]->scale = 0.2f;
-		tempObjects[1]->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+		tempObjects[1]->setModel( Motor::ModelManager::getSingleton().getModel("sphere") );
 		tempObjects[1]->scale = 0.2f;
 
 		connected = false;
