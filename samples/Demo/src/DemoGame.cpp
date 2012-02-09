@@ -51,7 +51,11 @@ namespace Demo {
 		localPlayer->sceneObj->setModel(woodBoxModel);
         
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
-        plane->setModel( Motor::ModelManager::getSingleton().getModel("plane") );
+        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
+        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/baan.png");
+        planeCopy->setMaterial(baanMat);
+        plane->setModel(planeCopy);
+        plane->scale = 3.0f;
         plane->position = Vector3( 0.0f, -3.0f, 0.0f );
         
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");

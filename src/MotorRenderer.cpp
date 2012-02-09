@@ -246,47 +246,36 @@ namespace Motor {
         int vertexOffset = 0;
         int vertexOffsetNext = 0;
         
-        if(!depthOnly) {
-            if(obj->getState()) {
-                shaderManager->setActiveProgram("shadowTextureLightningMD2");
-                
-                float timeperframe = (float)1/obj->getState()->fps;
-                float interpolation = obj->getState()->timetracker / timeperframe;
-                
-                shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
-                
-                animation = true;
-                if(obj->getState()->curr_frame > -1) {
-                    vertexOffset = obj->getState()->curr_frame * (model->verticesPerFrame()) * 12 * 4;
-                    vertexOffsetNext = obj->getState()->next_frame * (model->verticesPerFrame()) * 12 * 4;
-                }
+        if(obj->getState()) {
+            if(depthOnly) {
+                shaderManager->setActiveProgram("shadowMapMD2");
             }
             else {
-                shaderManager->setActiveProgram("shadowTextureLightning");
-                animation = false;
+                shaderManager->setActiveProgram("shadowTextureLightningMD2");
+            }
+            
+            float timeperframe = (float)1/obj->getState()->fps;
+            float interpolation = obj->getState()->timetracker / timeperframe;
+            
+            shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
+            
+            animation = true;
+            if(obj->getState()->curr_frame > -1) {
+                vertexOffset = obj->getState()->curr_frame * (model->verticesPerFrame()) * 12 * 4;
+                vertexOffsetNext = obj->getState()->next_frame * (model->verticesPerFrame()) * 12 * 4;
             }
         }
         else {
-            if(obj->getState()) {
-                shaderManager->setActiveProgram("shadowMapMD2");
-                
-                float timeperframe = (float)1/obj->getState()->fps;
-                float interpolation = obj->getState()->timetracker / timeperframe;
-                
-                shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
-                
-                animation = true;
-                if(obj->getState()->curr_frame > -1) {
-                    vertexOffset = obj->getState()->curr_frame * (model->verticesPerFrame()) * 12 * 4;
-                    vertexOffsetNext = obj->getState()->next_frame * (model->verticesPerFrame()) * 12 * 4;
-                }
+            if(depthOnly) {
+                shaderManager->setActiveProgram("shadowMap");
             }
             else {
-                shaderManager->setActiveProgram("shadowMap");
-                animation = false;
+                shaderManager->setActiveProgram("shadowTextureLightning");
             }
+            animation = false;
         }
-
+    
+    
 		mat mMatrix, mvpMatrix;
 
 		//Rotate: first roll, then pitch, then yaw
