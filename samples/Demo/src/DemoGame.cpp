@@ -141,6 +141,8 @@ namespace Demo {
 
 		if( localPlayer ){
 			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
+            Motor::Camera* cam = motorRoot->getScene()->getCamera();
+            cam->setTargetLocation(localPlayer->sceneObj->position, false);
 		}
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
@@ -262,7 +264,7 @@ const int POSITIONUPDATE	= 1003;
 		if( !connected ){
 			timeUntilRetry -= elapsedTime;
 			if( timeUntilRetry <= 0.0f ){
-				if( socket.Connect(1337, "192.168.1.40") == sf::Socket::Done ){
+				if( socket.Connect(1337, "131.211.225.176") == sf::Socket::Done ){
 					connected = true;
 					std::cout << "Instantly connected!\n";
 				}
