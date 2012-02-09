@@ -46,8 +46,8 @@ namespace Demo {
 		bool draggingLeftMouse;
 		bool draggingRightMouse;
 		//For key movement
-		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown;
-		Vector3 getMoveDir();
+		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown, rotatingLeft, rotatingRight;
+		Vector3 moveDir;
 
 		static const int ballCount = 5;
 		Player* balls[ballCount];

@@ -28,6 +28,7 @@ namespace Demo {
 		draggingLeftMouse = false;
 		draggingRightMouse = false;
 		goingForward = goingBackward = goingLeft = goingRight = goingUp = goingDown = false;
+		rotatingLeft = rotatingRight = false;
 	}
 
 	Game::~Game(){
@@ -48,6 +49,7 @@ namespace Demo {
         
         Motor::Model* woodBoxModel =  Motor::ModelManager::getSingleton().getModel("Jeep");
         localPlayer->sceneObj->scale = 0.01f;
+		localPlayer->sceneObj->position.y = -3.0f;
 		localPlayer->sceneObj->setModel(woodBoxModel);
         
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
@@ -140,9 +142,19 @@ namespace Demo {
 		doNetworkStuff(elapsedTime);
 
 		if( localPlayer ){
-			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
             Motor::Camera* cam = motorRoot->getScene()->getCamera();
-            cam->setTargetLocation(localPlayer->sceneObj->position, false);
+			if( cam ){
+				cam->setTargetLocation(localPlayer->sceneObj->position, false);
+				if( rotatingLeft && !rotatingRight ){
+					cam->rotateCamera( 1.5f * elapsedTime , 0.0f );
+				}else if( rotatingRight && !rotatingLeft ){
+					cam->rotateCamera( -1.5f * elapsedTime , 0.0f );
+				}
+				localPlayer->sceneObj->yaw = cam->getYaw() + 1.5708f;
+				localPlayer->movement = moveDir * 30.0f; //10 units per second. should be taken from player->movespeed ?
+				localPlayer->movement.rotateY(cam->getYaw());
+			}
+			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
 		}
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
@@ -184,10 +196,10 @@ namespace Demo {
 		switch( key ){
             case 'w': goingForward = keyDown;	DirectionChanged = true; break;
             case 's': goingBackward = keyDown;	DirectionChanged = true; break;
-            case 'a': goingLeft = keyDown;		DirectionChanged = true; break;
-            case 'd': goingRight = keyDown;		DirectionChanged = true; break;
-            case 'q': goingUp = keyDown;		DirectionChanged = true; break;
-            case 'e': goingDown = keyDown;		DirectionChanged = true; break;
+            case 'a': rotatingLeft = keyDown;	break;
+            case 'd': rotatingRight = keyDown;	break;
+            case 'q': goingLeft = keyDown;		DirectionChanged = true; break;
+            case 'e': goingRight = keyDown;		DirectionChanged = true; break;
             case 't': motorRoot->stopRendering(); break;  
             //case 'r': loadGame(); break;
             //case 'f': useSkill(); break;
@@ -198,7 +210,7 @@ namespace Demo {
 
 		if( DirectionChanged ){
 			if( localPlayer ){
-				Vector3 moveDir(0.0f);
+				moveDir.x = moveDir.y = moveDir.z = 0.0f;
 				if( goingForward ) moveDir.z -= 1.0f;
 				if( goingBackward ) moveDir.z += 1.0f;
 				if( goingLeft ) moveDir.x -= 1.0f;
@@ -206,9 +218,6 @@ namespace Demo {
 				if( goingUp ) moveDir.y  = 1.0f;
 				if( goingDown ) moveDir.y -= 1.0f;
 				moveDir.normalise();
-				Motor::Camera* cam = motorRoot->getScene()->getCamera();
-				if( cam ) moveDir.rotateY(cam->getYaw());
-				localPlayer->movement = moveDir * 10.0f; //10 units per second. should be taken from player->movespeed ?
 			}
 		}
 		return keyHandled;
