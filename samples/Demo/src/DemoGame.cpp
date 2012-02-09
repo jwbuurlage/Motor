@@ -29,6 +29,7 @@ namespace Demo {
 		draggingRightMouse = false;
 		goingForward = goingBackward = goingLeft = goingRight = goingUp = goingDown = false;
 		rotatingLeft = rotatingRight = false;
+		usingTurbo = false;
 		moveDir.x = moveDir.y = moveDir.z = 0.0f;
 	}
 
@@ -152,7 +153,7 @@ namespace Demo {
 					cam->rotateCamera( -1.5f * elapsedTime , 0.0f );
 				}
 				localPlayer->sceneObj->yaw = cam->getYaw() + 1.5708f;
-				localPlayer->movement = moveDir * 30.0f; //10 units per second. should be taken from player->movespeed ?
+				localPlayer->movement = moveDir * (usingTurbo ? 50.0f : 20.0f);
 				localPlayer->movement.rotateY(cam->getYaw());
 			}
 			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
@@ -201,9 +202,9 @@ namespace Demo {
             case 'd': rotatingRight = keyDown;	break;
             case 'q': goingLeft = keyDown;		DirectionChanged = true; break;
             case 'e': goingRight = keyDown;		DirectionChanged = true; break;
+			case 'f': usingTurbo = keyDown;		break;
             case 't': motorRoot->stopRendering(); break;  
-            //case 'r': loadGame(); break;
-            //case 'f': useSkill(); break;
+          //case 'r': loadGame(); break;
 		default:
 			keyHandled = false;
 			break;
@@ -274,7 +275,7 @@ const int POSITIONUPDATE	= 1003;
 		if( !connected ){
 			timeUntilRetry -= elapsedTime;
 			if( timeUntilRetry <= 0.0f ){
-				if( socket.Connect(1337, "127.0.0.1") == sf::Socket::Done ){
+				if( socket.Connect(1337, "192.168.137.5") == sf::Socket::Done ){
 					connected = true;
 					std::cout << "Instantly connected!\n";
 				}
@@ -346,7 +347,8 @@ const int POSITIONUPDATE	= 1003;
 					if( clientID != myClientID ){
 						Player newPlayer;
 						newPlayer.sceneObj = motorRoot->getScene()->createObject();
-						newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+						newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+						newPlayer.sceneObj->scale = 0.01f;
 						newPlayer.clientID = clientID;
 						remotePlayers.push_back(newPlayer);
 					}
@@ -360,7 +362,8 @@ const int POSITIONUPDATE	= 1003;
 				if( clientID != myClientID ){
 					Player newPlayer;
 					newPlayer.sceneObj = motorRoot->getScene()->createObject();
-					newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("default") );
+					newPlayer.sceneObj->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+					newPlayer.sceneObj->scale = 0.01f;
 					newPlayer.clientID = clientID;
 					remotePlayers.push_back(newPlayer);
 				}

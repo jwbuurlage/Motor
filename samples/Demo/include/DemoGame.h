@@ -48,6 +48,7 @@ namespace Demo {
 		//For key movement
 		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown, rotatingLeft, rotatingRight;
 		Vector3 moveDir;
+		bool usingTurbo;
 
 		static const int ballCount = 5;
 		Player* balls[ballCount];
