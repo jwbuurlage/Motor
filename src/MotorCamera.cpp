@@ -102,6 +102,11 @@ namespace Motor {
 			else Speed += Acceleration;
 		}
 	}
+    
+    void Camera::setTargetLocation(const Vector3 &location, bool FreeYawRotation) {
+        targetPosition = location;
+        freeYaw = FreeYawRotation;
+    }
 
 	void Camera::rotateCamera(float Yaw, float Pitch){
 		yaw += Yaw, 

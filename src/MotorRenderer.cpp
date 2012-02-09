@@ -380,7 +380,7 @@ namespace Motor {
 
 	void Renderer::generateProjectionMatrix(){
 		float invAspect = (float)windowHeight / (float)windowWidth;
-		float near = 2.0f, far = 80.0f, fov = 60.0f * (float)M_PI/360.0f;
+		float near = 2.0f, far = 200.0f, fov = 60.0f * (float)M_PI/360.0f;
 		float xmax = near * (float)tan(fov);
 		float xmin = -xmax;
 		projectionMatrix.setPerspective(xmin, xmax, xmin*invAspect, xmax*invAspect, near, far);

@@ -141,6 +141,8 @@ namespace Demo {
 
 		if( localPlayer ){
 			localPlayer->sceneObj->position += localPlayer->movement * elapsedTime;
+            Motor::Camera* cam = motorRoot->getScene()->getCamera();
+            cam->setTargetLocation(localPlayer->sceneObj->position, false);
 		}
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
