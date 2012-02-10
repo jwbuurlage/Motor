@@ -14,6 +14,7 @@ namespace Motor {
 		type = _type;
 		loaded = false;
 		compiled = false;
+		linkError = false;
 		switch(type){
 			case Vertex: { handle = glCreateShader(GL_VERTEX_SHADER); } break;
 			case Fragment: { handle = glCreateShader(GL_FRAGMENT_SHADER); } break;
@@ -45,7 +46,19 @@ namespace Motor {
 			compiled = false;
 		}else{
 			glCompileShader(handle);
-			compiled = true;
+			GLint value;
+			glGetShaderiv(handle, GL_COMPILE_STATUS, &value);
+			if( value == GL_TRUE ){
+				compiled = true;
+			}else{
+				compiled = false;
+				glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &value);
+				GLchar* infoLog = new GLchar[value];
+				glGetShaderInfoLog(handle, value, &value, infoLog);
+				Logger::getSingleton().log(Logger::ERROR, "Shader compilation error: ");
+				Logger::getSingleton().log(Logger::ERROR, infoLog);
+				delete[] infoLog;
+			}
 		}
 		return compiled;
 	}
@@ -76,7 +89,42 @@ namespace Motor {
 			Logger::getSingleton().log(Logger::WARNING, "Trying to link shader that is already linked.");
 		}else{
 			glLinkProgram(handle);
-			linked = true;
+
+			GLint value;
+			glGetProgramiv(handle, GL_LINK_STATUS, &value);
+			if( value == GL_TRUE ){
+				linked = true;
+			}else{
+				linked = false;
+
+				//Get the link log info and then the compilation log for all attached shaders.
+				//First determine the size of the buffer needed
+				GLint maxBufLen = 0;
+				glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &value);
+				maxBufLen = value;
+				for( std::vector<Shader*>::iterator iter = shaders.begin(); iter != shaders.end(); ++iter ){
+					glGetShaderiv((*iter)->getHandle(), GL_INFO_LOG_LENGTH, &value);
+					if( value > maxBufLen ) maxBufLen = value;
+				}
+				//The buffer will now be big enough to hold all error messages (not at once!)
+				GLchar* infoLog = new GLchar[maxBufLen];
+
+				//Now get the log info
+				glGetProgramInfoLog(handle, maxBufLen, NULL, infoLog);
+
+				Logger::getSingleton().log(Logger::ERROR, "Shader link error followed by compilation logs: ");
+				Logger::getSingleton().log(Logger::ERROR, infoLog);
+
+				//Display compilation log of all attached shaders
+			
+				for( std::vector<Shader*>::iterator iter = shaders.begin(); iter != shaders.end(); ++iter ){
+					glGetShaderInfoLog((*iter)->getHandle(), value, &value, infoLog);
+					Logger::getSingleton().log(Logger::ERROR, infoLog);
+					(*iter)->setLinkError(true);
+				}
+
+				delete[] infoLog;
+			}
 		}
 	}
 
@@ -202,9 +250,11 @@ namespace Motor {
 		if( program == shaderPrograms.end() ){
 			Logger::getSingleton().log(Logger::WARNING, "setActiveProgram could not find program");
 		}else{
-			activeProgram = program->second;
-			activeProgram->use();
-			activeProgram->enableAttribs();
+			if( program->second->isLinked() ){
+				activeProgram = program->second;
+				activeProgram->use();
+				activeProgram->enableAttribs();
+			}
 		}
 	}
 

@@ -191,7 +191,7 @@ namespace Motor {
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, true );
         }
-        
+
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         glViewport(0,0,windowWidth,windowHeight);
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -218,7 +218,7 @@ namespace Motor {
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);        
         shaderManager->getActiveProgram()->setUniform1i("tex", 0);
         shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
-        
+
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, false );
         }
@@ -229,7 +229,7 @@ namespace Motor {
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
 
 		}
-            
+        
         /////////////////////////////////////////////////////////////////////////////
         // Step 3: Callbacks (project specific, UI, etc.)                           /
         /////////////////////////////////////////////////////////////////////////////
@@ -249,16 +249,17 @@ namespace Motor {
         int vertexOffset = 0;
         int vertexOffsetNext = 0;
         
-        if(obj->getState()) {
+		//Note: state might still be valid pointer if a SceneObject is first given an animated model
+		//and later a non-animated model. So also check model->isAnimated
+		if(obj->getState() && model->isAnimated()) {
             if(depthOnly) {
                 shaderManager->setActiveProgram("shadowMapMD2");
             }
             else {
                 shaderManager->setActiveProgram("shadowTextureLightningMD2");
             }
-            
-            float timeperframe = (float)1/obj->getState()->fps;
-            float interpolation = obj->getState()->timetracker / timeperframe;
+
+            float interpolation = obj->getState()->timetracker * obj->getState()->fps;
             
             shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
             
@@ -312,6 +313,7 @@ namespace Motor {
 		}else{
 			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
 		}
+
 		shaderManager->getActiveProgram()->vertexAttribPointer(
 			"textureCoordinate",
 			2,
@@ -320,7 +322,7 @@ namespace Motor {
 			mesh->stride,
 			reinterpret_cast<GLvoid*>(vertexOffset + 40));
         
-        if (model->isAnimated()) {
+        if(animation){
             shaderManager->getActiveProgram()->vertexAttribPointer("position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
             shaderManager->getActiveProgram()->vertexAttribPointer("normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
         }

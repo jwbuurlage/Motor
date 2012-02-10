@@ -31,6 +31,8 @@ namespace Demo {
 		rotatingLeft = rotatingRight = false;
 		usingTurbo = false;
 		moveDir.x = moveDir.y = moveDir.z = 0.0f;
+
+		remotePlayers.clear();
 	}
 
 	Game::~Game(){

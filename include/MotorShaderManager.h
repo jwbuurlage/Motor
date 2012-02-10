@@ -21,10 +21,12 @@ namespace Motor {
 			int load(const char* filename);
 			int compile();
 			GLuint getHandle(){ return handle; }
+			void setLinkError(bool err){ linkError = err; }
 		private:
 			ShaderType type;
 			bool loaded;
 			bool compiled;
+			bool linkError;
 			GLuint handle;
 		};
 
@@ -41,6 +43,7 @@ namespace Motor {
 			void use();
 			void enableAttribs();
 			GLuint getHandle(){ return handle; }
+			bool isLinked(){ return linked; }
 			//attribs
 			void bindAttrib(GLuint index, const char* attribName);
 			void vertexAttribPointer(const char* name, GLint size, GLenum type, bool normalize, GLsizei stride, const GLvoid* data);
