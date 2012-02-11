@@ -27,7 +27,7 @@ namespace Motor {
 		if( handle ) glDeleteShader(handle);
 	}
 
-	int ShaderManager::Shader::load(const char* filename){
+	bool ShaderManager::Shader::load(const char* filename){
 		pFile shaderFile = Filesystem::getSingleton().getFile(filename);
 		if( !shaderFile ){
 			Logger::getSingleton().log(Logger::ERROR, "Shader file not found.");
@@ -40,7 +40,7 @@ namespace Motor {
 		return loaded;
 	}
 
-	int ShaderManager::Shader::compile(){
+	bool ShaderManager::Shader::compile(){
 		if( !loaded ){
 			Logger::getSingleton().log(Logger::WARNING, "Trying to compile shader while no source loaded.");
 			compiled = false;
@@ -53,11 +53,13 @@ namespace Motor {
 			}else{
 				compiled = false;
 				glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &value);
-				GLchar* infoLog = new GLchar[value];
-				glGetShaderInfoLog(handle, value, &value, infoLog);
-				Logger::getSingleton().log(Logger::ERROR, "Shader compilation error: ");
-				Logger::getSingleton().log(Logger::ERROR, infoLog);
-				delete[] infoLog;
+				if( value > 0 ){
+					GLchar* infoLog = new GLchar[value];
+					glGetShaderInfoLog(handle, value, &value, infoLog);
+					Logger::getSingleton().log(Logger::ERROR, "Shader compilation error: ");
+					Logger::getSingleton().log(Logger::ERROR, infoLog);
+					delete[] infoLog;
+				}
 			}
 		}
 		return compiled;
@@ -84,9 +86,11 @@ namespace Motor {
 		glAttachShader(handle, shader->getHandle());
 	}
 
-	void ShaderManager::ShaderProgram::link(){
+	bool ShaderManager::ShaderProgram::link(){
 		if( linked ){
-			Logger::getSingleton().log(Logger::WARNING, "Trying to link shader that is already linked.");
+			Logger::getSingleton().log(Logger::WARNING, "Trying to link shader program that is already linked.");
+		}else if( shaders.size() < 2 ){
+			Logger::getSingleton().log(Logger::WARNING, "Trying to link program with less than 2 attached shaders.");
 		}else{
 			glLinkProgram(handle);
 
@@ -109,23 +113,26 @@ namespace Motor {
 				//The buffer will now be big enough to hold all error messages (not at once!)
 				GLchar* infoLog = new GLchar[maxBufLen];
 
-				//Now get the log info
-				glGetProgramInfoLog(handle, maxBufLen, NULL, infoLog);
-
 				Logger::getSingleton().log(Logger::ERROR, "Shader link error followed by compilation logs: ");
-				Logger::getSingleton().log(Logger::ERROR, infoLog);
+				
+				//Now get the log info
+				glGetProgramInfoLog(handle, maxBufLen, &value, infoLog);
+				if( value > 0 ) //If it returned a message
+					Logger::getSingleton().log(Logger::ERROR, infoLog);
 
-				//Display compilation log of all attached shaders
+				//Display compilation log of all attached shaders and mark them as invalid
 			
 				for( std::vector<Shader*>::iterator iter = shaders.begin(); iter != shaders.end(); ++iter ){
-					glGetShaderInfoLog((*iter)->getHandle(), value, &value, infoLog);
-					Logger::getSingleton().log(Logger::ERROR, infoLog);
 					(*iter)->setLinkError(true);
+					glGetShaderInfoLog((*iter)->getHandle(), maxBufLen, &value, infoLog);
+					if( value > 0 )  //If it returned a message
+						Logger::getSingleton().log(Logger::ERROR, infoLog);
 				}
 
 				delete[] infoLog;
 			}
 		}
+		return linked;
 	}
 
 	void ShaderManager::ShaderProgram::use(){
@@ -180,6 +187,10 @@ namespace Motor {
 
 	ShaderManager::~ShaderManager()
 	{
+		unloadAllShaders();
+	}
+	
+	void ShaderManager::unloadAllShaders(){
 		//Unload all shaders
 		for( ShaderProgramContainer::iterator iter = shaderPrograms.begin(); iter != shaderPrograms.end(); ++iter ){
 			delete iter->second; //will call corresponding opengl functions
@@ -193,10 +204,15 @@ namespace Motor {
 		ShaderContainer::iterator shader = shaders.find(shaderName);
 		if( shader != shaders.end() ) return shader->second;
 		Shader* newShader = new Shader(type);
-		newShader->load(sourceFile);
-		newShader->compile();
-		shaders.insert(ShaderContainer::value_type(shaderName,newShader));
-		return newShader;
+		if( newShader->load(sourceFile) ){
+			if( newShader->compile() ){
+				shaders.insert(ShaderContainer::value_type(shaderName,newShader));
+				return newShader;
+			}
+		}
+		//It did not load or compile: delete it
+		delete newShader;
+		return 0;
 	}
 
 	void ShaderManager::createProgram(const char* programName){
@@ -216,10 +232,12 @@ namespace Motor {
 		}
 	}
 
-	void ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile){
+	bool ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile){
 		//Create the shaders with filename as name
 		Shader* vsShader = makeShader(vertexShaderFile, Vertex, vertexShaderFile);
 		Shader* fsShader = makeShader(fragmentShaderFile, Fragment, fragmentShaderFile);
+		
+		if( vsShader == 0 || fsShader == 0 ) return false;
 		
 		ShaderProgram* newProgram = new ShaderProgram();
 		shaderPrograms.insert(ShaderProgramContainer::value_type(programName, newProgram));
@@ -236,12 +254,13 @@ namespace Motor {
 		}
 	}
 
-	void ShaderManager::linkProgram(const char* programName){
+	bool ShaderManager::linkProgram(const char* programName){
 		ShaderProgramContainer::iterator program = shaderPrograms.find(programName);
 		if( program == shaderPrograms.end() ){
 			Logger::getSingleton().log(Logger::WARNING, "linkProgram could not find program");
+			return false;
 		}else{
-			program->second->link();
+			return program->second->link();
 		}
 	}
 

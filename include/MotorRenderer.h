@@ -38,7 +38,7 @@ namespace Motor {
         
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application
-		void loadShaders();
+		bool loadShaders();
 
 		//Matrices that are the same for all frames are saved
 		mat projectionMatrix;

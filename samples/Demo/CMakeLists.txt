@@ -39,12 +39,9 @@ SET(
 
 SET(
 	PROJECT_LIBRARIES
+	"Motor"
 	"sfml-network"
-	"sfml-graphics"
-	"sfml-window"
 	"sfml-system"
-	"GLEW"
-	"GL"
 )
 
 #----------- DO NOT EDIT BELOW --------------

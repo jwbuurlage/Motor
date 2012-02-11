@@ -18,8 +18,8 @@ namespace Motor {
 		public:
 			Shader(ShaderType _type);
 			~Shader();
-			int load(const char* filename);
-			int compile();
+			bool load(const char* filename);
+			bool compile();
 			GLuint getHandle(){ return handle; }
 			void setLinkError(bool err){ linkError = err; }
 		private:
@@ -39,7 +39,7 @@ namespace Motor {
 			~ShaderProgram();
 
 			void attachShader(Shader* shader);
-			void link();
+			bool link();
 			void use();
 			void enableAttribs();
 			GLuint getHandle(){ return handle; }
@@ -70,19 +70,22 @@ namespace Motor {
 		ShaderManager();
 		~ShaderManager();
 		
+		//unloads all programs and shaders
+		void unloadAllShaders();
 		
 		//Making programs with the shaders:
 		//use makeShader, createProgram, attachShader if more than one vertex/fragment shader is needed
 		//use makeShaderProgram if the program has one vertex and one fragment shader
 		//after both of these, do bindAttrib and then linkProgram
-		Shader* makeShader(const char* shaderName, ShaderType type, const char* sourceFile);
+		Shader* makeShader(const char* shaderName, ShaderType type, const char* sourceFile); //returns 0 on compile error
 		void createProgram(const char* programName);
 		void attachShader(const char* programName, const char* shaderName);
-
-		void makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile);
+		
+		//Returns false when file not found or compile error
+		bool makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile);
 
 		void bindAttrib(const char* programName, const char* attribName, GLuint index);
-		void linkProgram(const char* programName);
+		bool linkProgram(const char* programName);
 
 		//Choosing current shader
 		void setActiveProgram(const char* programName);
