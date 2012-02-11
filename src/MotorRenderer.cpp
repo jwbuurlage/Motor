@@ -349,7 +349,7 @@ namespace Motor {
         if( shaderManager->makeShaderProgram("shadowMapMD2", "shaders/shadowmapmd2.vsh", "shaders/shadowmapmd2.fsh") ){
 			shaderManager->bindAttrib("shadowMapMD2", "position", AT_VERTEX);
 			shaderManager->bindAttrib("shadowMapMD2", "position_next", AT_VERTEX_NEXT);
-			if( !-shaderManager->linkProgram("shadowMapMD2") ) success = false;
+			if( !shaderManager->linkProgram("shadowMapMD2") ) success = false;
 		}else success = false;
         
 		if( shaderManager->makeShaderProgram("shadowTextureLightning", "shaders/shadowtexturelightning.vsh", "shaders/shadowtexturelightning.fsh") ){

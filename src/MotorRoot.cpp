@@ -104,7 +104,7 @@ namespace Motor {
 	void Root::startRendering()
 	{
 		if( initialized == false ){
-			Logger::getSingleton().log(Logger::ERROR, "Trying to start render loop while motor is not initialized");
+			Logger::getSingleton().log(Logger::WARNING, "Trying to start render loop while motor is not initialized");
 			return;
 		}
 		Logger::getSingleton().log(Logger::INFO, "Motor renderloop started");
