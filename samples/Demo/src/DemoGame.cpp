@@ -60,7 +60,7 @@ namespace Demo {
         
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
         Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
-        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/baan.png");
+        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
         planeCopy->setMaterial(baanMat);
         plane->setModel(planeCopy);
         plane->setScale(3.0f);

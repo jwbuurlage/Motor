@@ -243,6 +243,8 @@ namespace Motor {
 		shaderPrograms.insert(ShaderProgramContainer::value_type(programName, newProgram));
 		newProgram->attachShader(vsShader);
 		newProgram->attachShader(fsShader);
+        
+        return true;
 	}
 
 	void ShaderManager::bindAttrib(const char* programName, const char* attribName, GLuint index){
