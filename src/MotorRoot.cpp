@@ -26,6 +26,7 @@ namespace Motor {
 					meshManager(new MeshManager),
 					modelManager(new ModelManager),
 					currentScene(0), mouseX(0), mouseY(0), window(0) {
+		initialized = false;
         running = false;
 	}
 	
@@ -43,6 +44,11 @@ namespace Motor {
 
 	int Root::initialize()
 	{
+		if( initialized ){
+			Logger::getSingleton().log(Logger::WARNING, "Root object already initialized");
+			return 1;
+		}
+		
 		//TODO: Get window width/height from setting file
 		if( !window ){
 			sf::WindowSettings Settings;
@@ -68,6 +74,8 @@ namespace Motor {
 		renderer->checkErrors();
 
 		Logger::getSingleton().log(Logger::INFO, "Motor initialized");
+		
+		initialized = true;
 
 		return 1;
 	}
@@ -95,6 +103,10 @@ namespace Motor {
 
 	void Root::startRendering()
 	{
+		if( initialized == false ){
+			Logger::getSingleton().log(Logger::ERROR, "Trying to start render loop while motor is not initialized");
+			return;
+		}
 		Logger::getSingleton().log(Logger::INFO, "Motor renderloop started");
 
         running = true;

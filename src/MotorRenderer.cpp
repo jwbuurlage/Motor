@@ -55,7 +55,10 @@ namespace Motor {
 			return 0;
 		}
 		if( shaderManager == 0 ) shaderManager = new ShaderManager;
-		if( loadShaders() == false ) return false;
+		if( loadShaders() == false ){
+			Logger::getSingleton().log(Logger::ERROR, "The shaders failed to load. Motor not usable.");
+			return false;
+		}
 
 		Logger::getSingleton().log(Logger::INFO, "Shaders loaded");
 
@@ -338,42 +341,48 @@ namespace Motor {
 	bool Renderer::loadShaders(){
 		bool success = true;
 		
-		success &= shaderManager->makeShaderProgram("shadowMap", "shaders/shadowmap.vsh", "shaders/shadowmap.fsh");
-		shaderManager->bindAttrib("shadowMap", "position", AT_VERTEX);
-		success &= shaderManager->linkProgram("shadowMap");
+		if( shaderManager->makeShaderProgram("shadowMap", "shaders/shadowmap.vsh", "shaders/shadowmap.fsh") ){
+			shaderManager->bindAttrib("shadowMap", "position", AT_VERTEX);
+			if( !shaderManager->linkProgram("shadowMap") ) success = false;
+		}else success = false;
 
-        success &= shaderManager->makeShaderProgram("shadowMapMD2", "shaders/shadowmapmd2.vsh", "shaders/shadowmapmd2.fsh");
-		shaderManager->bindAttrib("shadowMapMD2", "position", AT_VERTEX);
-        shaderManager->bindAttrib("shadowMapMD2", "position_next", AT_VERTEX_NEXT);
-		success &= shaderManager->linkProgram("shadowMapMD2");
+        if( shaderManager->makeShaderProgram("shadowMapMD2", "shaders/shadowmapmd2.vsh", "shaders/shadowmapmd2.fsh") ){
+			shaderManager->bindAttrib("shadowMapMD2", "position", AT_VERTEX);
+			shaderManager->bindAttrib("shadowMapMD2", "position_next", AT_VERTEX_NEXT);
+			if( !-shaderManager->linkProgram("shadowMapMD2") ) success = false;
+		}else success = false;
         
-		success &= shaderManager->makeShaderProgram("shadowTextureLightning", "shaders/shadowtexturelightning.vsh", "shaders/shadowtexturelightning.fsh");
-		shaderManager->bindAttrib("shadowTextureLightning", "textureCoordinate", AT_TEXCOORD);
-		shaderManager->bindAttrib("shadowTextureLightning", "position", AT_VERTEX);
-		shaderManager->bindAttrib("shadowTextureLightning", "color", AT_COLOR);
-		shaderManager->bindAttrib("shadowTextureLightning", "normal", AT_NORMAL);
-		success &= shaderManager->linkProgram("shadowTextureLightning");
+		if( shaderManager->makeShaderProgram("shadowTextureLightning", "shaders/shadowtexturelightning.vsh", "shaders/shadowtexturelightning.fsh") ){
+			shaderManager->bindAttrib("shadowTextureLightning", "textureCoordinate", AT_TEXCOORD);
+			shaderManager->bindAttrib("shadowTextureLightning", "position", AT_VERTEX);
+			shaderManager->bindAttrib("shadowTextureLightning", "color", AT_COLOR);
+			shaderManager->bindAttrib("shadowTextureLightning", "normal", AT_NORMAL);
+			if( !shaderManager->linkProgram("shadowTextureLightning") ) success = false;
+		}else success = false;
         
-        success &= shaderManager->makeShaderProgram("shadowTextureLightningMD2", "shaders/shadowtexturelightningmd2.vsh", "shaders/shadowtexturelightningmd2.fsh");
-		shaderManager->bindAttrib("shadowTextureLightningMD2", "textureCoordinate", AT_TEXCOORD);
-		shaderManager->bindAttrib("shadowTextureLightningMD2", "position", AT_VERTEX);
-		shaderManager->bindAttrib("shadowTextureLightningMD2", "color", AT_COLOR);
-		shaderManager->bindAttrib("shadowTextureLightningMD2", "normal", AT_NORMAL);
-        shaderManager->bindAttrib("shadowTextureLightningMD2", "normal_next", AT_NORMAL_NEXT);
-        shaderManager->bindAttrib("shadowTextureLightningMD2", "position_next", AT_VERTEX_NEXT);
-		success &= shaderManager->linkProgram("shadowTextureLightningMD2");
+        if( shaderManager->makeShaderProgram("shadowTextureLightningMD2", "shaders/shadowtexturelightningmd2.vsh", "shaders/shadowtexturelightningmd2.fsh") ){
+			shaderManager->bindAttrib("shadowTextureLightningMD2", "textureCoordinate", AT_TEXCOORD);
+			shaderManager->bindAttrib("shadowTextureLightningMD2", "position", AT_VERTEX);
+			shaderManager->bindAttrib("shadowTextureLightningMD2", "color", AT_COLOR);
+			shaderManager->bindAttrib("shadowTextureLightningMD2", "normal", AT_NORMAL);
+			shaderManager->bindAttrib("shadowTextureLightningMD2", "normal_next", AT_NORMAL_NEXT);
+			shaderManager->bindAttrib("shadowTextureLightningMD2", "position_next", AT_VERTEX_NEXT);
+			if( !shaderManager->linkProgram("shadowTextureLightningMD2") ) success = false;
+		}else success = false;
 
-		success &= shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh");
-		shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);
-		shaderManager->bindAttrib("TextureLightning", "position", AT_VERTEX);
-		shaderManager->bindAttrib("TextureLightning", "color", AT_COLOR);
-		shaderManager->bindAttrib("TextureLightning", "normal", AT_NORMAL);
-		success &= shaderManager->linkProgram("TextureLightning");
+		if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){
+			shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);
+			shaderManager->bindAttrib("TextureLightning", "position", AT_VERTEX);
+			shaderManager->bindAttrib("TextureLightning", "color", AT_COLOR);
+			shaderManager->bindAttrib("TextureLightning", "normal", AT_NORMAL);
+			if( !shaderManager->linkProgram("TextureLightning") ) success = false;
+		}else success = false;
 
-		success &= shaderManager->makeShaderProgram("Ortho", "shaders/orthogonal.vsh", "shaders/orthogonal.fsh");
-		shaderManager->bindAttrib("Ortho", "textureCoordinate", AT_TEXCOORD);
-		shaderManager->bindAttrib("Ortho", "position", AT_VERTEX);
-		success &= shaderManager->linkProgram("Ortho");
+		if( shaderManager->makeShaderProgram("Ortho", "shaders/orthogonal.vsh", "shaders/orthogonal.fsh") ){
+			shaderManager->bindAttrib("Ortho", "textureCoordinate", AT_TEXCOORD);
+			shaderManager->bindAttrib("Ortho", "position", AT_VERTEX);
+			if( !shaderManager->linkProgram("Ortho") ) success = false;
+		}else success = false;
 		
 		if( success == false ){
 			shaderManager->unloadAllShaders();

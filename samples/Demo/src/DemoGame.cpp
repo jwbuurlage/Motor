@@ -44,7 +44,7 @@ namespace Demo {
 
 	void Game::run(){
 		if( motorRoot == 0 ) motorRoot = new Motor::Root;
-		motorRoot->initialize();
+		if( motorRoot->initialize() == 0 ) return;
 		motorRoot->addInputListener(this);
 		motorRoot->addFrameListener(this);
 
