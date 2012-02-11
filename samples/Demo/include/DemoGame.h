@@ -47,7 +47,7 @@ namespace Demo {
 		bool draggingRightMouse;
 		//For key movement
 		bool goingForward, goingBackward, goingLeft, goingRight, goingUp, goingDown, rotatingLeft, rotatingRight;
-		Vector3 moveDir;
+		Vector3 forceDirection;
 		bool usingTurbo;
 
 		static const int ballCount = 5;
