@@ -3,10 +3,7 @@ cmake_minimum_required( VERSION 2.6 )
 project (Motor)
 
 #-- Build the library first
-SET(
-	MOTOR_NAME
-	"Motor"
-)
+SET(MOTOR_NAME "Motor")
 
 SET(
 	MOTOR_SOURCES
