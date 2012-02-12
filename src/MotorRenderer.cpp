@@ -57,6 +57,8 @@ namespace Motor {
 		if( shaderManager == 0 ) shaderManager = new ShaderManager;
 		if( loadShaders() == false ){
 			Logger::getSingleton().log(Logger::ERROR, "The shaders failed to load. Motor not usable.");
+			delete shaderManager;
+			shaderManager = 0;
 			return false;
 		}
 
