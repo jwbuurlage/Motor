@@ -30,7 +30,7 @@ namespace Demo {
 		goingForward = goingBackward = goingLeft = goingRight = goingUp = goingDown = false;
 		rotatingLeft = rotatingRight = false;
 		usingTurbo = false;
-		moveDir.x = moveDir.y = moveDir.z = 0.0f;
+		forceDirection.x = forceDirection.y = forceDirection.z = 0.0f;
 
 		remotePlayers.clear();
 	}
@@ -64,7 +64,7 @@ namespace Demo {
         
         Motor::SceneObject* plane = motorRoot->getScene()->createObject();
         Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
-        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/baan.png");
+        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
         planeCopy->setMaterial(baanMat);
         plane->setModel(planeCopy);
         plane->setScale(3.0f);
@@ -154,6 +154,16 @@ namespace Demo {
 		if( localPlayer ){
             Motor::Camera* cam = motorRoot->getScene()->getCamera();
 			const Vector3& playerPos = localPlayer->sceneObj->getPosition();
+			
+			//For normal speeds, friction force proportional to the speed
+			if( localPlayer->movement.squaredLength() > 1.0f ){
+				Vector3 frictionVec( - 3.0f * localPlayer->movement );
+				localPlayer->movement += frictionVec * elapsedTime;
+			}else{ //For low speeds, constant friction force
+				Vector3 frictionVec( - 3.0f * localPlayer->movement.normalisedCopy() );
+				localPlayer->movement += frictionVec * elapsedTime;
+			}
+			
 			if( cam ){
 				cam->setTargetLocation(playerPos, false);
 				if( rotatingLeft && !rotatingRight ){
@@ -162,8 +172,9 @@ namespace Demo {
 					cam->rotateCamera( -1.5f * elapsedTime , 0.0f );
 				}
 				localPlayer->sceneObj->setYaw( cam->getYaw() );
-				localPlayer->movement = moveDir * (usingTurbo ? 50.0f : 20.0f);
-				localPlayer->movement.rotateY(cam->getYaw());
+				Vector3 force(forceDirection);
+				force.rotateY(cam->getYaw());
+				localPlayer->movement += force * (usingTurbo ? 150.0f : 70.0f) * elapsedTime;
 			}
 			localPlayer->sceneObj->setPosition( playerPos + localPlayer->movement * elapsedTime );
 		}
@@ -226,14 +237,14 @@ namespace Demo {
 
 		if( DirectionChanged ){
 			if( localPlayer ){
-				moveDir.x = moveDir.y = moveDir.z = 0.0f;
-				if( goingForward ) moveDir.z -= 1.0f;
-				if( goingBackward ) moveDir.z += 1.0f;
-				if( goingLeft ) moveDir.x -= 1.0f;
-				if( goingRight ) moveDir.x  = 1.0f;
-				if( goingUp ) moveDir.y  = 1.0f;
-				if( goingDown ) moveDir.y -= 1.0f;
-				moveDir.normalise();
+				forceDirection.x = forceDirection.y = forceDirection.z = 0.0f;
+				if( goingForward ) forceDirection.z -= 1.0f;
+				if( goingBackward ) forceDirection.z += 1.0f;
+				if( goingLeft ) forceDirection.x -= 1.0f;
+				if( goingRight ) forceDirection.x  = 1.0f;
+				if( goingUp ) forceDirection.y  = 1.0f;
+				if( goingDown ) forceDirection.y -= 1.0f;
+				forceDirection.normalise();
 			}
 		}
 		return keyHandled;
