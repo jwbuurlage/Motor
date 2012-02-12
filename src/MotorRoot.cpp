@@ -147,9 +147,8 @@ namespace Motor {
 			++frameCount;
 			frameTime += elapsedTime;
 			if( frameTime > 1.0f ){
-				std::stringstream text;
-				text << "FPS: " << (float)frameCount/frameTime << "\t(frametime " << frameTime/(float)frameCount << ")";
-				Logger::getSingleton().log(Logger::INFO, text.str().c_str() );
+				Logger::getSingleton() << Logger::INFO << "FPS: " << (float)frameCount/frameTime;
+				Logger::getSingleton() << "\t(frametime " << frameTime/(float)frameCount << ")" << endLog;
 				frameCount = 0;
 				frameTime = 0;
 			}

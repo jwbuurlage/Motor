@@ -9,29 +9,28 @@ namespace Motor {
 
 	Logger::Logger(void)
 	{
+		consoleLogLevel = INFO | WARNING | ERROR | CRITICALERROR;
+		fileLogLevel = WARNING | ERROR | CRITICALERROR;
+		currentLogLevel = NONE;
 	}
 
 	Logger::~Logger(void)
 	{
 	}
 
-	void Logger::log(LOGTYPE type, const char* logText)
+	void Logger::log(LOGLEVEL type, const char* logText)
 	{
-		std::stringstream output;
-		switch( type ){
-		case WARNING:
-			output << "Warning: "; break;
-		case ERROR:
-			output << "ERROR: "; break;
-		case CRITICALERROR:
-			output << "CRITICAL ERROR: "; break;
-		case NONE:
-		case INFO:
-		default:
-			break;
+		*this << type << logText << endLog;
+	}
+
+	void Logger::flush()
+	{
+		if( consoleLogLevel & currentLogLevel ){
+			std::cout << streambuff.str() << std::endl;
 		}
-		output << logText;
-		output << std::endl;
-		std::cout << output.str();
+		if( fileLogLevel & currentLogLevel ){
+			//Note: When doing file output, also prepend timestamp
+		}
+		streambuff.str(std::string());
 	}
 }

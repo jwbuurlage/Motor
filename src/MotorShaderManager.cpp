@@ -30,7 +30,7 @@ namespace Motor {
 	bool ShaderManager::Shader::load(const char* filename){
 		pFile shaderFile = Filesystem::getSingleton().getFile(filename);
 		if( !shaderFile ){
-			Logger::getSingleton().log(Logger::ERROR, "Shader file not found.");
+			Logger::getSingleton() << Logger::ERROR << "Shader file not found: " << filename << endLog;
 		}else{
 			const GLchar* shaderSource = shaderFile->data;
 			glShaderSource(handle, 1, &shaderSource, NULL);
@@ -56,8 +56,8 @@ namespace Motor {
 				if( value > 0 ){
 					GLchar* infoLog = new GLchar[value];
 					glGetShaderInfoLog(handle, value, &value, infoLog);
-					Logger::getSingleton().log(Logger::ERROR, "Shader compilation error: ");
-					Logger::getSingleton().log(Logger::ERROR, infoLog);
+					Logger::getSingleton() << Logger::ERROR << "Shader compilation error: ";
+					Logger::getSingleton() << infoLog << endLog;
 					delete[] infoLog;
 				}
 			}
@@ -113,12 +113,12 @@ namespace Motor {
 				//The buffer will now be big enough to hold all error messages (not at once!)
 				GLchar* infoLog = new GLchar[maxBufLen];
 
-				Logger::getSingleton().log(Logger::ERROR, "Shader link error followed by compilation logs: ");
+				Logger::getSingleton() << Logger::ERROR << "Shader link error followed by compilation logs: ";
 				
 				//Now get the log info
 				glGetProgramInfoLog(handle, maxBufLen, &value, infoLog);
 				if( value > 0 ) //If it returned a message
-					Logger::getSingleton().log(Logger::ERROR, infoLog);
+					Logger::getSingleton() << "\n" << infoLog;
 
 				//Display compilation log of all attached shaders and mark them as invalid
 			
@@ -126,10 +126,13 @@ namespace Motor {
 					(*iter)->setLinkError(true);
 					glGetShaderInfoLog((*iter)->getHandle(), maxBufLen, &value, infoLog);
 					if( value > 0 )  //If it returned a message
-						Logger::getSingleton().log(Logger::ERROR, infoLog);
+						Logger::getSingleton() << "\n" << infoLog;
 				}
 
 				delete[] infoLog;
+
+				Logger::getSingleton() << endLog;
+
 			}
 		}
 		return linked;
@@ -224,9 +227,9 @@ namespace Motor {
 		ShaderProgramContainer::iterator program = shaderPrograms.find(programName);
 		ShaderContainer::iterator shader = shaders.find(shaderName);
 		if( program == shaderPrograms.end() ){
-			Logger::getSingleton().log(Logger::WARNING, "attachShader could not find program");
+			Logger::getSingleton() << Logger::WARNING << "attachShader could not find \"" << programName << "\"" << endLog;
 		}else if( shader == shaders.end() ){
-			Logger::getSingleton().log(Logger::WARNING, "attachShader could not find shader");
+			Logger::getSingleton() << Logger::WARNING << "attachShader could not find \"" << shaderName << "\"" << endLog;
 		}else{
 			program->second->attachShader(shader->second);
 		}
@@ -250,7 +253,7 @@ namespace Motor {
 	void ShaderManager::bindAttrib(const char* programName, const char* attribName, GLuint index){
 		ShaderProgramContainer::iterator program = shaderPrograms.find(programName);
 		if( program == shaderPrograms.end() ){
-			Logger::getSingleton().log(Logger::WARNING, "bindAttrib could not find program");
+			Logger::getSingleton() << Logger::WARNING << "bindAttrib could not find \"" << programName << "\"" << endLog;
 		}else{
 			program->second->bindAttrib(index, attribName);
 		}
@@ -259,7 +262,7 @@ namespace Motor {
 	bool ShaderManager::linkProgram(const char* programName){
 		ShaderProgramContainer::iterator program = shaderPrograms.find(programName);
 		if( program == shaderPrograms.end() ){
-			Logger::getSingleton().log(Logger::WARNING, "linkProgram could not find program");
+			Logger::getSingleton() << Logger::WARNING << "linkProgram could not find \"" << programName << "\"" << endLog;;
 			return false;
 		}else{
 			return program->second->link();
@@ -269,7 +272,7 @@ namespace Motor {
 	void ShaderManager::setActiveProgram(const char* programName){
 		ShaderProgramContainer::iterator program = shaderPrograms.find(programName);
 		if( program == shaderPrograms.end() ){
-			Logger::getSingleton().log(Logger::WARNING, "setActiveProgram could not find program");
+			Logger::getSingleton() << Logger::WARNING << "setActiveProgram could not find \"" << programName << "\"" << endLog;
 		}else{
 			if( program->second->isLinked() ){
 				activeProgram = program->second;

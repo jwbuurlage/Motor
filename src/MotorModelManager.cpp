@@ -3,8 +3,6 @@
 #include "MotorMaterialManager.h"
 #include "MotorLogger.h"
 
-#include <iostream>
-
 #define MD2_IDENTITY (('2'<<24) + ('P'<<16) + ('D'<<8) + 'I')
 #define MD2_VERSION 8
 
@@ -86,7 +84,7 @@ vec3 MD2Model::anorms[] = {
 		const File* modelfile = Filesystem::getSingleton().getFile(location.c_str());
         
         if(!modelfile){
-			Logger::getSingleton().log(Logger::WARNING, "Could not load model file");
+			Logger::getSingleton() << Logger::WARNING << "Could not load modelfile: " << filename << endLog;
             return NULL;
 		}
         
@@ -95,7 +93,7 @@ vec3 MD2Model::anorms[] = {
         // 1) Check if the model is an md2 file
         // 2) Check if it's md2 version 8 (we will require this)
         if( modelfile->size < sizeof(ModelHeader) || (head->identity != MD2_IDENTITY) || (head->version != MD2_VERSION)) {
-            std::cout << "ERROR: " << filename << " is not a valid md2 model." << std::endl;
+			Logger::getSingleton() << Logger::WARNING << "File is not a valid MD2 model file: " << filename << endLog;
             return NULL;
         }
         

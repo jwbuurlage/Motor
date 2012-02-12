@@ -146,9 +146,7 @@ namespace Motor {
 	bool Renderer::checkErrors(){
 		GLenum err = glGetError();
 		if( err ){
-			std::stringstream errorText;
-			errorText << "OpenGL error occured. Code: " << err;
-			Logger::getSingleton().log(Logger::ERROR, errorText.str().c_str() );
+			Logger::getSingleton() << Logger::ERROR << "OpenGL error occurred. Code: " << err << endLog;
 			return false;
 		}
 		return true;
@@ -163,6 +161,9 @@ namespace Motor {
 		// 3. Call render callbacks: the user interface will register a callback in which it can use
 		//		functions from Renderer to draw UI elements.
 
+        Vector3 lightPos = lights->empty() ? Vector3(0,0,0) : lights->front()->position;
+        //this should actually be a property of the light
+        Vector3 lookAt = Vector3(0.0f, -3.2f, 0.0f);
 
         ////////////////////////////////////////////////////////////////////////////
         // Step 1: We render the scene from the light and save the texture map     /
@@ -174,11 +175,6 @@ namespace Motor {
         
         glCullFace(GL_FRONT);
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); 
-
-        Vector3 lightPos = lights->empty() ? Vector3(0,0,0) : lights->front()->position;
-       
-        //this should actually be a property of the light
-        Vector3 lookAt = Vector3(0.0f, -3.2f, 0.0f);
         
         Vector3 relativePosition = lightPos - lookAt;
 
@@ -190,7 +186,7 @@ namespace Motor {
         rotationMat.setRotationXYZ( pitch, -yaw, 0 );
         translateMat.setTranslation(-lightPos);
         lightViewMatrix = rotationMat * translateMat;
-                
+        
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, true );
         }
@@ -225,8 +221,6 @@ namespace Motor {
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, false );
         }
-
-        shaderManager->setActiveProgram("TextureLightning");
 
 		//Particle effects
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
