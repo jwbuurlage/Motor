@@ -68,8 +68,6 @@ vec3 MD2Model::anorms[] = {
         //		7) Bind these buffers
         //		8) Clean up, release data
 
-        MD2Model* model = new MD2Model;
-        
         //Define pointers and other variables
 		ModelHeader*	head;
         frame*          framePtr;
@@ -97,12 +95,14 @@ vec3 MD2Model::anorms[] = {
             return NULL;
         }
         
-        // 3) Copy the header data into our classvariables        
-        int frameSize = head->frameSize;
-        int frameCount = head->nFrames;
-        int triangleCount = head->nTriangles;
+        MD2Model* model = new MD2Model;
         
-        if (frameCount > 1) {
+        // 3) Copy the header data into our classvariables        
+		model->frameCount = head->nFrames;
+		model->frameSize = head->frameSize;
+		model->triangleCount = head->nTriangles;
+        
+        if(model->frameCount > 1){
             model->animated = true;
         }
 
@@ -117,20 +117,20 @@ vec3 MD2Model::anorms[] = {
         texCooPtr = (texCoo*)(modelfile->data + head->oTexCoo); //size = sizeof(texCoo) * head.nTexCoo; 
                 
         // 6) Create our VBO and elements object.
-		GLfloat* vertices = new GLfloat[(triangleCount * 3) * 12 * frameCount];
+		GLfloat* vertices = new GLfloat[(model->triangleCount * 3) * 12 * model->frameCount];
 
-        for( int j = 0; j < frameCount; j++ )
+        for( int j = 0; j < model->frameCount; j++ )
         {
             //we need to adjust our pointer every loop (frame)
-            framePtr = (frame*)&buffer[j * frameSize];
-            
-            for( int k = 0; k < triangleCount; k++ )
+            framePtr = (frame*)&buffer[j * model->frameSize];
+			int frameOffset = (j * (model->triangleCount * 3) * 12);
+           
+            for( int k = 0; k < model->triangleCount; k++ )
             {
                 for(int m = 0; m < 3; m++) {
                     int index = trianglePtr[k].vert[m];
                     int texcooindex = trianglePtr[k].tex[m];
-                    
-                    int frameOffset = (j * (triangleCount * 3) * 12);
+
                     int triangleOffset = (12 * (3*k + m));
                     
                     //vertices
@@ -160,15 +160,15 @@ vec3 MD2Model::anorms[] = {
 		// 7) Bind these buffers
 		glGenBuffers(1, &modelMesh->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, modelMesh->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * triangleCount * 3 * 12 * frameCount, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * model->triangleCount * 3 * 12 * model->frameCount, vertices, GL_STATIC_DRAW);
 
 		delete[] vertices;
 
         modelMesh->hasColor = true;
         modelMesh->hasNormal = true;
         modelMesh->hasIndexBuffer = false;
-        modelMesh->vertexCount = triangleCount * 3;
-        modelMesh->vertexBufferSize = sizeof(GLfloat) * triangleCount * 3 * 12;
+        modelMesh->vertexCount = model->triangleCount * 3;
+        modelMesh->vertexBufferSize = sizeof(GLfloat) * model->triangleCount * 3 * 12;
         modelMesh->vertexBufferDataType = GL_FLOAT;
         modelMesh->primitiveType = GL_TRIANGLES;
         modelMesh->dimension = 3;

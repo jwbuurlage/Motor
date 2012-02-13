@@ -54,16 +54,24 @@ namespace Motor {
     };
     
     void MD2Model::setAnimation(struct AnimState* state, int _type) const {
-        state->type = _type;
-        state->startframe = animationList[_type].firstFrame;
-        state->endframe = animationList[_type].lastFrame;
-        state->fps = animationList[_type].fps;
-        
+		state->type = _type;
+		state->fps = animationList[_type].fps;
+
+		//Yes this does happen a lot: models that do not have the animation
+		if( animationList[_type].lastFrame < frameCount ){
+			//Note: if lastFrame < frameCount then firstFrame < frameCount as well, because these are static values in the table
+			state->startframe = animationList[_type].firstFrame;
+			state->endframe = animationList[_type].lastFrame;
+		}else{
+			state->startframe = 0;
+			state->endframe = frameCount - 1; //endFrame is 0-based so frameCount-1 is the last frame index
+		}
+
         //reset timetracker
         state->timetracker = 0.0f;
-        
-        state->curr_frame = state->startframe;
-        state->next_frame = state->startframe + 1;
+
+		state->curr_frame = state->startframe;
+		state->next_frame = state->startframe + 1;
     }
 
     void MD2Model::updateAnimationState(AnimState* state, float timeElapsed) const {
