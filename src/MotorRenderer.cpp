@@ -366,19 +366,19 @@ namespace Motor {
 			if( !shaderManager->linkProgram("shadowTextureLightningMD2") ) success = false;
 		}else success = false;
 
-		if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){
-			shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);
-			shaderManager->bindAttrib("TextureLightning", "position", AT_VERTEX);
-			shaderManager->bindAttrib("TextureLightning", "color", AT_COLOR);
-			shaderManager->bindAttrib("TextureLightning", "normal", AT_NORMAL);
-			if( !shaderManager->linkProgram("TextureLightning") ) success = false;
-		}else success = false;
+		//if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){
+		//	shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);
+		//	shaderManager->bindAttrib("TextureLightning", "position", AT_VERTEX);
+		//	shaderManager->bindAttrib("TextureLightning", "color", AT_COLOR);
+		//	shaderManager->bindAttrib("TextureLightning", "normal", AT_NORMAL);
+		//	if( !shaderManager->linkProgram("TextureLightning") ) success = false;
+		//}else success = false;
 
-		if( shaderManager->makeShaderProgram("Ortho", "shaders/orthogonal.vsh", "shaders/orthogonal.fsh") ){
-			shaderManager->bindAttrib("Ortho", "textureCoordinate", AT_TEXCOORD);
-			shaderManager->bindAttrib("Ortho", "position", AT_VERTEX);
-			if( !shaderManager->linkProgram("Ortho") ) success = false;
-		}else success = false;
+		//if( shaderManager->makeShaderProgram("Ortho", "shaders/orthogonal.vsh", "shaders/orthogonal.fsh") ){
+		//	shaderManager->bindAttrib("Ortho", "textureCoordinate", AT_TEXCOORD);
+		//	shaderManager->bindAttrib("Ortho", "position", AT_VERTEX);
+		//	if( !shaderManager->linkProgram("Ortho") ) success = false;
+		//}else success = false;
 		
 		if( success == false ){
 			shaderManager->unloadAllShaders();

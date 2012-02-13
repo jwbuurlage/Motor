@@ -25,7 +25,7 @@ namespace Motor {
 		Logger();
 		~Logger();
 
-		//Log level: 
+		//Log level:
 		enum LOGLEVEL{ //Powers of 2
 			NONE=0,
 			DEBUG = 1,

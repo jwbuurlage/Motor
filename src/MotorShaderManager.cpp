@@ -104,7 +104,7 @@ namespace Motor {
 				//Get the link log info and then the compilation log for all attached shaders.
 				//First determine the size of the buffer needed
 				GLint maxBufLen = 0;
-				glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &value);
+				glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &value);
 				maxBufLen = value;
 				for( std::vector<Shader*>::iterator iter = shaders.begin(); iter != shaders.end(); ++iter ){
 					glGetShaderiv((*iter)->getHandle(), GL_INFO_LOG_LENGTH, &value);
