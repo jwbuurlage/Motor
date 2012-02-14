@@ -198,9 +198,11 @@ namespace Motor {
 		for( ShaderProgramContainer::iterator iter = shaderPrograms.begin(); iter != shaderPrograms.end(); ++iter ){
 			delete iter->second; //will call corresponding opengl functions
 		}
+		shaderPrograms.clear();
 		for( ShaderContainer::iterator iter = shaders.begin(); iter != shaders.end(); ++iter ){
 			delete iter->second; //will call corresponding opengl functions
 		}
+		shaders.clear();
 	}
 
 	ShaderManager::Shader* ShaderManager::makeShader(const char* shaderName, ShaderType type, const char* sourceFile){
