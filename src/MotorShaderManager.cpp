@@ -164,6 +164,10 @@ namespace Motor {
 		}
 	}
 
+	void ShaderManager::ShaderProgram::vertexAttribPointer(GLuint index, GLint size, GLenum type, bool normalize, GLsizei stride, const GLvoid* data){
+		glVertexAttribPointer(index, size, type, normalize, stride, data);
+	}
+
 	GLuint ShaderManager::ShaderProgram::getUniformLocation(const char* varname){
 		return glGetUniformLocation(handle, varname);
 	}

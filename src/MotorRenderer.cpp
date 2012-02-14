@@ -23,8 +23,7 @@ enum {
     AT_COLOR,
     AT_NORMAL,
     AT_NORMAL_NEXT,
-    AT_TEXCOORD,
-    ATTRIBUTE_COUNT
+    AT_TEXCOORD
 };
 
 namespace Motor {
@@ -178,14 +177,16 @@ namespace Motor {
         
         Vector3 relativePosition = lightPos - lookAt;
 
-        mat rotationMat, translateMat, mvpMatrix;
+        mat lightViewMat; //Initialized to identity
         
         float pitch = (float)(M_PI / 2) - acos(relativePosition.y / relativePosition.length());
         float yaw = atan2(relativePosition.x, relativePosition.z);
         
-        rotationMat.setRotationXYZ( pitch, -yaw, 0 );
-        translateMat.setTranslation(-lightPos);
-        lightViewMatrix = rotationMat * translateMat;
+		lightViewMat.translate(-lightPos);
+		lightViewMat.rotateXYZ( pitch, -yaw, 0 );
+
+		projViewMatrix = projectionMatrixShadow;
+		projViewMatrix *= lightViewMat;
         
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, true );
@@ -201,7 +202,7 @@ namespace Motor {
         // Step 2: We render the scene, and read out the values from the shadow map /
         /////////////////////////////////////////////////////////////////////////////
         
-        mat lightningProjection = biasMatrix * projectionMatrixShadow * lightViewMatrix;
+        mat lightningProjection = biasMatrix * projViewMatrix;
 
         // set uniforms for non-animated objects
         shaderManager->setActiveProgram("shadowTextureLightning");
@@ -217,6 +218,9 @@ namespace Motor {
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);        
         shaderManager->getActiveProgram()->setUniform1i("tex", 0);
         shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
+
+		projViewMatrix = projectionMatrix;
+		projViewMatrix *= viewMatrix;
 
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
             drawObject( *iter, false );
@@ -277,30 +281,23 @@ namespace Motor {
         }
 
 		const mat& mMatrix = obj->getFullMoveMatrix();
-		mat mvpMatrix;
         
-        if(depthOnly) {
-            mvpMatrix = projectionMatrixShadow * lightViewMatrix * mMatrix;
-        }
-        else {
-            mvpMatrix = projectionMatrix * viewMatrix * mMatrix;
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", projViewMatrix * mMatrix);
+        if(depthOnly == false)
             shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
-        }
-        
-        shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", mvpMatrix);
 
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
 		shaderManager->getActiveProgram()->vertexAttribPointer(
-            "position", mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset));
+            AT_VERTEX, mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset));
 
 		if( mesh->hasColor )
             shaderManager->getActiveProgram()->vertexAttribPointer(
-				"color", 4, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 12));
+				AT_COLOR, 4, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 12));
 
 		if( mesh->hasNormal )
 			shaderManager->getActiveProgram()->vertexAttribPointer(
-				"normal", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 28));
+				AT_NORMAL, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 28));
         
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
@@ -312,7 +309,7 @@ namespace Motor {
 		}
 
 		shaderManager->getActiveProgram()->vertexAttribPointer(
-			"textureCoordinate",
+			AT_TEXCOORD,
 			2,
 			mesh->vertexBufferDataType,
 			false,
@@ -320,8 +317,8 @@ namespace Motor {
 			reinterpret_cast<GLvoid*>(vertexOffset + 40));
         
         if(animation){
-            shaderManager->getActiveProgram()->vertexAttribPointer("position_next", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
-            shaderManager->getActiveProgram()->vertexAttribPointer("normal_next", 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
+			shaderManager->getActiveProgram()->vertexAttribPointer(AT_VERTEX_NEXT, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
+			shaderManager->getActiveProgram()->vertexAttribPointer(AT_NORMAL_NEXT, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
         }
 
 		if( mesh->hasIndexBuffer ){

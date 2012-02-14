@@ -44,7 +44,8 @@ namespace Motor {
 		mat projectionMatrix;
         mat projectionMatrixShadow;
 		mat viewMatrix;
-        mat lightViewMatrix;
+		mat projViewMatrix;
+        mat lightProjViewMatrix;
         mat biasMatrix;
 		void generateProjectionMatrix();
         

@@ -47,6 +47,7 @@ namespace Motor {
 			//attribs
 			void bindAttrib(GLuint index, const char* attribName);
 			void vertexAttribPointer(const char* name, GLint size, GLenum type, bool normalize, GLsizei stride, const GLvoid* data);
+			void vertexAttribPointer(GLuint index, GLint size, GLenum type, bool normalize, GLsizei stride, const GLvoid* data);
 			//uniforms
 			GLuint getUniformLocation(const char* varname);
 			void setUniform1f(const char* varname, float value);
