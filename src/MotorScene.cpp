@@ -43,7 +43,8 @@ namespace Motor {
 
 	void Scene::onFrame(float elapsedTime){
 		//Iterate through SceneObjects, ParticleEffects and Lights
-		//for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter)
+		for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter)
+			(*iter)->update(elapsedTime);
 		//for(EffectIterator iter = effects.begin(); iter != effects.end(); ++iter)
 		//for(LightIterator iter = lights.begin(); iter != lights.end(); ++iter)
 		if( camera ) camera->update(elapsedTime);

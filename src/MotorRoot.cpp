@@ -152,12 +152,6 @@ namespace Motor {
 				frameCount = 0;
 				frameTime = 0;
 			}
-            
-            //update models
-            ObjectContainer* objects = currentScene->getObjectList();
-            for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-                (*iter)->update(elapsedTime);
-            }
 
 			//Call frame listeners
 			for( std::vector<FrameListener*>::iterator it = frameListeners.begin(); it != frameListeners.end(); ++it ){
