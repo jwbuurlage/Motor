@@ -334,15 +334,25 @@ namespace Motor {
 	bool Renderer::loadShaders(){
 		bool success = true;
 		
-		if( shaderManager->makeShaderProgram("shadowMap", "shaders/shadowmap.vsh", "shaders/shadowmap.fsh") ){
-			shaderManager->bindAttrib("shadowMap", "position", AT_VERTEX);
-			if( !shaderManager->linkProgram("shadowMap") ) success = false;
-		}else success = false;
+		ShaderManager::Shader* shadowFS = shaderManager->makeShader("ShadowFS", ShaderManager::Fragment, "shaders/shadowmap.fsh");
+		ShaderManager::Shader* shadowVS = shaderManager->makeShader("ShadowVS", ShaderManager::Vertex, "shaders/shadowmap.vsh");
+		ShaderManager::Shader* shadowVSMD2 = shaderManager->makeShader("ShadowVSMD2", ShaderManager::Vertex, "shaders/shadowmapmd2.vsh");
+		
+		if( shadowFS && shadowVS && shadowVSMD2 ){
 
-        if( shaderManager->makeShaderProgram("shadowMapMD2", "shaders/shadowmapmd2.vsh", "shaders/shadowmapmd2.fsh") ){
-			shaderManager->bindAttrib("shadowMapMD2", "position", AT_VERTEX);
-			shaderManager->bindAttrib("shadowMapMD2", "position_next", AT_VERTEX_NEXT);
-			if( !shaderManager->linkProgram("shadowMapMD2") ) success = false;
+			ShaderManager::ShaderProgram* shadowMap = shaderManager->createProgram("shadowMap");
+			shadowMap->attachShader(shadowFS);
+			shadowMap->attachShader(shadowVS);
+			shadowMap->bindAttrib(AT_VERTEX, "position");
+			if( !shadowMap->link() ) success = false;
+
+			ShaderManager::ShaderProgram* shadowMapMD2 = shaderManager->createProgram("shadowMapMD2");
+			shadowMapMD2->attachShader(shadowFS);
+			shadowMapMD2->attachShader(shadowVSMD2);
+			shadowMapMD2->bindAttrib(AT_VERTEX, "position");
+			shadowMapMD2->bindAttrib(AT_VERTEX_NEXT, "position_next");
+			if( !shadowMapMD2->link() ) success = false;
+
 		}else success = false;
         
 		if( shaderManager->makeShaderProgram("shadowTextureLightning", "shaders/shadowtexturelightning.vsh", "shaders/shadowtexturelightning.fsh") ){

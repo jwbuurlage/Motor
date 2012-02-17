@@ -224,9 +224,10 @@ namespace Motor {
 		return 0;
 	}
 
-	void ShaderManager::createProgram(const char* programName){
+	ShaderManager::ShaderProgram* ShaderManager::createProgram(const char* programName){
 		ShaderProgram* newProgram = new ShaderProgram();
 		shaderPrograms.insert(ShaderProgramContainer::value_type(programName, newProgram));
+		return newProgram;
 	}
 
 	void ShaderManager::attachShader(const char* programName, const char* shaderName){
@@ -241,19 +242,19 @@ namespace Motor {
 		}
 	}
 
-	bool ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile){
+	ShaderManager::ShaderProgram* ShaderManager::makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile){
 		//Create the shaders with filename as name
 		Shader* vsShader = makeShader(vertexShaderFile, Vertex, vertexShaderFile);
 		Shader* fsShader = makeShader(fragmentShaderFile, Fragment, fragmentShaderFile);
 		
-		if( vsShader == 0 || fsShader == 0 ) return false;
+		if( vsShader == 0 || fsShader == 0 ) return 0;
 		
 		ShaderProgram* newProgram = new ShaderProgram();
 		shaderPrograms.insert(ShaderProgramContainer::value_type(programName, newProgram));
 		newProgram->attachShader(vsShader);
 		newProgram->attachShader(fsShader);
         
-        return true;
+        return newProgram;
 	}
 
 	void ShaderManager::bindAttrib(const char* programName, const char* attribName, GLuint index){

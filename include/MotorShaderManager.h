@@ -79,11 +79,11 @@ namespace Motor {
 		//use makeShaderProgram if the program has one vertex and one fragment shader
 		//after both of these, do bindAttrib and then linkProgram
 		Shader* makeShader(const char* shaderName, ShaderType type, const char* sourceFile); //returns 0 on compile error
-		void createProgram(const char* programName);
+		ShaderProgram* createProgram(const char* programName);
 		void attachShader(const char* programName, const char* shaderName);
 		
-		//Returns false when file not found or compile error
-		bool makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile);
+		//Returns null pointer when file not found or compile error
+		ShaderProgram* makeShaderProgram(const char* programName, const char* vertexShaderFile, const char* fragmentShaderFile);
 
 		void bindAttrib(const char* programName, const char* attribName, GLuint index);
 		bool linkProgram(const char* programName);
