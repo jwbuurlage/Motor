@@ -35,6 +35,13 @@ namespace Motor {
 		ShaderManager* shaderManager;
 
 		void drawObject(SceneObject* obj, bool depthOnly);
+
+		void drawTerrain();
+		void initTerrain();
+		GLuint terrainVertexBuffer;
+		GLuint terrainIndexBuffer;
+		GLsizei terrainVertexCount;
+		GLsizei terrainIndexCount;
         
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application

@@ -86,6 +86,8 @@ namespace Motor {
         biasMatrix.scale(0.5f);				
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
+		initTerrain();
+
 		checkErrors();
 
 		initialized = true;
@@ -226,6 +228,15 @@ namespace Motor {
             drawObject( *iter, false );
         }
 
+		//
+		// Terrain test
+		//
+		shaderManager->setActiveProgram("terrain");
+        shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);  
+		shaderManager->getActiveProgram()->setUniform1i("shadowMap", 7);
+		drawTerrain();
+
 		//Particle effects
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
 
@@ -331,6 +342,88 @@ namespace Motor {
 		return;
 	}
 
+	void Renderer::initTerrain(){
+		Motor::Texture* tex = TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp");
+		if( tex == 0 ){
+			LOG_CRITICALERROR("initTerrain: could not find heightmap. This program will now crash :)");
+		}
+
+		//
+		// WARNING: UGLY AND INVALID CODE AHEAD
+		//
+		const int width = 256; //Amount of vertices on a side
+		const int height = 256;
+		terrainVertexCount = width*height;
+		GLfloat* vertexBuffer = new GLfloat[terrainVertexCount*2];
+		GLfloat* vertexPtr = vertexBuffer;
+		float widthMultiplier = 1.0f/((float)width-1);
+		float heightMultiplier = 1.0f/((float)height-1);
+		for( int i = 0; i < height; ++i ){
+			for( int j = 0; j < width; ++j ){
+				*vertexPtr++ = widthMultiplier*(float)j; //texture s coordinate
+				*vertexPtr++ = heightMultiplier*(float)i; //texture t coordinate
+			}
+		}
+
+		glGenBuffers(1, &terrainVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, terrainVertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, terrainVertexCount*2*sizeof(GLfloat), vertexBuffer, GL_STATIC_DRAW);
+		delete[] vertexBuffer;
+
+		//Index buffer
+		terrainIndexCount = (2*width+1)*(height-1);
+		GLushort* indexBuffer = new GLushort[terrainIndexCount];
+		GLushort* indexPtr = indexBuffer;
+		for( int i = 0; i < (height-1); ++i ){
+			if( (i&1) == 0 ){ //if even numbered row
+				for( int j = 0; j < width; ++j ){
+					*indexPtr++ = (GLushort)(i*width+j);
+					*indexPtr++ = (GLushort)((i+1)*width+j);
+				}
+				*indexPtr++ = (i+2)*width-1;
+			}else{ //odd numbered row
+				for( int j = width-1; j >= 0; --j ){
+					*indexPtr++ = (GLushort)(i*width+j);
+					*indexPtr++ = (GLushort)((i+1)*width+j);
+				}
+				*indexPtr++ = (i+1)*width;
+			}
+		}
+
+		glGenBuffers(1, &terrainIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIndexBuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, terrainIndexCount*sizeof(GLushort), indexBuffer, GL_STATIC_DRAW);
+		delete[] indexBuffer;
+
+		LOG_DEBUG("Terrain initialized!");
+	}
+
+	void Renderer::drawTerrain(){
+		//
+		// WARNING: UGLY AND INVALID CODE AHEAD
+		//
+
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp")->handle);
+		shaderManager->getActiveProgram()->setUniform1i("heightMap", 0); //GL_TEXTURE0
+		shaderManager->getActiveProgram()->setUniform1f("textureDelta", 1.0f/256);
+
+		mat mMatrix;
+		mMatrix.scaleX(40.0f).scaleZ(40.0f).scaleY(8.0f); //Use this to set the size and height of terrain
+		mMatrix.translate(0.0f, -4.0f, 0.0f);
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
+
+		glBindBuffer(GL_ARRAY_BUFFER, terrainVertexBuffer);
+		shaderManager->getActiveProgram()->vertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, false, 0, 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIndexBuffer);
+		glDrawElements(GL_TRIANGLE_STRIP, terrainIndexCount, GL_UNSIGNED_SHORT, 0);
+
+		return;
+	}
+
 	bool Renderer::loadShaders(){
 		bool success = true;
 		
@@ -371,6 +464,12 @@ namespace Motor {
 			shaderManager->bindAttrib("shadowTextureLightningMD2", "normal_next", AT_NORMAL_NEXT);
 			shaderManager->bindAttrib("shadowTextureLightningMD2", "position_next", AT_VERTEX_NEXT);
 			if( !shaderManager->linkProgram("shadowTextureLightningMD2") ) success = false;
+		}else success = false;
+
+		ShaderManager::ShaderProgram* terrain = shaderManager->makeShaderProgram("terrain", "shaders/terraintest.vsh", "shaders/terraintest.fsh");
+		if( terrain ){
+			terrain->bindAttrib(AT_TEXCOORD, "textureCoordinate");
+			if( !terrain->link() ) success = false;
 		}else success = false;
 
 		//if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){
