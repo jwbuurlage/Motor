@@ -14,9 +14,9 @@ uniform vec3 lightPosition;
 
 void main() {
 	vec4 pos4;
-	pos4.x = 2.0*(textureCoordinate.s-0.5);
+	pos4.x = textureCoordinate.s;
 	pos4.y = texture2D(heightMap, textureCoordinate).r;
-	pos4.z = 2.0*(textureCoordinate.t-0.5);
+	pos4.z = textureCoordinate.t;
 	pos4.w = 1.0;
 	vec4 position = mMatrix * pos4;
 	

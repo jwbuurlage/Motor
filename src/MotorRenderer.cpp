@@ -8,6 +8,7 @@
 #include "MotorMaterial.h"
 #include "MotorTexture.h"
 #include "MotorTextureManager.h"
+#include "MotorTerrain.h"
 #include <GL/glew.h>
 #include <sstream>
 
@@ -86,7 +87,8 @@ namespace Motor {
         biasMatrix.scale(0.5f);				
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
-		initTerrain();
+        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp"), (Texture*)0);
+		terrain->generate(20.0f, 10.0f, 20.0f);
 
 		checkErrors();
 
@@ -409,17 +411,14 @@ namespace Motor {
 		shaderManager->getActiveProgram()->setUniform1i("heightMap", 0); //GL_TEXTURE0
 		shaderManager->getActiveProgram()->setUniform1f("textureDelta", 1.0f/256);
 
-		mat mMatrix;
-		mMatrix.scaleX(40.0f).scaleZ(40.0f).scaleY(8.0f); //Use this to set the size and height of terrain
-		mMatrix.translate(0.0f, -4.0f, 0.0f);
-		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", terrain->scaleMatrix);
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
 
-		glBindBuffer(GL_ARRAY_BUFFER, terrainVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, terrain->vertexBuffer);
 		shaderManager->getActiveProgram()->vertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, false, 0, 0);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIndexBuffer);
-		glDrawElements(GL_TRIANGLE_STRIP, terrainIndexCount, GL_UNSIGNED_SHORT, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
+		glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_SHORT, 0);
 
 		return;
 	}
@@ -489,6 +488,7 @@ namespace Motor {
 		if( success == false ){
 			shaderManager->unloadAllShaders();
 		}
+        
 		//Display any OpenGL error code that might have been generated
 		checkErrors();
 		

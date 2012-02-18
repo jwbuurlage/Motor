@@ -5,6 +5,7 @@
 
 namespace Motor {
 	class ShaderManager;
+    class Terrain;
 
 	class Renderer {
 	public:
@@ -36,6 +37,7 @@ namespace Motor {
 
 		void drawObject(SceneObject* obj, bool depthOnly);
 
+        Terrain* terrain;
 		void drawTerrain();
 		void initTerrain();
 		GLuint terrainVertexBuffer;
