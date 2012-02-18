@@ -88,7 +88,7 @@ namespace Motor {
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
         terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap.png"), (Texture*)0);
-		terrain->generate(50.0f, 50.0f, 5.0f);
+		terrain->generate(50.0f, 50.0f, 10.0f);
 
 		checkErrors();
 

@@ -51,23 +51,23 @@ namespace Motor {
         // prepare arrays which will hold VBO and IBO data
         //------------------------------------------------
         
-        indexCount = (PATCH_HEIGHT-1) * (2*PATCH_WIDTH+1);
+        indexCount = PATCH_HEIGHT * (2*PATCH_WIDTH+1);
         
         GLfloat* vertices = new GLfloat[PATCH_WIDTH * PATCH_HEIGHT * 2];
         GLuint* indices = new GLuint[indexCount];
 
-        float perVertex = 1 / (float)(PATCH_COUNT_X * PATCH_WIDTH);
+        float perVertex = 1 / (float)(PATCH_COUNT_X * (PATCH_WIDTH - 1));
         
         for(int i = 0; i < PATCH_WIDTH; ++i) {
             for(int j = 0; j < PATCH_HEIGHT; ++j) {
                 //vertex
-                int offset = ((i * PATCH_HEIGHT) + j) * 2;
+                int offset = (i * PATCH_WIDTH + j) * 2;
                 
                 vertices[offset + 0] = (GLfloat)(i * perVertex); //x 
                 vertices[offset + 1] = (GLfloat)(j * perVertex); //z
             }
         }
-                
+                        
         int direction = -1;
         int offset = 0;
         int a, b;
@@ -90,7 +90,7 @@ namespace Motor {
                 b = 0;
             }
             
-            for(int j = 0; j < PATCH_HEIGHT - 1; ++j) { //l = patch_height
+            for(int j = 0; j < PATCH_HEIGHT; ++j) { //l = patch_height
                 //odd or even?
                 indices[offset + direction*(j*2 + 0)] = ((i + a) * PATCH_HEIGHT + j);
                 indices[offset + direction*(j*2 + 1)] = ((i + b) * PATCH_HEIGHT + j);
@@ -103,9 +103,7 @@ namespace Motor {
             thePatch.offset[0] = (i % PATCH_COUNT_X) * (1 / (float)PATCH_COUNT_X);
             thePatch.offset[1] = (floorf(i / PATCH_COUNT_Y)) * (1 / (float)PATCH_COUNT_Y);
             patches[i] = thePatch;
-        }
-        
-        
+        }        
         
         //----------------------------------
         // set up VBO and IBO, set variables
