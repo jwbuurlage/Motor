@@ -87,8 +87,8 @@ namespace Motor {
         biasMatrix.scale(0.5f);				
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
-        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp"), (Texture*)0);
-		terrain->generate(20.0f, 10.0f, 20.0f);
+        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap.png"), (Texture*)0);
+		terrain->generate(50.0f, 50.0f, 5.0f);
 
 		checkErrors();
 
@@ -417,8 +417,24 @@ namespace Motor {
 		glBindBuffer(GL_ARRAY_BUFFER, terrain->vertexBuffer);
 		shaderManager->getActiveProgram()->vertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, false, 0, 0);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
-		glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_SHORT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
+        
+        glDisable(GL_CULL_FACE);
+
+        for(int i = 0; i < terrain->PATCH_COUNT_X * terrain->PATCH_COUNT_Y; ++i) {     
+            
+            glUniform2fv(shaderManager->getActiveProgram()->getUniformLocation("delta"), 1, terrain->patches[i].offset);
+
+            //glDrawElements(__terrain->terrainMesh->primitiveType, __terrain->terrainMesh->indexCount, __terrain->terrainMesh->indexBufferDataType, 0);
+     
+            glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_INT, 0);
+
+        }
+        
+        glEnable(GL_CULL_FACE);
+
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
+		//glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_SHORT, 0);
 
 		return;
 	}

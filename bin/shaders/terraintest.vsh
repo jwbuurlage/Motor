@@ -1,7 +1,7 @@
 attribute vec2 textureCoordinate;
 
 uniform sampler2D heightMap;
-uniform float textureDelta;
+uniform vec2 delta;
 
 //Needed for lighting and shadows and so on:
 varying vec3 normalVarying;
@@ -14,9 +14,11 @@ uniform vec3 lightPosition;
 
 void main() {
 	vec4 pos4;
-	pos4.x = textureCoordinate.s;
-	pos4.y = texture2D(heightMap, textureCoordinate).r;
-	pos4.z = textureCoordinate.t;
+    vec2 texcoo = textureCoordinate + delta;
+    
+	pos4.x = texcoo.s; 
+	pos4.y = texture2D(heightMap, texcoo).r;
+	pos4.z = texcoo.t;
 	pos4.w = 1.0;
 	vec4 position = mMatrix * pos4;
 	
@@ -31,10 +33,10 @@ void main() {
 	float yScale = (mMatrix * vec4(0.0,1.0,0.0,0.0)).y;
 	float zScale = (mMatrix * vec4(0.0,0.0,1.0,0.0)).z;
 	
-	float A = texture2D(heightMap, textureCoordinate + vec2(0.0,textureDelta)).r;
-	float B = texture2D(heightMap, textureCoordinate + vec2(textureDelta,0.0)).r;
-	float C = texture2D(heightMap, textureCoordinate + vec2(0.0,-textureDelta)).r;
-	float D = texture2D(heightMap, textureCoordinate + vec2(-textureDelta,0.0)).r;
+	float A = texture2D(heightMap, textureCoordinate + vec2(0.0,1.0/255.0)).r;
+	float B = texture2D(heightMap, textureCoordinate + vec2(1.0/255.0,0.0)).r;
+	float C = texture2D(heightMap, textureCoordinate + vec2(0.0,-1.0/255.0)).r;
+	float D = texture2D(heightMap, textureCoordinate + vec2(-1.0/255.0,0.0)).r;
 	normalVarying = normalize(vec3(zScale*(D-B), 2.0/yScale, xScale*(C-A)));
 	
 	gl_Position = vpMatrix*position;

@@ -21,8 +21,8 @@ namespace Motor {
         // make the scale matrix
         //----------------------
         
-        scaleMatrix.translate(-0.5f, 0.0f, -0.5f);
-        scaleMatrix.scale(w_terrain);
+        scaleMatrix.scaleX(w_terrain).scaleZ(l_terrain).scaleY(h_terrain);
+        scaleMatrix.translate(-w_terrain/2, 0.0f, -l_terrain/2);
       
         //-----------------------------------------
         // check if the heightmap is of proper size
@@ -42,8 +42,8 @@ namespace Motor {
            
         PATCH_COUNT_X = 8;
         PATCH_COUNT_Y = 8;
-        PATCH_WIDTH = 32;
-        PATCH_HEIGHT = 32;
+        PATCH_WIDTH = 33;
+        PATCH_HEIGHT = 33;
 
         patches = new Patch[PATCH_COUNT_X*PATCH_COUNT_Y];
         
@@ -51,16 +51,20 @@ namespace Motor {
         // prepare arrays which will hold VBO and IBO data
         //------------------------------------------------
         
+        indexCount = (PATCH_HEIGHT-1) * (2*PATCH_WIDTH+1);
+        
         GLfloat* vertices = new GLfloat[PATCH_WIDTH * PATCH_HEIGHT * 2];
-        GLuint* indices = new GLuint[PATCH_WIDTH * (2*PATCH_WIDTH+1)];
+        GLuint* indices = new GLuint[indexCount];
 
+        float perVertex = 1 / (float)(PATCH_COUNT_X * PATCH_WIDTH);
+        
         for(int i = 0; i < PATCH_WIDTH; ++i) {
             for(int j = 0; j < PATCH_HEIGHT; ++j) {
                 //vertex
-                int offset = (i * PATCH_WIDTH + j) * 2;
+                int offset = ((i * PATCH_HEIGHT) + j) * 2;
                 
-                vertices[offset + 0] = i * (1 / (PATCH_COUNT_X * PATCH_WIDTH)); //x 
-                vertices[offset + 1] = j * (1 / (PATCH_COUNT_Y * PATCH_HEIGHT)); //z
+                vertices[offset + 0] = (GLfloat)(i * perVertex); //x 
+                vertices[offset + 1] = (GLfloat)(j * perVertex); //z
             }
         }
                 
@@ -86,7 +90,7 @@ namespace Motor {
                 b = 0;
             }
             
-            for(int j = 0; j < PATCH_HEIGHT; ++j) { //l = patch_height
+            for(int j = 0; j < PATCH_HEIGHT - 1; ++j) { //l = patch_height
                 //odd or even?
                 indices[offset + direction*(j*2 + 0)] = ((i + a) * PATCH_HEIGHT + j);
                 indices[offset + direction*(j*2 + 1)] = ((i + b) * PATCH_HEIGHT + j);
@@ -96,21 +100,21 @@ namespace Motor {
         for(int i = 0; i < (PATCH_COUNT_X * PATCH_COUNT_Y); ++i) {
             Patch thePatch;
             thePatch.lod = 0;
-            thePatch.offset[0] = (i % PATCH_COUNT_X) * (1 / PATCH_COUNT_X);
-            thePatch.offset[1] = (floorf(i / PATCH_COUNT_Y)) * (1 / PATCH_COUNT_Y);
+            thePatch.offset[0] = (i % PATCH_COUNT_X) * (1 / (float)PATCH_COUNT_X);
+            thePatch.offset[1] = (floorf(i / PATCH_COUNT_Y)) * (1 / (float)PATCH_COUNT_Y);
             patches[i] = thePatch;
         }
+        
+        
         
         //----------------------------------
         // set up VBO and IBO, set variables
         //----------------------------------
-        
-        indexCount = (2*PATCH_WIDTH + 1) * PATCH_HEIGHT;
-        
+                
         //generating and binding the opengl buffer
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * (PATCH_WIDTH + 1) * (PATCH_HEIGHT + 1) * 2, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * PATCH_WIDTH * PATCH_HEIGHT * 2, vertices, GL_STATIC_DRAW);
         
         glGenBuffers(1, &indexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
