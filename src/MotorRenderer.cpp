@@ -507,7 +507,7 @@ namespace Motor {
 		fov = 100.0f * (float)M_PI/180.0f;
 		xmax = near * (float)tan(0.5f*fov);
 		xmin = -xmax;
-		far = 50.0f;
+		far = 80.0f;
         projectionMatrixShadow.setPerspective(xmin, xmax, xmin, xmax, near, far);
     }
 }
