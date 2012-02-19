@@ -343,16 +343,17 @@ namespace Motor {
 	}
 
 	void Renderer::initTerrain(){
-		Motor::Texture* tex = TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp");
-		if( tex == 0 ){
-			LOG_CRITICALERROR("initTerrain: could not find heightmap. This program will now crash :)");
+		heightMap = TextureManager::getSingleton().getTexture("textures/heightmap.png");
+		terrainTex = TextureManager::getSingleton().getTexture("textures/terrain.jpg");
+		if( heightMap == 0 || terrainTex == 0 ){
+			LOG_CRITICALERROR("initTerrain: could not find heightmap.png or terrain.jpg This program will now crash :)");
 		}
 
 		//
 		// WARNING: UGLY AND INVALID CODE AHEAD
 		//
-		const int width = 256; //Amount of vertices on a side
-		const int height = 256;
+		int width = heightMap->width; //Amount of vertices on a side
+		int height = heightMap->height;
 		terrainVertexCount = width*height;
 		GLfloat* vertexBuffer = new GLfloat[terrainVertexCount*2];
 		GLfloat* vertexPtr = vertexBuffer;
@@ -407,12 +408,15 @@ namespace Motor {
 
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp")->handle);
+		glBindTexture(GL_TEXTURE_2D, heightMap->handle);
 		shaderManager->getActiveProgram()->setUniform1i("heightMap", 0); //GL_TEXTURE0
-		shaderManager->getActiveProgram()->setUniform1f("textureDelta", 1.0f/256);
+		shaderManager->getActiveProgram()->setUniform1f("textureDelta", 1.0f/heightMap->width);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, terrainTex->handle);
+		shaderManager->getActiveProgram()->setUniform1i("terrainTexture", 1); //GL_TEXTURE1
 
 		mat mMatrix;
-		mMatrix.scaleX(40.0f).scaleZ(40.0f).scaleY(8.0f); //Use this to set the size and height of terrain
+		mMatrix.scaleX(80.0f).scaleZ(80.0f).scaleY(8.0f); //Use this to set the size and height of terrain
 		mMatrix.translate(0.0f, -4.0f, 0.0f);
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);

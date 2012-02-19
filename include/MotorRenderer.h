@@ -5,6 +5,7 @@
 
 namespace Motor {
 	class ShaderManager;
+	class Texture;
 
 	class Renderer {
 	public:
@@ -38,6 +39,8 @@ namespace Motor {
 
 		void drawTerrain();
 		void initTerrain();
+		Texture* heightMap;
+		Texture* terrainTex;
 		GLuint terrainVertexBuffer;
 		GLuint terrainIndexBuffer;
 		GLsizei terrainVertexCount;
