@@ -22,7 +22,7 @@ namespace Motor {
         //----------------------
         
         scaleMatrix.scaleX(w_terrain).scaleZ(l_terrain).scaleY(h_terrain);
-        scaleMatrix.translate(-w_terrain/2, 0.0f, -l_terrain/2);
+        scaleMatrix.translate(-w_terrain/2, -10.0f, -l_terrain/2);
       
         //-----------------------------------------
         // check if the heightmap is of proper size
@@ -51,7 +51,7 @@ namespace Motor {
         // prepare arrays which will hold VBO and IBO data
         //------------------------------------------------
         
-        indexCount = PATCH_HEIGHT * (2*PATCH_WIDTH+1);
+        indexCount = (PATCH_WIDTH - 1) * (2*PATCH_HEIGHT+1);
         
         GLfloat* vertices = new GLfloat[PATCH_WIDTH * PATCH_HEIGHT * 2];
         GLuint* indices = new GLuint[indexCount];
@@ -72,7 +72,7 @@ namespace Motor {
         int offset = 0;
         int a, b;
         
-        for(int i = 0; i < PATCH_WIDTH; ++i) { //w = patch_width
+        for(int i = 0; i < PATCH_WIDTH - 1; ++i) { //w = patch_width
             direction *= -1;
             
             if(i % 2 == 0) {
@@ -122,8 +122,16 @@ namespace Motor {
         delete indices;
     }
     
-    void Terrain::updatePatches(Vector3 cameraPosition) {
-        //calculate distance
+    void Terrain::updatePatches() {
+        //test stuff for now
+        for(int i = 0; i < PATCH_COUNT_X * PATCH_COUNT_Y; ++i) {
+            if(patches[i].offset[0] > 0.5 || patches[i].offset[0] > 0.5) {
+                patches[i].lod = 1;
+            }
+            else {
+                patches[i].lod = 0;
+            }
+        }
         
         //set proper LOD (for now just preset distances)
         

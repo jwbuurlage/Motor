@@ -88,7 +88,7 @@ namespace Motor {
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
         terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap.png"), (Texture*)0);
-		terrain->generate(50.0f, 50.0f, 10.0f);
+		terrain->generate(150.0f, 150.0f, 20.0f);
 
 		checkErrors();
 
@@ -155,7 +155,7 @@ namespace Motor {
 		return true;
 	}
 
-	bool Renderer::renderFrame(){
+	bool Renderer::renderFrame(){        
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Three render steps:
@@ -409,7 +409,9 @@ namespace Motor {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("textures/height_map_terrain.bmp")->handle);
 		shaderManager->getActiveProgram()->setUniform1i("heightMap", 0); //GL_TEXTURE0
-		shaderManager->getActiveProgram()->setUniform1f("textureDelta", 1.0f/256);
+        glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("textures/normal_map_terrain.bmp")->handle);
+		shaderManager->getActiveProgram()->setUniform1i("normalMap", 1); //GL_TEXTURE1
 
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", terrain->scaleMatrix);
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
@@ -420,7 +422,6 @@ namespace Motor {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
         
         glDisable(GL_CULL_FACE);
-
         for(int i = 0; i < terrain->PATCH_COUNT_X * terrain->PATCH_COUNT_Y; ++i) {     
             
             glUniform2fv(shaderManager->getActiveProgram()->getUniformLocation("delta"), 1, terrain->patches[i].offset);
@@ -430,7 +431,6 @@ namespace Motor {
             glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_INT, 0);
 
         }
-        
         glEnable(GL_CULL_FACE);
 
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);

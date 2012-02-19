@@ -33,7 +33,7 @@ namespace Motor {
         
         void generate(float w_terrain, float l_terrain, float h_terrain);
         float heightAtPosition(int x, int y);
-        void updatePatches(Vector3 cameraPosition);
+        void updatePatches();
         void draw(ShaderManager* shaderManager);
         
         Patch* patches;
@@ -46,6 +46,7 @@ namespace Motor {
         GLuint vertexBuffer;
         GLuint indexBuffer;
         int indexCount;
+        int offsets[2];
         
         mat scaleMatrix;
         

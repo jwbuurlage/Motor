@@ -62,13 +62,13 @@ namespace Demo {
 		jeepObject->setYaw(1.5708f);
 		localPlayer->sceneObj->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
-        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
-        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
-        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
-        planeCopy->setMaterial(baanMat);
-        plane->setModel(planeCopy);
-        plane->setScale(3.0f);
-        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
+//        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
+//        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
+//        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
+//        planeCopy->setMaterial(baanMat);
+//        plane->setModel(planeCopy);
+//        plane->setScale(3.0f);
+//        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
