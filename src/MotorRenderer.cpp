@@ -356,12 +356,14 @@ namespace Motor {
 		terrainVertexCount = width*height;
 		GLfloat* vertexBuffer = new GLfloat[terrainVertexCount*2];
 		GLfloat* vertexPtr = vertexBuffer;
-		float widthMultiplier = 1.0f/((float)width-1);
-		float heightMultiplier = 1.0f/((float)height-1);
+		float widthOffset = 0.5f/((float)width);
+		float heightOffset = 0.5f/((float)height);
+		float widthMultiplier = 1.0f/((float)width);
+		float heightMultiplier = 1.0f/((float)height);
 		for( int i = 0; i < height; ++i ){
 			for( int j = 0; j < width; ++j ){
-				*vertexPtr++ = widthMultiplier*(float)j; //texture s coordinate
-				*vertexPtr++ = heightMultiplier*(float)i; //texture t coordinate
+				*vertexPtr++ = widthOffset+widthMultiplier*(float)j; //texture s coordinate
+				*vertexPtr++ = heightOffset+heightMultiplier*(float)i; //texture t coordinate
 			}
 		}
 
