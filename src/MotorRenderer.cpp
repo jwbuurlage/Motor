@@ -416,8 +416,8 @@ namespace Motor {
 		shaderManager->getActiveProgram()->setUniform1i("terrainTexture", 1); //GL_TEXTURE1
 
 		mat mMatrix;
-		mMatrix.scaleX(80.0f).scaleZ(80.0f).scaleY(8.0f); //Use this to set the size and height of terrain
 		mMatrix.translate(0.0f, -4.0f, 0.0f);
+		shaderManager->getActiveProgram()->setUniform3fv("terrainDimensions", Vector3(80.0f, 8.0f, 80.0f));
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
 
