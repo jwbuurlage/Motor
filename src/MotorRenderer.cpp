@@ -3,6 +3,7 @@
 #include "MotorLogger.h"
 #include "MotorSceneObject.h"
 #include "MotorLight.h"
+#include "MotorParticleEffect.h"
 #include "MotorModel.h"
 #include "MotorMesh.h"
 #include "MotorMaterial.h"
@@ -227,8 +228,11 @@ namespace Motor {
         }
 
 		//Particle effects
+		shaderManager->setActiveProgram("particlefx");
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("pMatrix", projectionMatrix);
+		shaderManager->getActiveProgram()->setUniform1i("tex", 0);
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
-
+			drawParticleEffect(*iter);
 		}
         
         /////////////////////////////////////////////////////////////////////////////
@@ -331,6 +335,46 @@ namespace Motor {
 		return;
 	}
 
+	void Renderer::drawParticleEffect(ParticleEffect* fx){
+		if( fx == 0 ) return;
+		if( fx->particlePositions.empty() ) return;
+
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		if( fx->material->texture )
+			glBindTexture(GL_TEXTURE_2D, fx->material->texture->handle);
+		else
+			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
+
+
+		//For now, its just a collection of quads...
+
+		glBegin(GL_QUADS);
+
+		for( std::vector<Vector3>::iterator quadPos = fx->particlePositions.begin(); quadPos != fx->particlePositions.end(); ++quadPos ){
+			//Get eye space coordinates (billboarding)
+			Vector3 pos = viewMatrix * (fx->origin + *quadPos);
+
+			glVertexAttrib2f(AT_TEXCOORD, 0.0f, 1.0f);
+			glVertexAttrib4f(AT_COLOR, 0.0f, 1.0f, 0.0f, 1.0f);
+			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y, pos.z);
+
+			glVertexAttrib2f(AT_TEXCOORD, 1.0f, 1.0f);
+			glVertexAttrib4f(AT_COLOR, 1.0f, 0.0f, 0.0f, 1.0f);
+			glVertexAttrib3f(AT_VERTEX, pos.x+fx->quadWidth, pos.y, pos.z);
+
+			glVertexAttrib2f(AT_TEXCOORD, 1.0f, 0.0f);
+			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
+			glVertexAttrib3f(AT_VERTEX, pos.x+fx->quadWidth, pos.y+fx->quadHeight, pos.z);
+
+			glVertexAttrib2f(AT_TEXCOORD, 0.0f, 0.0f);
+			glVertexAttrib4f(AT_COLOR, 0.0f, 0.0f, 1.0f, 1.0f);
+			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y+fx->quadHeight, pos.z);
+		}
+		
+		glEnd();
+	}
+
 	bool Renderer::loadShaders(){
 		bool success = true;
 		
@@ -371,6 +415,14 @@ namespace Motor {
 			shaderManager->bindAttrib("shadowTextureLightningMD2", "normal_next", AT_NORMAL_NEXT);
 			shaderManager->bindAttrib("shadowTextureLightningMD2", "position_next", AT_VERTEX_NEXT);
 			if( !shaderManager->linkProgram("shadowTextureLightningMD2") ) success = false;
+		}else success = false;
+
+		ShaderManager::ShaderProgram* fxShader = shaderManager->makeShaderProgram("particlefx", "shaders/particlefx.vsh", "shaders/particlefx.fsh");
+		if( fxShader ){
+			fxShader->bindAttrib(AT_VERTEX, "position");
+			fxShader->bindAttrib(AT_COLOR, "color");
+			fxShader->bindAttrib(AT_TEXCOORD, "textureCoordinate");
+			if( !fxShader->link() ) success = false;
 		}else success = false;
 
 		//if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){

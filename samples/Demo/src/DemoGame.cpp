@@ -121,10 +121,13 @@ namespace Demo {
 
 		for( int i = 0; i < fxCount; ++i ){
 			if( effects[i] == 0 ) effects[i] = motorRoot->getScene()->createParticleEffect();
-			effects[i]->width = 0.1f;
-			effects[i]->height = 0.1f;
-			effects[i]->position = Vector3( 0.2f, 0.1f, 0 );
+			effects[i]->quadWidth = 0.8f;
+			effects[i]->quadHeight = 0.6f;
+			effects[i]->origin = Vector3( 8.0f*sin((float)i), 0, 8.0f*cos((float)i));
 			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
+			for( int j = 0; j < 10; ++j ){
+				effects[i]->particlePositions.push_back( Vector3( 1.5f*sin((float)j), 1.5f*cos((float)j), 0 ) );
+			}
 		}
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();

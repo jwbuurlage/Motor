@@ -2,10 +2,10 @@
 //a ParticleEffect object may only be created with Scene::createParticleEffect
 
 //ParticleEffect will hold a list of all the particles visible on screen
-//However, for now it is only a texture and a position to render that texture with a scale parameter
 
 #pragma once
 #include "Vector3.h"
+#include <vector>
 
 namespace Motor {
 
@@ -14,10 +14,15 @@ namespace Motor {
 	class ParticleEffect
 	{
 	public:
-		Vector3 position; //only x and y are used and are in range [-1,1]
-		float width, height; //width 1 means full screen width etc
+		//General properties
+		Vector3 origin;
 
 		const Material* material;
+
+		//Current state
+		float quadWidth, quadHeight;
+		//Position, with 'origin' as zero
+		std::vector<Vector3> particlePositions;
 
 	private: //Private constructor/deconstructor so only Scene can create/destroy objects
 		friend class Scene;
