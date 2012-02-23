@@ -71,6 +71,8 @@ namespace Motor {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	
 		glClearDepth(1.0);
 		glEnable(GL_CULL_FACE);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glViewport(0, 0, (GLsizei)windowWidth, (GLsizei)windowHeight);
 		generateProjectionMatrix();
@@ -246,11 +248,13 @@ namespace Motor {
 		shaderManager->setActiveProgram("particlefx");
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("pMatrix", projectionMatrix);
 		shaderManager->getActiveProgram()->setUniform1i("tex", 0);
-		//glEnable(GL_BLEND);
+		glEnable(GL_BLEND);
+		glDepthMask(GL_FALSE);
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
 			drawParticleEffect(*iter);
 		}
-		//glDisable(GL_BLEND);
+		glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
         
         /////////////////////////////////////////////////////////////////////////////
         // Step 3: Callbacks (project specific, UI, etc.)                           /
@@ -354,7 +358,7 @@ namespace Motor {
 
 	void Renderer::drawParticleEffect(ParticleEffect* fx){
 		if( fx == 0 ) return;
-		if( fx->particlePositions.empty() ) return;
+		if( fx->particles.empty() ) return;
 
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
@@ -368,25 +372,25 @@ namespace Motor {
 
 		glBegin(GL_QUADS);
 
-		for( std::vector<Vector3>::iterator quadPos = fx->particlePositions.begin(); quadPos != fx->particlePositions.end(); ++quadPos ){
+		for( std::vector<Particle>::iterator part = fx->particles.begin(); part != fx->particles.end(); ++part ){
 			//Get eye space coordinates (billboarding)
-			Vector3 pos = viewMatrix * (fx->origin + *quadPos);
+			Vector3 pos = viewMatrix * (fx->origin + part->position);
 
 			glVertexAttrib2f(AT_TEXCOORD, 0.0f, 1.0f);
-			glVertexAttrib4f(AT_COLOR, 0.0f, 1.0f, 0.0f, 1.0f);
+			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
 			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y, pos.z);
 
 			glVertexAttrib2f(AT_TEXCOORD, 1.0f, 1.0f);
-			glVertexAttrib4f(AT_COLOR, 1.0f, 0.0f, 0.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x+fx->quadWidth, pos.y, pos.z);
+			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
+			glVertexAttrib3f(AT_VERTEX, pos.x + fx->quadWidth*part->scale, pos.y, pos.z);
 
 			glVertexAttrib2f(AT_TEXCOORD, 1.0f, 0.0f);
 			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x+fx->quadWidth, pos.y+fx->quadHeight, pos.z);
+			glVertexAttrib3f(AT_VERTEX, pos.x + fx->quadWidth*part->scale, pos.y + fx->quadHeight*part->scale, pos.z);
 
 			glVertexAttrib2f(AT_TEXCOORD, 0.0f, 0.0f);
-			glVertexAttrib4f(AT_COLOR, 0.0f, 0.0f, 1.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y+fx->quadHeight, pos.z);
+			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
+			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y + fx->quadHeight*part->scale, pos.z);
 		}
 		
 		glEnd();

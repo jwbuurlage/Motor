@@ -11,6 +11,13 @@ namespace Motor {
 
 	class Material;
 
+	struct Particle{
+		Vector3 position;
+		Vector3 movement;
+		float scale;
+		float scaleSpeed; //scale += scaleSpeed * deltaTime;
+	};
+
 	class ParticleEffect
 	{
 	public:
@@ -19,10 +26,12 @@ namespace Motor {
 
 		const Material* material;
 
+		void update(float elapsedTime);
+
 		//Current state
 		float quadWidth, quadHeight;
 		//Position, with 'origin' as zero
-		std::vector<Vector3> particlePositions;
+		std::vector<Particle> particles;
 
 	private: //Private constructor/deconstructor so only Scene can create/destroy objects
 		friend class Scene;

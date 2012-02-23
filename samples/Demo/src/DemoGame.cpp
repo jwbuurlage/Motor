@@ -119,16 +119,24 @@ namespace Demo {
 			balls[i]->movement = Vector3( 0, -1.0f, 0);
 		}
 
+		srand(0x13371337);
 		for( int i = 0; i < fxCount; ++i ){
 			if( effects[i] == 0 ) effects[i] = motorRoot->getScene()->createParticleEffect();
 			effects[i]->quadWidth = 0.8f;
 			effects[i]->quadHeight = 0.6f;
 			effects[i]->origin = Vector3( 8.0f*sin((float)i), 0, 8.0f*cos((float)i));
-			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/derp.png");
-			for( int j = 0; j < 10; ++j ){
-				effects[i]->particlePositions.push_back( Vector3( 1.5f*sin((float)j), 1.5f*cos((float)j), 0 ) );
+			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/smoke_particle.png");
+			Motor::Particle part;
+			part.position = Vector3(0.0f);
+			part.scale = 0.2f;
+			part.scaleSpeed = 1.8f;
+			for( int j = 0; j < 100; ++j ){
+				part.movement = (3.0f/(float)RAND_MAX)*Vector3( rand()-RAND_MAX/2 , rand()-RAND_MAX/2 , rand()-RAND_MAX/2 );
+				//part.scaleSpeed = ((float)((j % 10)+1))*0.2f;
+				effects[i]->particles.push_back(part);
 			}
 		}
+		fxTimer = 0.0f;
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
 		//if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
@@ -210,6 +218,20 @@ namespace Demo {
 			}
 			balls[i]->sceneObj->setPosition( pos + balls[i]->movement * elapsedTime );
 		}
+
+		fxTimer += elapsedTime;
+		if( fxTimer >= 6.0f ){
+			srand(*(unsigned int*)&fxTimer);
+			fxTimer = 0.0f;
+			for( int i = 0; i < fxCount; ++i ){
+				for( int j = 0; j < 100; ++j ){
+					effects[i]->particles[j].position = Vector3(0.0f);
+					effects[i]->particles[j].movement = (3.0f/(float)RAND_MAX)*Vector3( rand()-RAND_MAX/2 , rand()-RAND_MAX/2 , rand()-RAND_MAX/2 );
+					effects[i]->particles[j].scale = 1.8f;
+				}
+			}
+		}
+
 
 		for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
 			remotePlayers[i].sceneObj->setPosition( remotePlayers[i].sceneObj->getPosition() + remotePlayers[i].movement * elapsedTime );

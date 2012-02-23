@@ -11,4 +11,11 @@ namespace Motor {
 	ParticleEffect::~ParticleEffect(){
 	}
 
+	void ParticleEffect::update(float elapsedTime){
+		for( std::vector<Particle>::iterator part = particles.begin(); part != particles.end(); ++part ){
+			part->position += part->movement * elapsedTime;
+			part->scale += part->scaleSpeed * elapsedTime;
+		}
+		return;
+	}
 }

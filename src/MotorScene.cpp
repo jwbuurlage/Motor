@@ -45,7 +45,8 @@ namespace Motor {
 		//Iterate through SceneObjects, ParticleEffects and Lights
 		for(ObjectIterator iter = objects.begin(); iter != objects.end(); ++iter)
 			(*iter)->update(elapsedTime);
-		//for(EffectIterator iter = effects.begin(); iter != effects.end(); ++iter)
+		for(EffectIterator iter = particleEffects.begin(); iter != particleEffects.end(); ++iter)
+			(*iter)->update(elapsedTime);
 		//for(LightIterator iter = lights.begin(); iter != lights.end(); ++iter)
 		if( camera ) camera->update(elapsedTime);
 	}

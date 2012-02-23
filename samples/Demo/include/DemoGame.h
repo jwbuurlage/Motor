@@ -55,6 +55,7 @@ namespace Demo {
 
 		static const int fxCount = 5;
 		Motor::ParticleEffect* effects[fxCount];
+		float fxTimer;
 
 		Player* localPlayer;
 		Motor::SceneObject* tempObjects[2];
