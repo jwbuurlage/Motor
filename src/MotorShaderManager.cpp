@@ -282,9 +282,11 @@ namespace Motor {
 			Logger::getSingleton() << Logger::WARNING << "setActiveProgram could not find \"" << programName << "\"" << endLog;
 		}else{
 			if( program->second->isLinked() ){
-				activeProgram = program->second;
-				activeProgram->use();
-				activeProgram->enableAttribs();
+				if( activeProgram != program->second ){ //Already activated
+					activeProgram = program->second;
+					activeProgram->use();
+					activeProgram->enableAttribs();
+				}
 			}
 		}
 	}

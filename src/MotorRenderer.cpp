@@ -188,9 +188,17 @@ namespace Motor {
 
 		projViewMatrix = projectionMatrixShadow;
 		projViewMatrix *= lightViewMat;
-        
+
+		//To reduce the amount of shader switches we sort by shaders: first the MD2 models, then the rest
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-            drawObject( *iter, true );
+			if( (*iter)->getModel() && (*iter)->getModel()->isAnimated() ){
+				drawObject( *iter, true );
+			}
+        }
+        for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
+			if( (*iter)->getModel() && !(*iter)->getModel()->isAnimated() ){
+				drawObject( *iter, true );
+			}
         }
 
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -224,16 +232,25 @@ namespace Motor {
 		projViewMatrix *= viewMatrix;
 
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
-            drawObject( *iter, false );
+			if( (*iter)->getModel() && (*iter)->getModel()->isAnimated() ){
+				drawObject( *iter, false );
+			}
+        }
+        for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
+			if( (*iter)->getModel() && !(*iter)->getModel()->isAnimated() ){
+				drawObject( *iter, false );
+			}
         }
 
 		//Particle effects
 		shaderManager->setActiveProgram("particlefx");
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("pMatrix", projectionMatrix);
 		shaderManager->getActiveProgram()->setUniform1i("tex", 0);
+		//glEnable(GL_BLEND);
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
 			drawParticleEffect(*iter);
 		}
+		//glDisable(GL_BLEND);
         
         /////////////////////////////////////////////////////////////////////////////
         // Step 3: Callbacks (project specific, UI, etc.)                           /
