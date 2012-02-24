@@ -53,9 +53,8 @@ namespace Demo {
 		static const int ballCount = 5;
 		Player* balls[ballCount];
 
-		static const int fxCount = 5;
+		static const int fxCount = 1;
 		Motor::ParticleEffect* effects[fxCount];
-		float fxTimer;
 
 		Player* localPlayer;
 		Motor::SceneObject* tempObjects[2];

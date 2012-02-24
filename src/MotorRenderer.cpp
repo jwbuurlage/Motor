@@ -24,7 +24,8 @@ enum {
     AT_COLOR,
     AT_NORMAL,
     AT_NORMAL_NEXT,
-    AT_TEXCOORD
+    AT_TEXCOORD,
+	AT_ALPHA
 };
 
 namespace Motor {
@@ -32,6 +33,7 @@ namespace Motor {
 	Renderer::Renderer(){
 		initialized = false;
 		shaderManager = 0;
+		particleBuffer = 0;
 	}
 
 	Renderer::~Renderer(){
@@ -89,6 +91,8 @@ namespace Motor {
         biasMatrix.scale(0.5f);				
         biasMatrix.translate(0.5f, 0.5f, 0.5f);
 
+		particleBufferSize = 0;
+
 		checkErrors();
 
 		initialized = true;
@@ -134,6 +138,8 @@ namespace Motor {
     }
 
 	void Renderer::cleanup(){
+		if( particleBuffer ) delete[] particleBuffer;
+		particleBuffer = 0;
 		if( shaderManager ) delete shaderManager;
 		shaderManager = 0;
 		return;
@@ -155,8 +161,6 @@ namespace Motor {
 	}
 
 	bool Renderer::renderFrame(){
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		// Three render steps:
 		// 1. Render scene looking from the lights for shadow maps
 		// 2. Render scene from camera with shadow maps applied
@@ -203,15 +207,17 @@ namespace Motor {
 			}
         }
 
+        /////////////////////////////////////////////////////////////////////////////
+        // Step 2: We render the scene, and read out the values from the shadow map /
+        /////////////////////////////////////////////////////////////////////////////
+
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         glViewport(0,0,windowWidth,windowHeight);
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
         glCullFace(GL_BACK);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0);
         
-        
-        /////////////////////////////////////////////////////////////////////////////
-        // Step 2: We render the scene, and read out the values from the shadow map /
-        /////////////////////////////////////////////////////////////////////////////
         
         mat lightningProjection = biasMatrix * projViewMatrix;
 
@@ -219,16 +225,12 @@ namespace Motor {
         shaderManager->setActiveProgram("shadowTextureLightning");
         shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
-        shaderManager->getActiveProgram()->setUniform1i("tex", 0);
-        shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
         
         // set the same uniforms for animated objects 
         // (there is something called uniform buffer objects, which we might want to look into)
         shaderManager->setActiveProgram("shadowTextureLightningMD2");
         shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);        
-        shaderManager->getActiveProgram()->setUniform1i("tex", 0);
-        shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
 
 		projViewMatrix = projectionMatrix;
 		projViewMatrix *= viewMatrix;
@@ -243,11 +245,23 @@ namespace Motor {
 				drawObject( *iter, false );
 			}
         }
-
+		
 		//Particle effects
+		
+		//Make a buffer to hold all vertex data
+		int minBufferSize = 0;
+		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
+			int sizeNeeded = (*iter)->particles.size()*24; //24 floats per particle
+			if( sizeNeeded > minBufferSize ) minBufferSize = sizeNeeded;
+		}
+		if( particleBufferSize < minBufferSize ){
+			if( particleBuffer ) delete[] particleBuffer;
+			particleBuffer = new GLfloat[minBufferSize];
+			particleBufferSize = minBufferSize;
+		}
+
 		shaderManager->setActiveProgram("particlefx");
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("pMatrix", projectionMatrix);
-		shaderManager->getActiveProgram()->setUniform1i("tex", 0);
 		glEnable(GL_BLEND);
 		glDepthMask(GL_FALSE);
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
@@ -316,31 +330,30 @@ namespace Motor {
 		shaderManager->getActiveProgram()->vertexAttribPointer(
             AT_VERTEX, mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset));
 
-		if( mesh->hasColor )
-            shaderManager->getActiveProgram()->vertexAttribPointer(
-				AT_COLOR, 4, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 12));
+		if( depthOnly == false ){
+			if( mesh->hasColor )
+				shaderManager->getActiveProgram()->vertexAttribPointer(
+					AT_COLOR, 4, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 12));
 
-		if( mesh->hasNormal )
+			if( mesh->hasNormal )
+				shaderManager->getActiveProgram()->vertexAttribPointer(
+					AT_NORMAL, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 28));
+
+			if( material && material->texture ){
+				glBindTexture(GL_TEXTURE_2D, material->texture->handle);
+			}else{
+				glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
+			}
+
 			shaderManager->getActiveProgram()->vertexAttribPointer(
-				AT_NORMAL, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 28));
-        
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-
-		if( material && material->texture ){
-			glBindTexture(GL_TEXTURE_2D, model->getMaterial()->texture->handle);
-		}else{
-			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
+				AT_TEXCOORD,
+				2,
+				mesh->vertexBufferDataType,
+				false,
+				mesh->stride,
+				reinterpret_cast<GLvoid*>(vertexOffset + 40));
 		}
 
-		shaderManager->getActiveProgram()->vertexAttribPointer(
-			AT_TEXCOORD,
-			2,
-			mesh->vertexBufferDataType,
-			false,
-			mesh->stride,
-			reinterpret_cast<GLvoid*>(vertexOffset + 40));
-        
         if(animation){
 			shaderManager->getActiveProgram()->vertexAttribPointer(AT_VERTEX_NEXT, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
 			shaderManager->getActiveProgram()->vertexAttribPointer(AT_NORMAL_NEXT, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
@@ -355,45 +368,77 @@ namespace Motor {
         
 		return;
 	}
-
+	
 	void Renderer::drawParticleEffect(ParticleEffect* fx){
 		if( fx == 0 ) return;
 		if( fx->particles.empty() ) return;
 
-		glEnable(GL_TEXTURE_2D);
-		glActiveTexture(GL_TEXTURE0);
-		if( fx->material->texture )
+		if( fx->material && fx->material->texture )
 			glBindTexture(GL_TEXTURE_2D, fx->material->texture->handle);
 		else
 			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
 
 
-		//For now, its just a collection of quads...
+		bool fadeIn = (fx->fadeInEnd > 0.001f);
+		bool fadeOut = (fx->fadeOutStart+0.001f < fx->lifeTime);
+		float fadeInCompare = fx->lifeTime - fx->fadeInEnd;
+		float fadeOutCompare = fx->lifeTime - fx->fadeOutStart;
 
-		glBegin(GL_QUADS);
-
+		//Generate a buffer with all the quads
+		GLfloat* bufPointer = particleBuffer;
 		for( std::vector<Particle>::iterator part = fx->particles.begin(); part != fx->particles.end(); ++part ){
 			//Get eye space coordinates (billboarding)
-			Vector3 pos = viewMatrix * (fx->origin + part->position);
+			Vector3 pos(viewMatrix * part->position);
+			pos.x -= part->size/2;
+			pos.y -= part->size;
+			float alpha;
+			if( fadeIn && (part->timeLeft > fadeInCompare) ){
+				alpha = (fx->lifeTime - part->timeLeft) / fx->fadeInEnd;
+			}else if( fadeOut && (part->timeLeft < fadeOutCompare) ){
+				alpha = part->timeLeft / (fx->lifeTime - fx->fadeOutStart);
+			}else{
+				alpha = 1.0f;
+			}
 
-			glVertexAttrib2f(AT_TEXCOORD, 0.0f, 1.0f);
-			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y, pos.z);
+			//left-bottom
+			*bufPointer++ = 0.0f; //Texture s
+			*bufPointer++ = 1.0f; //Texture t
+			*bufPointer++ = alpha;
+			*bufPointer++ = pos.x;
+			*bufPointer++ = pos.y;
+			*bufPointer++ = pos.z;
 
-			glVertexAttrib2f(AT_TEXCOORD, 1.0f, 1.0f);
-			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x + fx->quadWidth*part->scale, pos.y, pos.z);
+			*bufPointer++ = 1.0f; //Texture s
+			*bufPointer++ = 1.0f; //Texture t
+			*bufPointer++ = alpha;
+			*bufPointer++ = pos.x + part->size;
+			*bufPointer++ = pos.y;
+			*bufPointer++ = pos.z;
 
-			glVertexAttrib2f(AT_TEXCOORD, 1.0f, 0.0f);
-			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x + fx->quadWidth*part->scale, pos.y + fx->quadHeight*part->scale, pos.z);
+			*bufPointer++ = 1.0f; //Texture s
+			*bufPointer++ = 0.0f; //Texture t
+			*bufPointer++ = alpha;
+			*bufPointer++ = pos.x + part->size;
+			*bufPointer++ = pos.y + part->size;
+			*bufPointer++ = pos.z;
 
-			glVertexAttrib2f(AT_TEXCOORD, 0.0f, 0.0f);
-			glVertexAttrib4f(AT_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);
-			glVertexAttrib3f(AT_VERTEX, pos.x, pos.y + fx->quadHeight*part->scale, pos.z);
+			*bufPointer++ = 0.0f; //Texture s
+			*bufPointer++ = 0.0f; //Texture t
+			*bufPointer++ = alpha;
+			*bufPointer++ = pos.x;
+			*bufPointer++ = pos.y + part->size;
+			*bufPointer++ = pos.z;
 		}
-		
-		glEnd();
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0); //Buffer is just a memory pointer, not in video memory buffer
+		glEnableVertexAttribArray(AT_TEXCOORD);
+		glEnableVertexAttribArray(AT_VERTEX);
+		glEnableVertexAttribArray(AT_ALPHA);
+		glVertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 24, particleBuffer);
+		glVertexAttribPointer(AT_ALPHA, 1, GL_FLOAT, GL_FALSE, 24, particleBuffer+2);
+		glVertexAttribPointer(AT_VERTEX, 3, GL_FLOAT, GL_FALSE, 24, particleBuffer+3);
+
+		glDrawArrays(GL_QUADS, 0, fx->particles.size()*4);
 	}
 
 	bool Renderer::loadShaders(){
@@ -425,25 +470,37 @@ namespace Motor {
 			shaderManager->bindAttrib("shadowTextureLightning", "position", AT_VERTEX);
 			shaderManager->bindAttrib("shadowTextureLightning", "color", AT_COLOR);
 			shaderManager->bindAttrib("shadowTextureLightning", "normal", AT_NORMAL);
-			if( !shaderManager->linkProgram("shadowTextureLightning") ) success = false;
+			if( shaderManager->linkProgram("shadowTextureLightning") ){
+				shaderManager->setActiveProgram("shadowTextureLightning");
+				shaderManager->getActiveProgram()->setUniform1i("tex", 0);
+				shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
+			}else success = false;
 		}else success = false;
         
-        if( shaderManager->makeShaderProgram("shadowTextureLightningMD2", "shaders/shadowtexturelightningmd2.vsh", "shaders/shadowtexturelightningmd2.fsh") ){
-			shaderManager->bindAttrib("shadowTextureLightningMD2", "textureCoordinate", AT_TEXCOORD);
-			shaderManager->bindAttrib("shadowTextureLightningMD2", "position", AT_VERTEX);
-			shaderManager->bindAttrib("shadowTextureLightningMD2", "color", AT_COLOR);
-			shaderManager->bindAttrib("shadowTextureLightningMD2", "normal", AT_NORMAL);
-			shaderManager->bindAttrib("shadowTextureLightningMD2", "normal_next", AT_NORMAL_NEXT);
-			shaderManager->bindAttrib("shadowTextureLightningMD2", "position_next", AT_VERTEX_NEXT);
-			if( !shaderManager->linkProgram("shadowTextureLightningMD2") ) success = false;
+		ShaderManager::ShaderProgram* MD2Shader = shaderManager->makeShaderProgram("shadowTextureLightningMD2", "shaders/shadowtexturelightningmd2.vsh", "shaders/shadowtexturelightningmd2.fsh");
+        if( MD2Shader ){
+			MD2Shader->bindAttrib(AT_TEXCOORD, "textureCoordinate");
+			MD2Shader->bindAttrib(AT_VERTEX, "position");
+			MD2Shader->bindAttrib(AT_COLOR, "color");
+			MD2Shader->bindAttrib(AT_NORMAL, "normal");
+			MD2Shader->bindAttrib(AT_NORMAL_NEXT, "normal_next");
+			MD2Shader->bindAttrib(AT_VERTEX_NEXT, "position_next");
+			if( MD2Shader->link() ){
+				MD2Shader->use();
+				MD2Shader->setUniform1i("tex", 0);
+				MD2Shader->setUniform1i("shadow", 7);
+			}else success = false;
 		}else success = false;
 
 		ShaderManager::ShaderProgram* fxShader = shaderManager->makeShaderProgram("particlefx", "shaders/particlefx.vsh", "shaders/particlefx.fsh");
 		if( fxShader ){
 			fxShader->bindAttrib(AT_VERTEX, "position");
-			fxShader->bindAttrib(AT_COLOR, "color");
+			fxShader->bindAttrib(AT_ALPHA, "alpha");
 			fxShader->bindAttrib(AT_TEXCOORD, "textureCoordinate");
-			if( !fxShader->link() ) success = false;
+			if( fxShader->link() ){
+				fxShader->use();
+				fxShader->setUniform1i("tex", 0);
+			}else success = false;
 		}else success = false;
 
 		//if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){

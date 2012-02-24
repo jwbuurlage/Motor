@@ -35,7 +35,11 @@ namespace Motor {
 		ShaderManager* shaderManager;
 
 		void drawObject(SceneObject* obj, bool depthOnly);
+
 		void drawParticleEffect(ParticleEffect* fx);
+		//TODO: make this better
+		GLfloat* particleBuffer;
+		int particleBufferSize;
         
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application

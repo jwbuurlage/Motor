@@ -38,6 +38,15 @@ public:
 		return *this;
 	}
 
+	//Rotate the vector around the X axis
+	inline Vector3& rotateX ( float pitch )
+	{
+		float ytemp = y*cos(pitch) - z*sin(pitch);
+		z = y*sin(pitch)+z*cos(pitch);
+		y = ytemp;
+		return *this;
+	}
+
     /** Assigns the value of the other vector.
         @param
             rkVector The other vector

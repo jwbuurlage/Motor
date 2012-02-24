@@ -100,9 +100,10 @@ namespace Demo {
         cyberModel->setPosition( Vector3( 10.0f, -0.7f, 5.0f ) );
 
         Motor::SceneObject* lostSoulModel = motorRoot->getScene()->createObject();
-        lostSoulModel->setScale(0.1f);
+        lostSoulModel->setScale(0.2f);
         lostSoulModel->setModel( Motor::ModelManager::getSingleton().getModel("Lost_Soul"));
-        lostSoulModel->setPosition( Vector3( 5.0f, -0.7f, -10.0f ) ); 
+        lostSoulModel->setPosition( Vector3( 0.0f, 6.0f, -25.0f ) );
+		lostSoulModel->setYaw((float)M_PI); //rotated 180 degrees
 
         Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
         md2model2->setScale(0.1f);
@@ -119,24 +120,20 @@ namespace Demo {
 			balls[i]->movement = Vector3( 0, -1.0f, 0);
 		}
 
-		srand(0x13371337);
 		for( int i = 0; i < fxCount; ++i ){
 			if( effects[i] == 0 ) effects[i] = motorRoot->getScene()->createParticleEffect();
-			effects[i]->quadWidth = 0.8f;
-			effects[i]->quadHeight = 0.6f;
-			effects[i]->origin = Vector3( 8.0f*sin((float)i), 0, 8.0f*cos((float)i));
+			effects[i]->origin = Vector3( 2.0f, 1.0f, 3.0f );
+			effects[i]->emitRate = 0.0f;
 			effects[i]->material = Motor::MaterialManager::getSingleton().getMaterial("textures/smoke_particle.png");
-			Motor::Particle part;
-			part.position = Vector3(0.0f);
-			part.scale = 0.2f;
-			part.scaleSpeed = 1.8f;
-			for( int j = 0; j < 100; ++j ){
-				part.movement = (3.0f/(float)RAND_MAX)*Vector3( rand()-RAND_MAX/2 , rand()-RAND_MAX/2 , rand()-RAND_MAX/2 );
-				//part.scaleSpeed = ((float)((j % 10)+1))*0.2f;
-				effects[i]->particles.push_back(part);
-			}
+			effects[i]->initialSpeedMin = 2.0f;
+			effects[i]->initialSpeedMax = 4.0f;
+			effects[i]->initialPitchMin = 0.5f; //little above plane
+			effects[i]->initialSize = 0.5f;
+			effects[i]->sizeSpeed = 1.8f;
+			effects[i]->lifeTime = 5.0f;
+			effects[i]->fadeInEnd = 1.0f;
+			effects[i]->fadeOutStart = 3.0f;
 		}
-		fxTimer = 0.0f;
 
 		if( mainLights[0] == 0 ) mainLights[0] = motorRoot->getScene()->createLight();
 		//if( mainLights[1] == 0 ) mainLights[1] = motorRoot->getScene()->createLight();
@@ -165,6 +162,11 @@ namespace Demo {
 		if( localPlayer ){
             Motor::Camera* cam = motorRoot->getScene()->getCamera();
 			const Vector3& playerPos = localPlayer->sceneObj->getPosition();
+
+			if( effects[0] ){
+				effects[0]->origin = playerPos;
+				effects[0]->emitRate = (usingTurbo ? 50.0f : 5.0f);
+			}
 			
 			//For normal speeds, friction force proportional to the speed
 			if( localPlayer->movement.squaredLength() > 1.0f ){
@@ -178,9 +180,9 @@ namespace Demo {
 			if( cam ){
 				cam->setTargetLocation(playerPos, false);
 				if( rotatingLeft && !rotatingRight ){
-					cam->rotateCamera( 1.5f * elapsedTime , 0.0f );
+					cam->rotateCamera( 1.2f * elapsedTime , 0.0f );
 				}else if( rotatingRight && !rotatingLeft ){
-					cam->rotateCamera( -1.5f * elapsedTime , 0.0f );
+					cam->rotateCamera( -1.2f * elapsedTime , 0.0f );
 				}
 				localPlayer->sceneObj->setYaw( cam->getYaw() );
 				Vector3 force(forceDirection);
@@ -219,20 +221,6 @@ namespace Demo {
 			balls[i]->sceneObj->setPosition( pos + balls[i]->movement * elapsedTime );
 		}
 
-		fxTimer += elapsedTime;
-		if( fxTimer >= 6.0f ){
-			srand(*(unsigned int*)&fxTimer);
-			fxTimer = 0.0f;
-			for( int i = 0; i < fxCount; ++i ){
-				for( int j = 0; j < 100; ++j ){
-					effects[i]->particles[j].position = Vector3(0.0f);
-					effects[i]->particles[j].movement = (3.0f/(float)RAND_MAX)*Vector3( rand()-RAND_MAX/2 , rand()-RAND_MAX/2 , rand()-RAND_MAX/2 );
-					effects[i]->particles[j].scale = 1.8f;
-				}
-			}
-		}
-
-
 		for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
 			remotePlayers[i].sceneObj->setPosition( remotePlayers[i].sceneObj->getPosition() + remotePlayers[i].movement * elapsedTime );
 		}
@@ -254,7 +242,12 @@ namespace Demo {
             case 'e': goingRight = keyDown;		DirectionChanged = true; break;
 			case 'f': usingTurbo = keyDown;		break;
             case 't': motorRoot->stopRendering(); break;  
-          //case 'r': loadGame(); break;
+			case 'r':
+				if( keyDown && effects[0] ){
+					if( effects[0]->isEnabled() ) effects[0]->disable();
+					else effects[0]->enable();
+				}
+				break;
 		default:
 			keyHandled = false;
 			break;

@@ -45,6 +45,7 @@ namespace Motor {
 			addResource(filename, texture);
 		}
 		//since the sf::Image object is destroyed, it will unload the image data. OpenGL will have it now.
+		Filesystem::getSingleton().unloadFile(imagefile);
 		return texture;
 	}
 
