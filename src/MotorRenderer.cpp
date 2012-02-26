@@ -9,6 +9,7 @@
 #include "MotorMaterial.h"
 #include "MotorTexture.h"
 #include "MotorTextureManager.h"
+#include "MotorTerrain.h"
 #include <GL/glew.h>
 #include <sstream>
 
@@ -244,7 +245,16 @@ namespace Motor {
 			if( (*iter)->getModel() && !(*iter)->getModel()->isAnimated() ){
 				drawObject( *iter, false );
 			}
-        }
+		}
+
+		//
+		// Terrain test
+		//
+		shaderManager->setActiveProgram("terrain");
+        shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);  
+		shaderManager->getActiveProgram()->setUniform1i("shadowMap", 7);
+		drawTerrain();
 		
 		//Particle effects
 		
@@ -503,6 +513,12 @@ namespace Motor {
 			}else success = false;
 		}else success = false;
 
+		ShaderManager::ShaderProgram* terrain = shaderManager->makeShaderProgram("terrain", "shaders/terraintest.vsh", "shaders/terraintest.fsh");
+		if( terrain ){
+			terrain->bindAttrib(AT_TEXCOORD, "textureCoordinate");
+			if( !terrain->link() ) success = false;
+		}else success = false;
+
 		//if( shaderManager->makeShaderProgram("TextureLightning", "shaders/texturelightning.vsh", "shaders/texturelightning.fsh") ){
 		//	shaderManager->bindAttrib("TextureLightning", "textureCoordinate", AT_TEXCOORD);
 		//	shaderManager->bindAttrib("TextureLightning", "position", AT_VERTEX);
@@ -520,6 +536,7 @@ namespace Motor {
 		if( success == false ){
 			shaderManager->unloadAllShaders();
 		}
+        
 		//Display any OpenGL error code that might have been generated
 		checkErrors();
 		

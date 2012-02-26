@@ -5,6 +5,7 @@
 
 namespace Motor {
 	class ShaderManager;
+    class Terrain;
 
 	class Renderer {
 	public:
@@ -26,7 +27,8 @@ namespace Motor {
 		void setObjectList(ObjectContainer* _objects){ objects = _objects; };
 		void setEffectList(EffectContainer* _effects){ effects = _effects; };
 		void setLightList(LightContainer* _lights){ lights = _lights; };
-
+        void setTerrain(Terrain* _terrain) { terrain = _terrain; };
+        
 		mat* viewMatrixPtr(){ return &viewMatrix; };
 
 	private:
@@ -40,6 +42,14 @@ namespace Motor {
 		//TODO: make this better
 		GLfloat* particleBuffer;
 		int particleBufferSize;
+		
+        Terrain* terrain;
+		void drawTerrain();
+		void initTerrain();
+		GLuint terrainVertexBuffer;
+		GLuint terrainIndexBuffer;
+		GLsizei terrainVertexCount;
+		GLsizei terrainIndexCount;
         
 		//TODO: the application should decide what shaders to load
 		//Expose ShaderManager in a nice way to application

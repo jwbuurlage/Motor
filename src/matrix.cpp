@@ -92,6 +92,27 @@ mat& mat::scale(float f) {
 	return *this;
 }
 
+mat& mat::scaleX(float f){
+	e[0][0] *= f;
+	e[1][0] *= f;
+	e[2][0] *= f;
+	return *this;
+}
+
+mat& mat::scaleY(float f){
+	e[0][1] *= f;
+	e[1][1] *= f;
+	e[2][1] *= f;
+	return *this;
+}
+
+mat& mat::scaleZ(float f){
+	e[0][2] *= f;
+	e[1][2] *= f;
+	e[2][2] *= f;
+	return *this;
+}
+
 //------------------------
 //ROTATION METHODS (X,Y,Z)
 //------------------------

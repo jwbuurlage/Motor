@@ -50,6 +50,9 @@ public:
 	mat& setTranslation(const Vector3& vec);
 
 	mat& scale(float f);
+	mat& scaleX(float f);
+	mat& scaleY(float f);
+	mat& scaleZ(float f);
 	
 	mat& setRotationX(float pitch);
 	mat& setRotationY(float yaw);

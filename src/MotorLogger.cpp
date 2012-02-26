@@ -9,7 +9,7 @@ namespace Motor {
 
 	Logger::Logger(void)
 	{
-		consoleLogLevel = INFO | WARNING | ERROR | CRITICALERROR;
+		consoleLogLevel = INFO | WARNING | ERROR | CRITICALERROR | DEBUG;
 		fileLogLevel = WARNING | ERROR | CRITICALERROR;
 		currentLogLevel = NONE;
 	}

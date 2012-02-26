@@ -10,6 +10,10 @@
 #include "MotorSingleton.h"
 #include <sstream>
 
+#ifdef DEBUG
+#undef DEBUG
+#endif
+
 //Note: the do{ }while(false) is so that you can use this as a function with a ; at the end:  LOG_WARNING("Hello");
 #define LOG_WARNING(MSG)		do{ Motor::Logger::getSingleton() << Motor::Logger::WARNING		<< MSG << Motor::endLog; }while(false)
 #define LOG_ERROR(MSG)			do{ Motor::Logger::getSingleton() << Motor::Logger::ERROR		<< MSG << Motor::endLog; }while(false)

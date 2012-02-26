@@ -62,13 +62,13 @@ namespace Demo {
 		jeepObject->setYaw(1.5708f);
 		localPlayer->sceneObj->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
-        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
-        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
-        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
-        planeCopy->setMaterial(baanMat);
-        plane->setModel(planeCopy);
-        plane->setScale(3.0f);
-        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
+//        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
+//        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
+//        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
+//        planeCopy->setMaterial(baanMat);
+//        plane->setModel(planeCopy);
+//        plane->setScale(3.0f);
+//        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
@@ -193,9 +193,9 @@ namespace Demo {
 		}
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
-			mainLights[0]->position.x = 6.0f*sin(tempLightTimer);
-            mainLights[0]->position.y = 14.0f + 8.0f*cos(tempLightTimer);
-			mainLights[0]->position.z = 6.0f*cos(tempLightTimer);
+			mainLights[0]->position.x = 20.0f*sin(2.0f*tempLightTimer);
+            mainLights[0]->position.y = 50.0f + 9.0f*cos(0.5f*tempLightTimer);
+			mainLights[0]->position.z = 20.0f*cos(2.0f*tempLightTimer);
 			if( tempObjects[0] ){
 				tempObjects[0]->setPosition( mainLights[0]->position );
 			}
