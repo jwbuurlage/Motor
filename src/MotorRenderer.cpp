@@ -451,6 +451,56 @@ namespace Motor {
 		glDrawArrays(GL_QUADS, 0, fx->particles.size()*4);
 	}
 
+	void Renderer::drawTerrain(){
+        glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, terrain->heightMap->handle);
+		shaderManager->getActiveProgram()->setUniform1i("heightMap", 0); //GL_TEXTURE0
+      
+        glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, terrain->normalMap->handle);
+		shaderManager->getActiveProgram()->setUniform1i("normalMap", 1); //GL_TEXTURE1
+
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", terrain->scaleMatrix);
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
+
+		glBindBuffer(GL_ARRAY_BUFFER, terrain->vertexBuffer);
+		shaderManager->getActiveProgram()->vertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, false, 0, 0);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDisable(GL_CULL_FACE);
+        for(int i = 0; i < terrain->patchCount() * terrain->patchCount(); ++i) {     
+            if(terrain->patches[i].lod < 1) {
+                //red
+                shaderManager->getActiveProgram()->setUniform3fv("colorUniform", Vector3(1.0f, 0.0f, 0.0f).ptr());
+            }
+            else if(terrain->patches[i].lod < 2) {
+                //green
+                shaderManager->getActiveProgram()->setUniform3fv("colorUniform", Vector3(0.0f, 1.0f, 0.0f).ptr());
+            }
+            else if(terrain->patches[i].lod < 3) {
+                //blue
+                shaderManager->getActiveProgram()->setUniform3fv("colorUniform", Vector3(0.0f, 0.0f, 1.0f).ptr());
+            }
+            else {
+                //gray
+                shaderManager->getActiveProgram()->setUniform3fv("colorUniform", Vector3(0.5f, 0.5f, 0.5f).ptr());
+            }
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer[terrain->patches[i].lod]);
+            glUniform2fv(shaderManager->getActiveProgram()->getUniformLocation("delta"), 1, terrain->patches[i].offset);
+            glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount[terrain->patches[i].lod], GL_UNSIGNED_INT, 0);            
+        }
+        
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
+
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
+		//glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_SHORT, 0);
+
+		return;
+	}
+
+
 	bool Renderer::loadShaders(){
 		bool success = true;
 		

@@ -59,7 +59,10 @@ namespace Motor {
             window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Close, Settings);
 		}
 
-		if( !renderer->initialize(window->GetWidth(), window->GetHeight()) ) return 0;
+		if( !renderer->initialize(window->GetWidth(), window->GetHeight()) ){
+			cleanup();
+			return 0;
+		}
 		timer->initialize();
 
 		textureManager->initialize();
@@ -69,7 +72,10 @@ namespace Motor {
 
 		currentScene = new Scene;
 		addFrameListener(currentScene);
-		currentScene->initialize();
+		if( !currentScene->initialize() ){
+			cleanup();
+			return 0;
+		}
         renderer->setTerrain(currentScene->getTerrain());
 
 		renderer->checkErrors();

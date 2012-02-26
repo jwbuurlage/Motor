@@ -10,6 +10,7 @@
 namespace Motor {
 
 	Scene::Scene(){
+		terrain = 0;
 	}
 	Scene::~Scene(){
 		cleanup();
@@ -17,15 +18,21 @@ namespace Motor {
 
 	int Scene::initialize(){
 		camera = new Camera;
-        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap_canyon.png"), TextureManager::getSingleton().getTexture("textures/normalmap_canyon.png"), (Texture*)0);
+		Texture* heightmap = TextureManager::getSingleton().getTexture("textures/heightmap_canyon.png");
+		Texture* normalmap = TextureManager::getSingleton().getTexture("textures/normalmap_canyon.png");
+		if( !heightmap ){
+			LOG_ERROR("Heightmap not loaded. Cannot generate terrain.");
+			return 0;
+		}
+        terrain = new Terrain(heightmap, normalmap, (Texture*)0);
         terrain->generate(350.0f, 350.0f, 30.0f);
-        
-        
 		return 1;
 	}
 
 	void Scene::cleanup(){
 		unloadAllObjects();
+		if( terrain ) delete terrain;
+		terrain = 0;
 		if( camera ) delete camera;
 		camera = 0;
 	}
