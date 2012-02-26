@@ -1,5 +1,6 @@
 /build/
 /obj/
 /bin/*
-!/bin/shaders/
+
+!/bin/shaders
 Motor.tmproj
