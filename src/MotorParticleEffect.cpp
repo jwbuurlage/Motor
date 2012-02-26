@@ -28,7 +28,7 @@ namespace Motor {
 	ParticleEffect::~ParticleEffect(){
 	}
 
-	float getRand(float min, float max){
+	inline float getRand(float min, float max){
 		return min+((float)rand()/(float)RAND_MAX)*(max-min);
 	}
 

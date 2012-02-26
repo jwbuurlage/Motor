@@ -262,7 +262,7 @@ namespace Motor {
 		//Make a buffer to hold all vertex data
 		int minBufferSize = 0;
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
-			int sizeNeeded = (*iter)->particles.size()*24; //24 floats per particle
+			int sizeNeeded = (int)((*iter)->particles.size()*24); //24 floats per particle
 			if( sizeNeeded > minBufferSize ) minBufferSize = sizeNeeded;
 		}
 		if( particleBufferSize < minBufferSize ){
@@ -449,7 +449,7 @@ namespace Motor {
 		glVertexAttribPointer(AT_ALPHA, 1, GL_FLOAT, GL_FALSE, 24, particleBuffer+2);
 		glVertexAttribPointer(AT_VERTEX, 3, GL_FLOAT, GL_FALSE, 24, particleBuffer+3);
 
-		glDrawArrays(GL_QUADS, 0, fx->particles.size()*4);
+		glDrawArrays(GL_QUADS, 0, (int)(fx->particles.size()*4));
 	}
 
 	void Renderer::drawTerrain(){
