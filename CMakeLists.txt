@@ -26,6 +26,7 @@ SET(
 	"src/MotorTimer.cpp"
 	"src/MotorWorld.cpp"
 	"src/ModelMD2Model.cpp"
+	"src/MotorTerrain.cpp"
 )
 
 

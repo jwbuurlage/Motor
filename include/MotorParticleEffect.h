@@ -6,6 +6,7 @@
 #pragma once
 #include "Vector3.h"
 #include <vector>
+#include <cstdlib> //for random number generation
 
 namespace Motor {
 
