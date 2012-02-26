@@ -486,7 +486,7 @@ namespace Motor {
                 //gray
                 shaderManager->getActiveProgram()->setUniform3fv("colorUniform", Vector3(0.5f, 0.5f, 0.5f).ptr());
             }
-            
+        
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer[terrain->patches[i].lod]);
             glUniform2fv(shaderManager->getActiveProgram()->getUniformLocation("delta"), 1, terrain->patches[i].offset);
             glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount[terrain->patches[i].lod], GL_UNSIGNED_INT, 0);            

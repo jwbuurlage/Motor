@@ -11,11 +11,21 @@
 #include "MotorTextureManager.h"
 
 #include <math.h>
+#include <algorithm>
 
 //windows does not know log2
 #ifndef log2
 #define log2(x) (log((float)x)/log(2.0f))
 #endif
+
+#ifndef max
+#define max(a,b) (a>b ? a : b)
+#endif
+
+#ifndef min
+#define min(a,b) (a<b ? a : b)
+#endif
+
 
 namespace Motor {
  
@@ -55,7 +65,7 @@ namespace Motor {
         // calculate patch size, and count -- and generate the VBO
         // we want the patch_size to be of the form $2^n + 1$ as well
         patch_count = 16; //16x16 grid is fine for now.
-        patch_size = pow(2.0f,(log2(w - 1) - log2(patch_count))) + 1;
+        patch_size = (1 << (int)(log2(w - 1) - log2(patch_count))) + 1;
 
         patches = new Patch[patch_count*patch_count];
         
@@ -97,41 +107,41 @@ namespace Motor {
     
     void Terrain::generateIndices() {
         // we calculate the amount of levels and make the index buffers
-        int level_max = log2(patch_size - 1);
+        level_max = log2(patch_size - 1);
         
         indexCount = new GLuint[level_max + 1];
         indexBuffer = new GLuint[level_max + 1];
         
-        for(int l = 0; l < level_max; ++l)
+        for(int l = 0; l <= level_max; ++l)
         {
             // make a container for the indices, calculate the
             // patch size for this level, and init the index counter
-            int patch_size_level = pow(2.0f,level_max - l) + 1;
+            int patch_size_level = (1 << (level_max - l)) + 1;
             int current_index = 0;
             indexCount[l] = (2*patch_size_level+1) * patch_size_level;            
             GLuint* indices = new GLuint[indexCount[l]];     
 			
-			for(int i = 0; i < patch_size - 1; i += pow(2.0f,l)){
-                if((int)(i/pow(2.0f,l)) % 2 == 0) {
+			for(int i = 0; i < patch_size - 1; i += (1 << l)){
+                if((int)(i/(1 << l)) % 2 == 0) {
                     // dir ---->
-                    for(int j = 0; j < patch_size; j += pow(2.0f,l)) {
+                    for(int j = 0; j < patch_size; j += (1 << l)) {
                         indices[current_index] = (i * patch_size) + j;
                         ++current_index;
-                        indices[current_index] = ((i + pow(2.0f,l)) * patch_size) + j;
+                        indices[current_index] = ((i + (1 << l)) * patch_size) + j;
                         ++current_index;
                     }
-                    indices[current_index] = (i + pow(2.0f,l) + 1) * patch_size - 1; //make degenerate triangle
+                    indices[current_index] = (i + (1 << l) + 1) * patch_size - 1; //make degenerate triangle
                     ++current_index;
                 }
                 else {
                     // dir <----
-                    for(int j = 0; j < patch_size; j += pow(2.0f,l)) {
+                    for(int j = 0; j < patch_size; j += (1 << l)) {
                         indices[current_index] = (i + 1) * patch_size - 1 - j;
                         ++current_index;
-                        indices[current_index] = (i + 1 + pow(2.0f, l)) * patch_size - 1 - j;
+                        indices[current_index] = (i + 1 + (1 << l)) * patch_size - 1 - j;
                         ++current_index;
                     }
-                    indices[current_index] = (i + pow(2.0f,l)) * patch_size; //make degenerate triangle
+                    indices[current_index] = (i + (1 << l)) * patch_size; //make degenerate triangle
                     ++current_index;
                 }
             }
@@ -156,13 +166,13 @@ namespace Motor {
                 patches[i].lod = 0;
             }
             else if (d < 60.0f) {
-                patches[i].lod = 1;
+                patches[i].lod = min(level_max, 1);
             }
             else if (d < 90.0f) {
-                patches[i].lod = 2;
+                patches[i].lod = min(level_max, 2);
             }
             else  {
-                patches[i].lod = 3;
+                patches[i].lod = min(level_max, 3);
             }        
         }
     }
