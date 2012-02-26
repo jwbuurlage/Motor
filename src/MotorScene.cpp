@@ -4,6 +4,8 @@
 #include "MotorLight.h"
 #include "MotorCamera.h"
 #include "MotorLogger.h"
+#include "MotorTextureManager.h"
+#include "MotorTerrain.h"
 
 namespace Motor {
 
@@ -15,6 +17,10 @@ namespace Motor {
 
 	int Scene::initialize(){
 		camera = new Camera;
+        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap.png"), TextureManager::getSingleton().getTexture("textures/normal_map_terrain.bmp"), (Texture*)0);
+        terrain->generate(350.0f, 350.0f, 30.0f);
+        
+        
 		return 1;
 	}
 
@@ -48,6 +54,7 @@ namespace Motor {
 		//for(EffectIterator iter = effects.begin(); iter != effects.end(); ++iter)
 		//for(LightIterator iter = lights.begin(); iter != lights.end(); ++iter)
 		if( camera ) camera->update(elapsedTime);
+        if( terrain ) terrain->updatePatches(camera->getPosition());
 	}
 
 	SceneObject* Scene::createObject(){

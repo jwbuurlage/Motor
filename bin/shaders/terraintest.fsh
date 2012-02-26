@@ -1,9 +1,11 @@
 uniform sampler2D heightMap;
-uniform sampler2DShadow shadowMap;
+uniform sampler2D textureMap;uniform sampler2DShadow shadowMap;
 
 varying vec2 texCooVarying;
 varying vec3 normalVarying;
 varying vec3 lightDirVarying;
+
+uniform vec3 colorUniform;
 
 void main() {
 	float lightFraction = 0.0;
@@ -23,5 +25,7 @@ void main() {
 	//Ambient
 	lightFraction = min(lightFraction + 0.25, 1.0);
 	
-	gl_FragColor = lightFraction * texture2D(heightMap, texCooVarying.st);
+  //  vec2 texCooGrass = mod(7.0*texCooVarying, 1.0);
+    
+	gl_FragColor = lightFraction * vec4(colorUniform, 1.0);
 }

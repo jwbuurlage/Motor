@@ -2,6 +2,7 @@ attribute vec2 textureCoordinate;
 
 uniform sampler2D heightMap;
 uniform sampler2D normalMap;
+uniform sampler2D textureMap;
 
 uniform vec2 delta;
 
@@ -31,15 +32,6 @@ void main() {
 	lightDirVarying = normalize(lightPosition - position.xyz);
 	
 	//THESE ARE CONSTANTS:
-	//We should give them through a uniform instead of calculating them every time.
-	//float xScale = (mMatrix * vec4(1.0,0.0,0.0,0.0)).x;
-	//float yScale = (mMatrix * vec4(0.0,1.0,0.0,0.0)).y;
-	//float zScale = (mMatrix * vec4(0.0,0.0,1.0,0.0)).z;
-	
-	//float A = texture2D(heightMap, textureCoordinate + vec2(0.0,1.0/255.0)).r;
-	//float B = texture2D(heightMap, textureCoordinate + vec2(1.0/255.0,0.0)).r;
-	//float C = texture2D(heightMap, textureCoordinate + vec2(0.0,-1.0/255.0)).r;
-	//float D = texture2D(heightMap, textureCoordinate + vec2(-1.0/255.0,0.0)).r;
     normalVarying = texture2D(normalMap, texCooVarying).rgb;
     
 	gl_Position = vpMatrix*position;

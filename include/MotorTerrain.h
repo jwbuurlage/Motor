@@ -14,7 +14,20 @@ namespace Motor {
     class Texture;
     class ShaderManager;
     
+    enum {
+        SEAM_NONE,
+        SEAM_TOP,
+        SEAM_RIGHT,
+        SEAM_BOTTOM,
+        SEAM_LEFT,
+        SEAM_TOP_RIGHT,
+        SEAM_RIGHT_BOTTOM,
+        SEAM_BOTTOM_LEFT,
+        SEAM_LEFT_TOP
+    };
+    
     typedef struct {
+        Vector3 position;
         float offset[2];
         int lod;
     } Patch;
@@ -25,35 +38,43 @@ namespace Motor {
     
     class Terrain {
     public:
-        Terrain(Texture* _heightMap, Texture* _normalMap) { 
+        Terrain(Texture* _heightMap, Texture* _normalMap, Texture* _textureMap) { 
             heightMap = _heightMap; 
             normalMap = _normalMap;
+            textureMap = _textureMap;
         }
-        ~Terrain() { }
+        ~Terrain() { 
+            delete[] indexBuffer;
+            delete[] indexCount;
+
+        }
         
         void generate(float w_terrain, float l_terrain, float h_terrain);
+        void generateIndices();
+        
         float heightAtPosition(int x, int y);
-        void updatePatches();
+        void updatePatches(Vector3 cameraPosition);
         void draw(ShaderManager* shaderManager);
         
         Patch* patches;
         
-        int PATCH_COUNT_X;
-        int PATCH_COUNT_Y;
-        int PATCH_WIDTH;
-        int PATCH_HEIGHT;
-        
         GLuint vertexBuffer;
-        GLuint indexBuffer;
-        int indexCount;
-        int offsets[2];
+        GLuint* indexBuffer;
+        GLuint* indexCount;
         
         mat scaleMatrix;
         
         Texture* heightMap;
         Texture* normalMap;
+        Texture* textureMap;
         
+        int patchCount() const { return patch_count; };
+        int patchSize() const { return patch_count; };
+
     private:
+        int patch_count;
+        int patch_size;
+    
 
     };
     

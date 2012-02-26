@@ -70,6 +70,7 @@ namespace Motor {
 		currentScene = new Scene;
 		addFrameListener(currentScene);
 		currentScene->initialize();
+        renderer->setTerrain(currentScene->getTerrain());
 
 		renderer->checkErrors();
 

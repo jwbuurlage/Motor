@@ -9,6 +9,7 @@ namespace Motor {
 	class ParticleEffect;
 	class Light;
 	class Camera;
+    class Terrain;
 
 	typedef std::list<SceneObject*> ObjectContainer;
 	typedef ObjectContainer::iterator ObjectIterator;
@@ -36,13 +37,15 @@ namespace Motor {
 		SceneObject* createChildObject(SceneObject* parent);
 		ParticleEffect* createParticleEffect();
 		Light* createLight();
+        
 		//deleting objects
 		void deleteObject(SceneObject* obj);
 		void deleteParticleEffect(ParticleEffect* fx);
 		void deleteLight(Light* light);
 
 		Camera* getCamera(){ return camera; }
-
+        Terrain* getTerrain() { return terrain; }
+        
 		void unloadAllObjects();
 
 		ObjectContainer* getObjectList(){ return &objects; }
@@ -51,6 +54,7 @@ namespace Motor {
 
 	private:
 		Camera* camera;
+        Terrain* terrain;
 
 		ObjectContainer objects;
 		EffectContainer particleEffects;

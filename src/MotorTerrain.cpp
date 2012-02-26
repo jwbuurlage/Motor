@@ -28,113 +28,137 @@ namespace Motor {
         // check if the heightmap is of proper size
         //-----------------------------------------
 
-        int w, l;
+        int w, h;
         w = heightMap->width;
-        l = heightMap->height;
-        
-        if(w != l || w != 257) {
-            Logger::getSingleton().log(Logger::WARNING, "Heightmap is of wrong dimension.");
+        h = heightMap->height;
+         
+        // check if width is of the form $2^n + 1$
+        if(!(((w-1) & (w-2)) == 0) || w != h) {
+            LOG_WARNING("Height map is of the wrong size. Must be of the form $2^n + 1$, and square.");
+            w = 1025;
+            h = 1025;
+            LOG_INFO("Heightmap: width and height set to default value (1025).");
         }
                 
         //-------------------------------------
         // prepare patches, and patch variables
         //-------------------------------------
            
-        PATCH_COUNT_X = 8;
-        PATCH_COUNT_Y = 8;
-        PATCH_WIDTH = 33;
-        PATCH_HEIGHT = 33;
+        // calculate patch size, and count -- and generate the VBO
+        // we want the patch_size to be of the form $2^n + 1$ as well
+        patch_count = 16; //16x16 grid is fine for now.
+        patch_size = pow(2,(log2(w - 1) - log2(patch_count))) + 1;
 
-        patches = new Patch[PATCH_COUNT_X*PATCH_COUNT_Y];
+        patches = new Patch[patch_count*patch_count];
         
         //------------------------------------------------
         // prepare arrays which will hold VBO and IBO data
         //------------------------------------------------
         
-        indexCount = (PATCH_WIDTH - 1) * (2*PATCH_HEIGHT+1);
+        float* vertices = new float[patch_size * patch_size];
         
-        GLfloat* vertices = new GLfloat[PATCH_WIDTH * PATCH_HEIGHT * 2];
-        GLuint* indices = new GLuint[indexCount];
-
-        float perVertex = 1 / (float)(PATCH_COUNT_X * (PATCH_WIDTH - 1));
+        // the size of one texel in terms of texture coordinates
+        float tex_per_coo = 1 / ((float)((patch_size - 1) * patch_count));
         
-        for(int i = 0; i < PATCH_WIDTH; ++i) {
-            for(int j = 0; j < PATCH_HEIGHT; ++j) {
-                //vertex
-                int offset = (i * PATCH_WIDTH + j) * 2;
-                
-                vertices[offset + 0] = (GLfloat)(i * perVertex); //x 
-                vertices[offset + 1] = (GLfloat)(j * perVertex); //z
-            }
-        }
-                        
-        int direction = -1;
-        int offset = 0;
-        int a, b;
-        
-        for(int i = 0; i < PATCH_WIDTH - 1; ++i) { //w = patch_width
-            direction *= -1;
-            
-            if(i % 2 == 0) {
-                //dir ---->
-                indices[(i+1)*(2*PATCH_WIDTH+1)-1] = (i+2)*PATCH_WIDTH - 1;
-                offset = i*(2*PATCH_WIDTH + 1); 
-                a = 0;
-                b = 1;
-            }
-            else {
-                //dir <----
-                indices[(i+1)*(2*PATCH_WIDTH+1)-1] = (i+1)*PATCH_WIDTH;
-                offset = (2*PATCH_WIDTH + 1)*(i+1) - 2; 
-                a = 1;
-                b = 0;
-            }
-            
-            for(int j = 0; j < PATCH_HEIGHT; ++j) { //l = patch_height
-                //odd or even?
-                indices[offset + direction*(j*2 + 0)] = ((i + a) * PATCH_HEIGHT + j);
-                indices[offset + direction*(j*2 + 1)] = ((i + b) * PATCH_HEIGHT + j);
+        // we populate the VBO
+        for(int i = 0; i < patch_size; ++i) {
+            for(int j = 0; j < patch_size; ++j) {
+                vertices[2*patch_size*i + 2*j] = j * tex_per_coo;
+                vertices[2*patch_size*i + 2*j + 1] = i * tex_per_coo;
             }
         }
         
-        for(int i = 0; i < (PATCH_COUNT_X * PATCH_COUNT_Y); ++i) {
-            Patch thePatch;
-            thePatch.lod = 0;
-            thePatch.offset[0] = (i % PATCH_COUNT_X) * (1 / (float)PATCH_COUNT_X);
-            thePatch.offset[1] = (floorf(i / PATCH_COUNT_Y)) * (1 / (float)PATCH_COUNT_Y);
-            patches[i] = thePatch;
-        }        
-        
-        //----------------------------------
-        // set up VBO and IBO, set variables
-        //----------------------------------
-                
         //generating and binding the opengl buffer
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * PATCH_WIDTH * PATCH_HEIGHT * 2, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * patch_size * patch_size * 2, vertices, GL_STATIC_DRAW);
         
-        glGenBuffers(1, &indexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_UNSIGNED_INT) * indexCount, indices, GL_STATIC_DRAW);
-                
-        delete vertices;
-        delete indices;
+        delete[] vertices;
+                        
+        generateIndices();
+        
+        for(int i = 0; i < (patch_count * patch_count); ++i) {
+            Patch thePatch;
+            thePatch.lod = 0;
+            thePatch.offset[0] = (i % patch_count) * (1 / (float)patch_count);
+            thePatch.offset[1] = (floorf(i / patch_count)) * (1 / (float)patch_count);
+            thePatch.position = scaleMatrix * Vector3(thePatch.offset[0], 0.0f, thePatch.offset[1]);
+            patches[i] = thePatch;
+        }        
     }
     
-    void Terrain::updatePatches() {
-        //test stuff for now
-        for(int i = 0; i < PATCH_COUNT_X * PATCH_COUNT_Y; ++i) {
-            if(patches[i].offset[0] > 0.5 || patches[i].offset[0] > 0.5) {
-                patches[i].lod = 1;
+    void Terrain::generateIndices() {
+        // we calculate the amount of levels and make the index buffers
+        int level_max = log2(patch_size - 1);
+        
+        indexCount = new GLuint[level_max + 1];
+        indexBuffer = new GLuint[level_max + 1];
+        
+        for(int l = 0; l < level_max; ++l)
+        {
+            // make a container for the indices, calculate the
+            // patch size for this level, and init the index counter
+            int patch_size_level = pow(2,level_max - l) + 1;
+            int current_index = 0;
+            indexCount[l] = (2*patch_size_level+1) * (patch_size_level - 1);            
+            GLuint* indices = new GLuint[indexCount[l]];            
+            
+            for(int i = 0; i < patch_size - 1; i += pow(2,l)){
+                if((int)(i/pow(2,l)) % 2 == 0) {
+                    // dir ---->
+                    for(int j = 0; j < patch_size; j += pow(2,l)) {
+                        indices[current_index] = (i * patch_size) + j;
+                        ++current_index;
+                        indices[current_index] = ((i + pow(2,l)) * patch_size) + j;
+                        ++current_index;
+                    }
+                    indices[current_index] = (i + pow(2,l) + 1) * patch_size - 1; //make degenerate triangle
+                    ++current_index;
+                }
+                else {
+                    // dir <----
+                    for(int j = 0; j < patch_size; j += pow(2,l)) {
+                        indices[current_index] = (i + 1) * patch_size - 1 - j;
+                        ++current_index;
+                        indices[current_index] = (i + 1 + pow(2, l)) * patch_size - 1 - j;
+                        ++current_index;
+                    }
+                    indices[current_index] = (i + pow(2,l)) * patch_size; //make degenerate triangle
+                    ++current_index;
+                }
             }
-            else {
-                patches[i].lod = 0;
-            }
+            
+            std::cout << current_index << " " << (2*patch_size_level+1) * (patch_size_level - 1) << std::endl;
+                        
+            // save the indexbuffer
+            glGenBuffers(1, &indexBuffer[l]);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer[l]);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_UNSIGNED_INT) * indexCount[l], indices, GL_STATIC_DRAW);
+          
+            delete[] indices;
         }
         
-        //set proper LOD (for now just preset distances)
-        
+    }
+    
+    void Terrain::updatePatches(Vector3 cameraPosition) {
+        //set distances for now
+        for(int i = 0; i < patch_count * patch_count; ++i) {
+            Vector3 distanceVector = cameraPosition - patches[i].position;
+            float d = distanceVector.length();
+            
+            if(d < 30.0f) {
+                patches[i].lod = 0;
+            }
+            else if (d < 60.0f) {
+                patches[i].lod = 1;
+            }
+            else if (d < 90.0f) {
+                patches[i].lod = 2;
+            }
+            else  {
+                patches[i].lod = 3;
+            }        
+        }
     }
     
     void Terrain::draw(ShaderManager* shaderManager) {

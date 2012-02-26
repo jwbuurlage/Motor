@@ -69,6 +69,7 @@ namespace Motor {
 
 		Scene* getScene(){ return currentScene; }
 		Renderer* getRenderer(){ return renderer; }
+        
 	private:
 		bool initialized;
         bool running;

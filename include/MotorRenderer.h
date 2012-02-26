@@ -27,7 +27,8 @@ namespace Motor {
 		void setObjectList(ObjectContainer* _objects){ objects = _objects; };
 		void setEffectList(EffectContainer* _effects){ effects = _effects; };
 		void setLightList(LightContainer* _lights){ lights = _lights; };
-
+        void setTerrain(Terrain* _terrain) { terrain = _terrain; };
+        
 		mat* viewMatrixPtr(){ return &viewMatrix; };
 
 	private:

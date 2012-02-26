@@ -12,7 +12,7 @@ namespace Motor {
 		camPitchSpeed = 0.0f;
 		camDist = 5.0f;
 		minCamDist = 3.0f;
-		maxCamDist = 50.0f;
+		maxCamDist = 100.0f;
 		freeYaw = false;
 		position.x = position.y = position.z = 0.0f;
 		yaw = 0.0f;
