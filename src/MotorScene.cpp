@@ -17,7 +17,7 @@ namespace Motor {
 
 	int Scene::initialize(){
 		camera = new Camera;
-        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap.png"), TextureManager::getSingleton().getTexture("textures/normal_map_terrain.bmp"), (Texture*)0);
+        terrain = new Terrain(TextureManager::getSingleton().getTexture("textures/heightmap_canyon.png"), TextureManager::getSingleton().getTexture("textures/normalmap_canyon.png"), (Texture*)0);
         terrain->generate(350.0f, 350.0f, 30.0f);
         
         

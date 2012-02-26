@@ -12,6 +12,7 @@
 
 //debug
 #include <iostream>
+#include <math.h>
 
 namespace Motor {
  
@@ -55,7 +56,7 @@ namespace Motor {
         // prepare arrays which will hold VBO and IBO data
         //------------------------------------------------
         
-        float* vertices = new float[patch_size * patch_size];
+        float* vertices = new float[2*patch_size * patch_size];
         
         // the size of one texel in terms of texture coordinates
         float tex_per_coo = 1 / ((float)((patch_size - 1) * patch_count));
@@ -71,7 +72,7 @@ namespace Motor {
         //generating and binding the opengl buffer
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * patch_size * patch_size * 2, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * patch_size * patch_size * 2, vertices, GL_STATIC_DRAW);
         
         delete[] vertices;
                         
@@ -100,8 +101,10 @@ namespace Motor {
             // patch size for this level, and init the index counter
             int patch_size_level = pow(2,level_max - l) + 1;
             int current_index = 0;
-            indexCount[l] = (2*patch_size_level+1) * (patch_size_level - 1);            
-            GLuint* indices = new GLuint[indexCount[l]];            
+            indexCount[l] = (2*patch_size_level+1) * patch_size_level;            
+            GLuint* indices = new GLuint[indexCount[l]];     
+            
+            std::cout << "PATCH SIZE: " << patch_size << " " << patch_size_level << std::endl;
             
             for(int i = 0; i < patch_size - 1; i += pow(2,l)){
                 if((int)(i/pow(2,l)) % 2 == 0) {
@@ -133,7 +136,7 @@ namespace Motor {
             // save the indexbuffer
             glGenBuffers(1, &indexBuffer[l]);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer[l]);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_UNSIGNED_INT) * indexCount[l], indices, GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indexCount[l], indices, GL_STATIC_DRAW);
           
             delete[] indices;
         }
