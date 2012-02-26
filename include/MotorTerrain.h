@@ -42,11 +42,14 @@ namespace Motor {
             heightMap = _heightMap; 
             normalMap = _normalMap;
             textureMap = _textureMap;
+			indexBuffer = 0;
+			indexCount = 0;
+			patches = 0;
         }
         ~Terrain() { 
             delete[] indexBuffer;
             delete[] indexCount;
-
+			delete[] patches;
         }
         
         void generate(float w_terrain, float l_terrain, float h_terrain);

@@ -35,6 +35,7 @@ namespace Motor {
 		initialized = false;
 		shaderManager = 0;
 		particleBuffer = 0;
+		terrain = 0;
 	}
 
 	Renderer::~Renderer(){

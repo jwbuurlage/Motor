@@ -102,7 +102,7 @@ namespace Motor {
         indexCount = new GLuint[level_max + 1];
         indexBuffer = new GLuint[level_max + 1];
         
-        for(int l = 0; l < level_max; ++l)
+        for(int l = 0; l <= level_max; ++l)
         {
             // make a container for the indices, calculate the
             // patch size for this level, and init the index counter
