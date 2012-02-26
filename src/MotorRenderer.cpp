@@ -459,6 +459,7 @@ namespace Motor {
         glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, terrain->normalMap->handle);
 		shaderManager->getActiveProgram()->setUniform1i("normalMap", 1); //GL_TEXTURE1
+		glActiveTexture(GL_TEXTURE0); //because the rest of renderer expects texture 0 to be set
 
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", terrain->scaleMatrix);
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
