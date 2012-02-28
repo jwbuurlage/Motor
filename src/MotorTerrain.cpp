@@ -118,7 +118,7 @@ namespace Motor {
             // patch size for this level, and init the index counter
             int patch_size_level = (1 << (level_max - l)) + 1;
             int current_index = 0;
-            indexCount[l] = (2*patch_size_level+1) * patch_size_level;            
+            indexCount[l] = (2*patch_size_level+1) * (patch_size_level-1);            
             GLuint* indices = new GLuint[indexCount[l]];     
 			
 			for(int i = 0; i < patch_size - 1; i += (1 << l)){

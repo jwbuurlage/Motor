@@ -260,16 +260,17 @@ namespace Motor {
 		//Particle effects
 		
 		//Make a buffer to hold all vertex data
-		int minBufferSize = 0;
-		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
-			int sizeNeeded = (int)((*iter)->particles.size()*24); //24 floats per particle
-			if( sizeNeeded > minBufferSize ) minBufferSize = sizeNeeded;
-		}
-		if( particleBufferSize < minBufferSize ){
-			if( particleBuffer ) delete[] particleBuffer;
-			particleBuffer = new GLfloat[minBufferSize];
-			particleBufferSize = minBufferSize;
-		}
+        //Make a buffer to hold all vertex data
+        int minBufferSize = 0;
+        for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
+            int sizeNeeded = (int)((*iter)->particles.size()*24); //24 floats per particle
+            if( sizeNeeded > minBufferSize ) minBufferSize = sizeNeeded;
+        }
+        if( particleBufferSize < minBufferSize ){
+            if( particleBuffer ) delete[] particleBuffer;
+            particleBuffer = new GLfloat[minBufferSize];
+            particleBufferSize = minBufferSize;
+        }
 
 		shaderManager->setActiveProgram("particlefx");
 		shaderManager->getActiveProgram()->setUniformMatrix4fv("pMatrix", projectionMatrix);
@@ -277,9 +278,9 @@ namespace Motor {
 		glDepthMask(GL_FALSE);
 		for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
 			drawParticleEffect(*iter);
-		}
+		} 
 		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
+		glDepthMask(GL_TRUE); 
         
         /////////////////////////////////////////////////////////////////////////////
         // Step 3: Callbacks (project specific, UI, etc.)                           /
@@ -448,9 +449,8 @@ namespace Motor {
 		glVertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 24, particleBuffer);
 		glVertexAttribPointer(AT_ALPHA, 1, GL_FLOAT, GL_FALSE, 24, particleBuffer+2);
 		glVertexAttribPointer(AT_VERTEX, 3, GL_FLOAT, GL_FALSE, 24, particleBuffer+3);
-
 		glDrawArrays(GL_QUADS, 0, (int)(fx->particles.size()*4));
-	}
+    }
 
 	void Renderer::drawTerrain(){
         glActiveTexture(GL_TEXTURE0);
@@ -469,7 +469,7 @@ namespace Motor {
 		shaderManager->getActiveProgram()->vertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, false, 0, 0);
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDisable(GL_CULL_FACE);
+        //glDisable(GL_CULL_FACE);
         for(int i = 0; i < terrain->patchCount() * terrain->patchCount(); ++i) {     
             if(terrain->patches[i].lod < 1) {
                 //red
@@ -487,14 +487,16 @@ namespace Motor {
                 //gray
                 shaderManager->getActiveProgram()->setUniform3fv("colorUniform", Vector3(0.5f, 0.5f, 0.5f).ptr());
             }
-        
+                    
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer[terrain->patches[i].lod]);
             glUniform2fv(shaderManager->getActiveProgram()->getUniformLocation("delta"), 1, terrain->patches[i].offset);
             glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount[terrain->patches[i].lod], GL_UNSIGNED_INT, 0);            
         }
+                
+        
         
         //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
 
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain->indexBuffer);
 		//glDrawElements(GL_TRIANGLE_STRIP, terrain->indexCount, GL_UNSIGNED_SHORT, 0);
