@@ -99,7 +99,7 @@ namespace Motor {
             Patch thePatch;
             thePatch.lod = 0;
             thePatch.offset[0] = (i % patch_count) * (1 / (float)patch_count);
-            thePatch.offset[1] = (floorf(i / patch_count)) * (1 / (float)patch_count);
+            thePatch.offset[1] = (floorf((float)i / (float)patch_count)) * (1 / (float)patch_count);
             thePatch.position = scaleMatrix * Vector3(thePatch.offset[0], 0.0f, thePatch.offset[1]);
             patches[i] = thePatch;
         }        
@@ -107,53 +107,64 @@ namespace Motor {
     
     void Terrain::generateIndices() {
         // we calculate the amount of levels and make the index buffers
-        level_max = log2(patch_size - 1);
+        level_max = (int)log2(patch_size - 1);
         
         indexCount = new GLuint[level_max + 1];
         indexBuffer = new GLuint[level_max + 1];
         
+		//Create the OpenGL buffer objects
+		glGenBuffers(level_max+1, indexBuffer);
+
+		//We need a buffer big enough to hold all indices
+		//Since the LOD with the highest detail will have
+		//the most indices, we can allocate a buffer big
+		//enough for this, and it will be big enough for the other
+		//LODs as well. This way we only have to allocate once
+		indexCount[0] = (2*patch_size + 1) * (patch_size - 1);
+		GLuint* indices = new GLuint[indexCount[0]];
+
+		//Now generate the indices for each LOD
         for(int l = 0; l <= level_max; ++l)
         {
-            // make a container for the indices, calculate the
-            // patch size for this level, and init the index counter
-            int patch_size_level = (1 << (level_max - l)) + 1;
-            int current_index = 0;
-            indexCount[l] = (2*patch_size_level+1) * (patch_size_level-1);            
-            GLuint* indices = new GLuint[indexCount[l]];     
-			
-			for(int i = 0; i < patch_size - 1; i += (1 << l)){
-                if((int)(i/(1 << l)) % 2 == 0) {
+			//The amount of vertices we have to skip
+			int delta = (1<<l);
+
+			int current_index = 0;
+
+			for(int i = 0; i < patch_size - 1; i += delta){
+				if( ((i>>l)&1)== 0 ){
                     // dir ---->
-                    for(int j = 0; j < patch_size; j += (1 << l)) {
+                    for(int j = 0; j < patch_size; j += delta) {
                         indices[current_index] = (i * patch_size) + j;
                         ++current_index;
-                        indices[current_index] = ((i + (1 << l)) * patch_size) + j;
+                        indices[current_index] = ((i + delta) * patch_size) + j;
                         ++current_index;
                     }
-                    indices[current_index] = (i + (1 << l) + 1) * patch_size - 1; //make degenerate triangle
+                    indices[current_index] = (i + delta + 1) * patch_size - 1; //make degenerate triangle
                     ++current_index;
                 }
                 else {
                     // dir <----
-                    for(int j = 0; j < patch_size; j += (1 << l)) {
+                    for(int j = 0; j < patch_size; j += delta) {
                         indices[current_index] = (i + 1) * patch_size - 1 - j;
                         ++current_index;
-                        indices[current_index] = (i + 1 + (1 << l)) * patch_size - 1 - j;
+                        indices[current_index] = (i + 1 + delta) * patch_size - 1 - j;
                         ++current_index;
                     }
-                    indices[current_index] = (i + (1 << l)) * patch_size; //make degenerate triangle
+                    indices[current_index] = (i + delta) * patch_size; //make degenerate triangle
                     ++current_index;
                 }
             }
 
-            // save the indexbuffer
-            glGenBuffers(1, &indexBuffer[l]);
+			indexCount[l] = current_index;
+
+			//Now write the buffer to video memory
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer[l]);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indexCount[l], indices, GL_STATIC_DRAW);
-          
-            delete[] indices;
         }
-        
+
+        delete[] indices;
+
     }
     
     void Terrain::updatePatches(Vector3 cameraPosition) {

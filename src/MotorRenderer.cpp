@@ -260,7 +260,6 @@ namespace Motor {
 		//Particle effects
 		
 		//Make a buffer to hold all vertex data
-        //Make a buffer to hold all vertex data
         int minBufferSize = 0;
         for( EffectIterator iter = effects->begin(); iter != effects->end(); ++iter ){
             int sizeNeeded = (int)((*iter)->particles.size()*24); //24 floats per particle
@@ -397,6 +396,7 @@ namespace Motor {
 		float fadeOutCompare = fx->lifeTime - fx->fadeOutStart;
 
 		//Generate a buffer with all the quads
+		//The parent function (renderFrame) will have allocated a buffer that is big enough to hold all vertex data
 		GLfloat* bufPointer = particleBuffer;
 		for( std::vector<Particle>::iterator part = fx->particles.begin(); part != fx->particles.end(); ++part ){
 			//Get eye space coordinates (billboarding)
