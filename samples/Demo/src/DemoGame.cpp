@@ -58,7 +58,7 @@ namespace Demo {
 		localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(localPlayer->sceneObj);
 		jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
-		jeepObject->setScale(0.01f);
+		jeepObject->setScale(0.001f);
 		jeepObject->setYaw(1.5708f);
 		localPlayer->sceneObj->setPosition( Vector3(0.0f,-3.0f,0.0f) );
         
@@ -74,11 +74,16 @@ namespace Demo {
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
 		cubeModel->setMaterial( derpMat );
         
-        Motor::SceneObject* md2model = motorRoot->getScene()->createObject();
-        md2model->setScale(0.01f);
-        md2model->setModel( Motor::ModelManager::getSingleton().getModel("Dolphin"));
-        md2model->setPosition( Vector3( 5.0f, -0.7f, -5.0f ) );
-        
+        Motor::SceneObject* colladaModel = motorRoot->getScene()->createObject();
+        colladaModel->setScale(2.0f);
+        colladaModel->setModel( Motor::ModelManager::getSingleton().getModel("models/astroBoy_walk.dae"));
+        colladaModel->setPosition( Vector3( 5.0f, -0.7f, -5.0f ) );
+
+        Motor::SceneObject* colladaModel2 = motorRoot->getScene()->createObject();
+        colladaModel2->setScale(2.0f);
+        colladaModel2->setModel(Motor::ModelManager::getSingleton().getModel("models/cow.dae"));
+        colladaModel2->setPosition( Vector3( -10.0f, 0.0f, -5.0f ) );
+
         Motor::SceneObject* hepModel = motorRoot->getScene()->createObject();
         hepModel->setScale(0.1f);
         hepModel->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));

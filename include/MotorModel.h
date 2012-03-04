@@ -9,8 +9,8 @@ namespace Motor {
 
 	class Model{
 	public:
-		Model(){ mesh = 0; material = 0; animated = false; }
-		~Model(){
+		Model(){ mesh = 0; material = 0; animated = false; modelType = MODELTYPE_DEFAULT; }
+		virtual ~Model(){
 			if( mesh ){
 				mesh->release();
 			}
@@ -43,6 +43,8 @@ namespace Motor {
         
         bool isAnimated() const { return animated; }
         bool animated;
+
+		enum {MODELTYPE_DEFAULT, MODELTYPE_MD2, MODELTYPE_COLLADA} modelType;
 
 	protected:
 		Mesh* mesh;

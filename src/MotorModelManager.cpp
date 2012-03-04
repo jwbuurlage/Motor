@@ -1,7 +1,11 @@
 #include "MotorModelManager.h"
+#include "MotorMD2Model.h"
+#include "MotorColladaLoader.h"
 #include "MotorMeshManager.h"
 #include "MotorMaterialManager.h"
 #include "MotorLogger.h"
+#include <algorithm>
+
 
 #define MD2_IDENTITY (('2'<<24) + ('P'<<16) + ('D'<<8) + 'I')
 #define MD2_VERSION 8
@@ -43,7 +47,22 @@ vec3 MD2Model::anorms[] = {
 			return newModel;
 		}
 	}
-    
+
+    Model* ModelManager::loadCOLLADA( const char* filename ){
+		const File* modelfile = Filesystem::getSingleton().getFile(filename);
+		if( modelfile == 0 ){
+			LOG_WARNING("Could not find Collada file: " << filename);
+            return NULL;
+		}
+
+		Model* model = ColladaLoader::loadModel(filename, modelfile->data);
+		if( model ) addResource(filename, model);
+
+		Filesystem::getSingleton().unloadFile(modelfile);
+
+        return model;
+    }
+
     Model* ModelManager::loadMD2( const char* filename ){
        	// The md2 file format is specified as follows
         //              ___________
@@ -92,6 +111,7 @@ vec3 MD2Model::anorms[] = {
         // 2) Check if it's md2 version 8 (we will require this)
         if( modelfile->size < sizeof(ModelHeader) || (head->identity != MD2_IDENTITY) || (head->version != MD2_VERSION)) {
 			Logger::getSingleton() << Logger::WARNING << "File is not a valid MD2 model file: " << filename << endLog;
+			Filesystem::getSingleton().unloadFile(modelfile);
             return NULL;
         }
         
@@ -190,17 +210,25 @@ vec3 MD2Model::anorms[] = {
         
         return getResource(filename);;
     }
-    
-    Model* ModelManager::loadCOLLADA( const char* filename ){
-        //we will load the vertex data before anything else.
-        //use tinyxml to extract data
-    
-        return 0;
-    }
 
 	Model* ModelManager::loadResource( const char* filename ){
-        //for now only MD2 is supported
-		return loadMD2(filename);;
+        //Find file type
+		enum{ TYPE_UNKOWN, TYPE_MD2, TYPE_COLLADA } filetype = TYPE_UNKOWN;
+		std::string name(filename);
+		size_t found = name.find_last_of('.');
+		if( found != std::string::npos ){
+			name = name.substr(found+1);
+			std::transform(name.begin(), name.end(), name.begin(), tolower);
+			if( name == "dae" ){
+				filetype = TYPE_COLLADA;
+			}else if( name == "md2" ){
+				filetype = TYPE_MD2;
+			}
+		}
+		if( filetype == TYPE_COLLADA )
+			return loadCOLLADA(filename);
+		else
+			return loadMD2(filename);
 	}
 
 	void ModelManager::loadDefaultModel(){

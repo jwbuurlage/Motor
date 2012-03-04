@@ -38,6 +38,8 @@ namespace Motor {
 
 		void drawObject(SceneObject* obj, bool depthOnly);
 
+		void drawColladaTest(SceneObject* obj);
+
 		void drawParticleEffect(ParticleEffect* fx);
 		//TODO: make this better
 		GLfloat* particleBuffer;

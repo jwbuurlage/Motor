@@ -5,6 +5,7 @@
 #include "MotorLight.h"
 #include "MotorParticleEffect.h"
 #include "MotorModel.h"
+#include "MotorColladaModel.h"
 #include "MotorMesh.h"
 #include "MotorMaterial.h"
 #include "MotorTexture.h"
@@ -288,10 +289,42 @@ namespace Motor {
 		return true;
 	}
 
+	void Renderer::drawColladaTest(SceneObject* obj){
+		ColladaModel* model = (ColladaModel*)obj->getModel();
+		shaderManager->setActiveProgram("shadowTextureLightning");
+
+		const mat& mMatrix = obj->getFullMoveMatrix();
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", projViewMatrix * mMatrix);
+		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+
+		//For now the buffer is just a memory pointer, not in video memory buffer
+		glBindBuffer(GL_ARRAY_BUFFER, model->vertexBufferHandle);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->indexBufferHandle);
+
+		Material* material = model->getMaterial();
+		if( material && material->texture ){
+			glBindTexture(GL_TEXTURE_2D, material->texture->handle);
+		}else{
+			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
+		}
+
+		for( std::vector<ColladaSubmesh>::iterator submesh = model->subMeshes.begin(); submesh != model->subMeshes.end(); ++submesh ){
+			glVertexAttribPointer(AT_VERTEX,  3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), reinterpret_cast<void*>(submesh->vertexOffset + 0*sizeof(GLfloat)));
+			glVertexAttribPointer(AT_NORMAL,  3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), reinterpret_cast<void*>(submesh->vertexOffset + 3*sizeof(GLfloat)));
+			glVertexAttribPointer(AT_TEXCOORD,2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), reinterpret_cast<void*>(submesh->vertexOffset + 6*sizeof(GLfloat)));
+			glDrawElements(GL_TRIANGLES, submesh->indexCount, GL_UNSIGNED_SHORT, reinterpret_cast<void*>(submesh->indexOffset));
+		}
+	}
+
 	void Renderer::drawObject(SceneObject* obj, bool depthOnly){
 		if( obj->visible == false ) return;
 		const Model* model = obj->getModel();
 		if( model == 0 ) return;
+
+		if( model->modelType == Model::MODELTYPE_COLLADA && depthOnly == false ){
+			return drawColladaTest(obj);
+		}
+
 		const Mesh* mesh = model->getMesh();
 		if( mesh == 0 ) return;
 		const Material* material = model->getMaterial();

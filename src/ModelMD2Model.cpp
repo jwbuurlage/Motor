@@ -43,6 +43,7 @@ namespace Motor {
 
     
     MD2Model::MD2Model() { 
+		modelType = MODELTYPE_MD2;
         mesh = 0; 
         material = 0; 
         animated = false; 
@@ -52,6 +53,9 @@ namespace Motor {
         textureHandle = 0; 
         timetracker = 0.0f; 
     };
+
+	MD2Model::~MD2Model(){
+	};
     
     void MD2Model::setAnimation(struct AnimState* state, int _type) const {
 		state->type = _type;
