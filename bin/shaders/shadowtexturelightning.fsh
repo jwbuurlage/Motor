@@ -16,12 +16,10 @@ void main() {
         if( shadowCoordinateDivision.z < shadow2D(shadow, shadowCoordinateDivision.xyz).z ){
             lightFraction = (1.0-radiusSq)*max(0.0,dot(normalize(normalVarying), normalize(lightDirVarying)));;
         }
-    }else{
-		gl_FragColor = 0.3 * gl_Color * texture2D(tex, gl_TexCoord[0].st);
-	}
+    }
 	
 	//Ambient
 	lightFraction = min(lightFraction + 0.3, 1.0);
 	
-	gl_FragColor = lightFraction * gl_Color * texture2D(tex, gl_TexCoord[0].st);
+	gl_FragColor = lightFraction * texture2D(tex, gl_TexCoord[0].st) * gl_Color;
 }

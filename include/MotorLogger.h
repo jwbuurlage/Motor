@@ -64,7 +64,7 @@ namespace Motor {
 		return logger;
 	};
 	inline Logger& operator<<(Logger& logger, Logger& (*manipulatorFunc)(Logger&) ){
-		return manipulatorFunc(logger);;
+		return manipulatorFunc(logger);
 	};
 
 	inline Logger& operator<<(Logger& logger, Logger::LOGLEVEL lvl){
@@ -90,6 +90,7 @@ namespace Motor {
 		};
 		return logger;
 	}
+
 	//All << operations that stringstream can do:
 	template<class T>
 	inline Logger& operator<<(Logger& logger, const T& t){

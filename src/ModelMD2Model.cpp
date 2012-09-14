@@ -57,7 +57,8 @@ namespace Motor {
 	MD2Model::~MD2Model(){
 	};
     
-    void MD2Model::setAnimation(struct AnimState* state, int _type) const {
+    void MD2Model::setAnimation(AnimStateBase* _state, int _type) const {
+		MD2AnimState* state = (MD2AnimState*)_state;
 		state->type = _type;
 		state->fps = animationList[_type].fps;
 
@@ -72,25 +73,37 @@ namespace Motor {
 		}
 
         //reset timetracker
-        state->timetracker = 0.0f;
+        state->timer = 0.0f;
 
-		state->curr_frame = state->startframe;
-		state->next_frame = state->startframe + 1;
+		state->currentFrame = state->startframe;
+		state->nextFrame = state->startframe + 1;
     }
 
-    void MD2Model::updateAnimationState(AnimState* state, float timeElapsed) const {
+    void MD2Model::updateAnimationState(AnimStateBase* _state, float timeElapsed) const {
+		MD2AnimState* state = (MD2AnimState*)_state;
+
         float timeperframe = (float)1/state->fps;
         
-        state->timetracker += timeElapsed;
+        state->timer += timeElapsed;
         
-        if(state->timetracker > timeperframe) {
-            state->curr_frame = state->next_frame;
-            state->next_frame = state->curr_frame + 1;
-            if(state->next_frame > state->endframe) {
-                state->next_frame = state->startframe;
+        if(state->timer > timeperframe) {
+            state->currentFrame = state->nextFrame;
+            state->nextFrame = state->currentFrame + 1;
+            if(state->nextFrame > state->endframe) {
+                state->nextFrame = state->startframe;
             }
-            state->timetracker = 0.0f;
+            state->timer = 0.0f;
         }
     }
-    
+
+	float MD2Model::getInterpolation(AnimStateBase* state) const {
+		return ((MD2AnimState*)state)->timer * ((MD2AnimState*)state)->fps;
+	}
+	int MD2Model::getVertexOffset(AnimStateBase* state) const {
+		return ((MD2AnimState*)state)->currentFrame * verticesPerFrame() * 12 * 4;
+	}
+	int MD2Model::getNextFrameVertexOffset(AnimStateBase* state) const {
+		return ((MD2AnimState*)state)->nextFrame * verticesPerFrame() * 12 * 4;
+	}
+
 }

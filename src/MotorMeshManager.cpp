@@ -96,11 +96,11 @@ namespace Motor {
 		cubeMesh->hasNormal = true;
 		cubeMesh->vertexCount = 36;
 		cubeMesh->vertexBufferSize = sizeof(cubeVertexData);
-		cubeMesh->vertexBufferDataType = GL_FLOAT;
+		//cubeMesh->vertexBufferDataType = GL_FLOAT;
 		cubeMesh->primitiveType = GL_TRIANGLES;
 		cubeMesh->dimension = 3;
 		cubeMesh->stride = 48;
-		cubeMesh->vertexOffset = 0;
+		//cubeMesh->vertexOffset = 0;
         
 		cubeMesh->hasIndexBuffer = false;
 
@@ -266,11 +266,11 @@ namespace Motor {
         sphereMesh->hasNormal = true;
         sphereMesh->vertexCount = 6 * p * q;
         sphereMesh->vertexBufferSize = sizeof(sphereVertices);
-        sphereMesh->vertexBufferDataType = GL_FLOAT;
+        //sphereMesh->vertexBufferDataType = GL_FLOAT;
         sphereMesh->primitiveType = GL_TRIANGLES;
         sphereMesh->dimension = 3;
         sphereMesh->stride = 48;
-        sphereMesh->vertexOffset = 0;
+        //sphereMesh->vertexOffset = 0;
         
         //generating and binding the index buffer
         /* glGenBuffers(1, &CubeMesh.indexBuffer);
@@ -306,11 +306,11 @@ namespace Motor {
         planeMesh->hasNormal = true;
         planeMesh->vertexCount = 6;
         planeMesh->vertexBufferSize = sizeof(planeVertices);
-        planeMesh->vertexBufferDataType = GL_FLOAT;
+        //planeMesh->vertexBufferDataType = GL_FLOAT;
         planeMesh->primitiveType = GL_TRIANGLES;
         planeMesh->dimension = 3;
         planeMesh->stride = 48;
-        planeMesh->vertexOffset = 0;
+        //planeMesh->vertexOffset = 0;
         
         //setting indexbuffer value to false
         planeMesh->hasIndexBuffer = false;

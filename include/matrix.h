@@ -43,6 +43,10 @@ public:
 	//A *= B means A = (A*B)
 	mat& operator *= (const mat& m);
 	mat operator * (const mat& m) const;
+	mat& operator += (const mat& m);
+
+	//Scalar multiplication
+	inline mat scaledCopy(float scalar) const { mat copy(*this); for( unsigned int i = 0; i < 16; ++i ) copy.value[i] *= scalar; return copy; }
 	
 	mat& translate(float x, float y, float z);
 	mat& translate(const Vector3& vec);
@@ -74,3 +78,7 @@ public:
 	};
 
 };
+
+//For easily outputting a matrix to any stream
+#include <ostream>
+std::ostream& operator<<(std::ostream& stream, const mat& mat);

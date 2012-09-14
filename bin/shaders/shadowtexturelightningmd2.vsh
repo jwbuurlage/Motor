@@ -13,7 +13,7 @@ varying vec4 shadowCoordinate;
 
 uniform float interpolation;
 uniform mat4 mMatrix;
-uniform mat4 mvpMatrix;
+uniform mat4 vpMatrix;
 uniform mat4 lightViewProjMatrix;
 uniform vec3 lightPosition;
 
@@ -36,5 +36,5 @@ void main() {
 	colorVarying = color;
 	textureCoordinateVarying = textureCoordinate;
 	
-	gl_Position = mvpMatrix*interpolated_position;
+	gl_Position = vpMatrix*pos4;
 }

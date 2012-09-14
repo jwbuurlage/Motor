@@ -7,7 +7,7 @@ varying vec3 normalVarying;
 varying vec3 lightDirVarying;
 
 uniform mat4 mMatrix;
-uniform mat4 mvpMatrix;
+uniform mat4 vpMatrix;
 uniform mat4 lightViewProjMatrix;
 uniform vec3 lightPosition;
 
@@ -26,5 +26,5 @@ void main() {
     
 	gl_TexCoord[0].st = textureCoordinate;
 	
-	gl_Position = mvpMatrix*position;
+	gl_Position = vpMatrix*pos4;
 }

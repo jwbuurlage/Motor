@@ -17,16 +17,14 @@
 #include <vector>
 
 namespace Motor {
-    
-    struct AnimState {
-        int     startframe;              // first frame
-        int     endframe;                // last frame
-        int     fps;                     // frame per second for this animation
-        int     type;                    // animation type
-        int     curr_frame;              // current frame
-        int     next_frame;              // next frame
-        float   timetracker;
-    };
+
+    class AnimStateBase{
+	public:
+		AnimStateBase(){};
+		virtual ~AnimStateBase(){};
+		//virtual deconstructor so that deconstructor of subclass is called
+		//Because some subclasses contain std::vectors and so on
+	};
 
 	class Model;
 
@@ -56,7 +54,7 @@ namespace Motor {
 		void setModel(const Model* _model);
 		const Model* getModel() const { return model; }
         
-        AnimState* getState() const { return state; }
+		AnimStateBase* getState() const { return animationState; }
         
         void setAnimation(int anim);
         void update(float timeElapsed);
@@ -81,7 +79,7 @@ namespace Motor {
 		float yaw, pitch, roll; //The angles of the object. TODO: save in better form
 		float scale;
 
-        struct AnimState* state;
+        class AnimStateBase* animationState;
 
 		const Model* model;
 		//TODO:

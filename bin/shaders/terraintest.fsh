@@ -1,5 +1,6 @@
 uniform sampler2D heightMap;
-uniform sampler2D textureMap;uniform sampler2DShadow shadowMap;
+uniform sampler2D textureMap;
+uniform sampler2DShadow shadowMap;
 
 varying vec2 texCooVarying;
 varying vec3 normalVarying;
@@ -20,12 +21,12 @@ void main() {
             lightFraction = (1.0-radiusSq)*max(0.0,dot(normalize(normalVarying), normalize(lightDirVarying)));
         }
 	}
-	lightFraction = max(0.0,dot(normalize(normalVarying), normalize(lightDirVarying)));
+	//lightFraction = max(0.0,dot(normalize(normalVarying), normalize(lightDirVarying)));
 	
 	//Ambient
 	lightFraction = min(lightFraction + 0.25, 1.0);
 	
-  //  vec2 texCooGrass = mod(7.0*texCooVarying, 1.0);
+	vec2 texCooGrass = mod(7.0*texCooVarying, 1.0);
     
 	gl_FragColor = lightFraction * vec4(colorUniform, 1.0);
 }

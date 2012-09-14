@@ -47,7 +47,7 @@ vec3 MD2Model::anorms[] = {
 			return newModel;
 		}
 	}
-
+	
     Model* ModelManager::loadCOLLADA( const char* filename ){
 		const File* modelfile = Filesystem::getSingleton().getFile(filename);
 		if( modelfile == 0 ){
@@ -55,7 +55,8 @@ vec3 MD2Model::anorms[] = {
             return NULL;
 		}
 
-		Model* model = ColladaLoader::loadModel(filename, modelfile->data);
+		ColladaLoader loader;
+		Model* model = loader.loadModel(filename, modelfile->data);
 		if( model ) addResource(filename, model);
 
 		Filesystem::getSingleton().unloadFile(modelfile);
@@ -189,11 +190,11 @@ vec3 MD2Model::anorms[] = {
         modelMesh->hasIndexBuffer = false;
         modelMesh->vertexCount = model->triangleCount * 3;
         modelMesh->vertexBufferSize = sizeof(GLfloat) * model->triangleCount * 3 * 12;
-        modelMesh->vertexBufferDataType = GL_FLOAT;
+        //modelMesh->vertexBufferDataType = GL_FLOAT;
         modelMesh->primitiveType = GL_TRIANGLES;
         modelMesh->dimension = 3;
         modelMesh->stride = 48;
-        modelMesh->vertexOffset = 0;
+        //modelMesh->vertexOffset = 0;
         
         model->setMesh(modelMesh);
         

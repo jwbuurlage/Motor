@@ -5,6 +5,7 @@
 #include "MotorLight.h"
 #include "MotorParticleEffect.h"
 #include "MotorModel.h"
+#include "MotorMD2Model.h"
 #include "MotorColladaModel.h"
 #include "MotorMesh.h"
 #include "MotorMaterial.h"
@@ -27,8 +28,12 @@ enum {
     AT_NORMAL,
     AT_NORMAL_NEXT,
     AT_TEXCOORD,
-	AT_ALPHA
+	AT_ALPHA,
+	AT_BONEINDICES,
+	AT_BONEWEIGHTS
 };
+
+#define BUFFER_OFFSET(i) (reinterpret_cast<void*>(i))
 
 namespace Motor {
 	
@@ -164,6 +169,7 @@ namespace Motor {
 	}
 
 	bool Renderer::renderFrame(){
+
 		// Three render steps:
 		// 1. Render scene looking from the lights for shadow maps
 		// 2. Render scene from camera with shadow maps applied
@@ -204,6 +210,7 @@ namespace Motor {
 				drawObject( *iter, true );
 			}
         }
+
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
 			if( (*iter)->getModel() && !(*iter)->getModel()->isAnimated() ){
 				drawObject( *iter, true );
@@ -228,15 +235,19 @@ namespace Motor {
         shaderManager->setActiveProgram("shadowTextureLightning");
         shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
-        
         // set the same uniforms for animated objects 
         // (there is something called uniform buffer objects, which we might want to look into)
+		shaderManager->setActiveProgram("skeletalAnimation");
+        shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
+        shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);
         shaderManager->setActiveProgram("shadowTextureLightningMD2");
         shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
         shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);        
 
 		projViewMatrix = projectionMatrix;
 		projViewMatrix *= viewMatrix;
+
+		checkErrors();
 
         for( ObjectIterator iter = objects->begin(); iter != objects->end(); ++iter ){
 			if( (*iter)->getModel() && (*iter)->getModel()->isAnimated() ){
@@ -248,6 +259,8 @@ namespace Motor {
 				drawObject( *iter, false );
 			}
 		}
+
+		checkErrors();
 
 		//
 		// Terrain test
@@ -289,127 +302,118 @@ namespace Motor {
 		return true;
 	}
 
-	void Renderer::drawColladaTest(SceneObject* obj){
-		ColladaModel* model = (ColladaModel*)obj->getModel();
-		shaderManager->setActiveProgram("shadowTextureLightning");
+	void Renderer::drawObject(SceneObject* obj, bool depthOnly){
+		if( obj->visible == false ) return;
+		const Model* model = obj->getModel();
+		if( model == 0 ) return;
+		const Mesh* mesh = model->getMesh();
+		if( mesh == 0 ) return;
+		const Material* material = model->getMaterial();
 
+		//For non-skeletal animation:
+		bool animation = false;
+		int vertexOffset = 0;
+		int vertexOffsetNext = 0;
+
+		if( model->modelType == Model::MODELTYPE_COLLADA ){
+			if( depthOnly == true ) return; //No support for this yet
+
+			ColladaModel* colladaModel = (ColladaModel*)model;
+			if( colladaModel->skeletonEnabled ){
+				shaderManager->setActiveProgram("skeletalAnimation");
+
+				int matrixCount = colladaModel->joints.size();
+				if( matrixCount > 50 ) matrixCount = 50; //shader limitation
+				//This is where the matrix data for this frame is generated!
+				//The call to getCurrentMatrixData() will generate all matrices for the current frame
+				glUniformMatrix4fv(shaderManager->getActiveProgram()->getUniformLocation("boneMatrices"), matrixCount, GL_FALSE, colladaModel->getCurrentMatrixData(obj->getState()));
+			}else{
+				shaderManager->setActiveProgram("shadowTextureLightning");
+			}
+
+		}else{
+			//Note: Even when model is not animated, state might still be valid pointer
+			//if a SceneObject is first given an animated model
+			//and later a non-animated model. So also check model->isAnimated
+			if(obj->getState() && model->isAnimated()){
+				animation = true;
+
+				if(depthOnly){
+					shaderManager->setActiveProgram("shadowMapMD2");
+				}else{
+					shaderManager->setActiveProgram("shadowTextureLightningMD2");
+				}
+
+				shaderManager->getActiveProgram()->setUniform1f("interpolation", model->getInterpolation(obj->getState()));
+				vertexOffset = model->getVertexOffset(obj->getState());
+				vertexOffsetNext = model->getNextFrameVertexOffset(obj->getState());
+			}else{
+				animation = false;
+
+				if(depthOnly){
+					shaderManager->setActiveProgram("shadowMap");
+				}else{
+					shaderManager->setActiveProgram("shadowTextureLightning");
+				}
+			}
+		}
 		const mat& mMatrix = obj->getFullMoveMatrix();
-		shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", projViewMatrix * mMatrix);
-		shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+        
+		if( depthOnly )
+			shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", projViewMatrix * mMatrix);
+		else{
+			shaderManager->getActiveProgram()->setUniformMatrix4fv("vpMatrix", projViewMatrix);
+            shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
+		}
 
-		//For now the buffer is just a memory pointer, not in video memory buffer
-		glBindBuffer(GL_ARRAY_BUFFER, model->vertexBufferHandle);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->indexBufferHandle);
+		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 
-		Material* material = model->getMaterial();
 		if( material && material->texture ){
 			glBindTexture(GL_TEXTURE_2D, material->texture->handle);
 		}else{
 			glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
 		}
 
-		for( std::vector<ColladaSubmesh>::iterator submesh = model->subMeshes.begin(); submesh != model->subMeshes.end(); ++submesh ){
-			glVertexAttribPointer(AT_VERTEX,  3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), reinterpret_cast<void*>(submesh->vertexOffset + 0*sizeof(GLfloat)));
-			glVertexAttribPointer(AT_NORMAL,  3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), reinterpret_cast<void*>(submesh->vertexOffset + 3*sizeof(GLfloat)));
-			glVertexAttribPointer(AT_TEXCOORD,2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), reinterpret_cast<void*>(submesh->vertexOffset + 6*sizeof(GLfloat)));
-			glDrawElements(GL_TRIANGLES, submesh->indexCount, GL_UNSIGNED_SHORT, reinterpret_cast<void*>(submesh->indexOffset));
-		}
-	}
+		if( model->modelType == Model::MODELTYPE_COLLADA ){
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+			ColladaModel* colladaModel = (ColladaModel*)model;
+			for( std::vector<ColladaSubmesh>::iterator submesh = colladaModel->subMeshes.begin(); submesh != colladaModel->subMeshes.end(); ++submesh ){
+				glVertexAttribPointer(AT_VERTEX,  3, GL_FLOAT, GL_FALSE, colladaModel->getVBOstride(), BUFFER_OFFSET(submesh->vertexOffset + 0*sizeof(GLfloat)));
+				glVertexAttribPointer(AT_NORMAL,  3, GL_FLOAT, GL_FALSE, colladaModel->getVBOstride(), BUFFER_OFFSET(submesh->vertexOffset + 3*sizeof(GLfloat)));
+				glVertexAttribPointer(AT_TEXCOORD,2, GL_FLOAT, GL_FALSE, colladaModel->getVBOstride(), BUFFER_OFFSET(submesh->vertexOffset + 6*sizeof(GLfloat)));
+				if( colladaModel->skeletonEnabled ){
+					glVertexAttribPointer(AT_BONEINDICES, 4, GL_FLOAT, GL_FALSE, colladaModel->getVBOstride(), BUFFER_OFFSET(submesh->vertexOffset + 8*sizeof(GLfloat)));
+					glVertexAttribPointer(AT_BONEWEIGHTS, 4, GL_FLOAT, GL_FALSE, colladaModel->getVBOstride(), BUFFER_OFFSET(submesh->vertexOffset + 12*sizeof(GLfloat)));
+				}
+				glDrawElements(GL_TRIANGLES, submesh->indexCount, GL_UNSIGNED_SHORT, reinterpret_cast<void*>(submesh->indexOffset));
+			}
+		}else{
 
-	void Renderer::drawObject(SceneObject* obj, bool depthOnly){
-		if( obj->visible == false ) return;
-		const Model* model = obj->getModel();
-		if( model == 0 ) return;
+			glVertexAttribPointer(AT_VERTEX, mesh->dimension, GL_FLOAT, false, mesh->stride, BUFFER_OFFSET(vertexOffset));
 
-		if( model->modelType == Model::MODELTYPE_COLLADA && depthOnly == false ){
-			return drawColladaTest(obj);
-		}
+			if( depthOnly == false ){
+				if( mesh->hasColor )
+					glVertexAttribPointer(AT_COLOR, 4, GL_FLOAT, false, mesh->stride, BUFFER_OFFSET(12));
 
-		const Mesh* mesh = model->getMesh();
-		if( mesh == 0 ) return;
-		const Material* material = model->getMaterial();
-        
-        bool animation = false;
-        int vertexOffset = 0;
-        int vertexOffsetNext = 0;
-        
-		//Note: state might still be valid pointer if a SceneObject is first given an animated model
-		//and later a non-animated model. So also check model->isAnimated
-		if(obj->getState() && model->isAnimated()) {
-            if(depthOnly) {
-                shaderManager->setActiveProgram("shadowMapMD2");
-            }
-            else {
-                shaderManager->setActiveProgram("shadowTextureLightningMD2");
-            }
+				if( mesh->hasNormal )
+					glVertexAttribPointer(AT_NORMAL, 3, GL_FLOAT, false, mesh->stride, BUFFER_OFFSET(28));
 
-            float interpolation = obj->getState()->timetracker * obj->getState()->fps;
-            
-            shaderManager->getActiveProgram()->setUniform1f("interpolation", interpolation);
-            
-            animation = true;
-            if(obj->getState()->curr_frame > -1) {
-                vertexOffset = obj->getState()->curr_frame * (model->verticesPerFrame()) * 12 * 4;
-                vertexOffsetNext = obj->getState()->next_frame * (model->verticesPerFrame()) * 12 * 4;
-            }
-        }
-        else {
-            if(depthOnly) {
-                shaderManager->setActiveProgram("shadowMap");
-            }
-            else {
-                shaderManager->setActiveProgram("shadowTextureLightning");
-            }
-            animation = false;
-        }
-
-		const mat& mMatrix = obj->getFullMoveMatrix();
-        
-        shaderManager->getActiveProgram()->setUniformMatrix4fv("mvpMatrix", projViewMatrix * mMatrix);
-        if(depthOnly == false)
-            shaderManager->getActiveProgram()->setUniformMatrix4fv("mMatrix", mMatrix);
-
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
-
-		shaderManager->getActiveProgram()->vertexAttribPointer(
-            AT_VERTEX, mesh->dimension, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset));
-
-		if( depthOnly == false ){
-			if( mesh->hasColor )
-				shaderManager->getActiveProgram()->vertexAttribPointer(
-					AT_COLOR, 4, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 12));
-
-			if( mesh->hasNormal )
-				shaderManager->getActiveProgram()->vertexAttribPointer(
-					AT_NORMAL, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffset + 28));
-
-			if( material && material->texture ){
-				glBindTexture(GL_TEXTURE_2D, material->texture->handle);
-			}else{
-				glBindTexture(GL_TEXTURE_2D, TextureManager::getSingleton().getTexture("default")->handle);
+				glVertexAttribPointer(AT_TEXCOORD, 2, GL_FLOAT, false, mesh->stride, BUFFER_OFFSET(40));
 			}
 
-			shaderManager->getActiveProgram()->vertexAttribPointer(
-				AT_TEXCOORD,
-				2,
-				mesh->vertexBufferDataType,
-				false,
-				mesh->stride,
-				reinterpret_cast<GLvoid*>(vertexOffset + 40));
-		}
+			if(animation){
+				glVertexAttribPointer(AT_VERTEX_NEXT, 3, GL_FLOAT, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
+				glVertexAttribPointer(AT_NORMAL_NEXT, 3, GL_FLOAT, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
+			}
 
-        if(animation){
-			shaderManager->getActiveProgram()->vertexAttribPointer(AT_VERTEX_NEXT, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext));
-			shaderManager->getActiveProgram()->vertexAttribPointer(AT_NORMAL_NEXT, 3, mesh->vertexBufferDataType, false, mesh->stride, reinterpret_cast<GLvoid*>(vertexOffsetNext + 28));
-        }
-
-		if( mesh->hasIndexBuffer ){
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
-			glDrawElements(mesh->primitiveType, mesh->indexCount, mesh->indexBufferDataType, 0);
-		} else{
-			glDrawArrays(mesh->primitiveType, 0, mesh->vertexCount);
-		}
+			if( mesh->hasIndexBuffer ){
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+				glDrawElements(mesh->primitiveType, mesh->indexCount, mesh->indexBufferDataType, 0);
+			} else{
+				glDrawArrays(mesh->primitiveType, 0, mesh->vertexCount);
+			}
         
+		}
 		return;
 	}
 	
@@ -573,7 +577,20 @@ namespace Motor {
 				shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
 			}else success = false;
 		}else success = false;
-        
+
+		if( shaderManager->makeShaderProgram("skeletalAnimation", "shaders/collada.vsh", "shaders/shadowtexturelightning.fsh") ){
+			shaderManager->bindAttrib("skeletalAnimation", "textureCoordinate", AT_TEXCOORD);
+			shaderManager->bindAttrib("skeletalAnimation", "position", AT_VERTEX);
+			shaderManager->bindAttrib("skeletalAnimation", "normal", AT_NORMAL);
+			shaderManager->bindAttrib("skeletalAnimation", "indices", AT_BONEINDICES);
+			shaderManager->bindAttrib("skeletalAnimation", "weights", AT_BONEWEIGHTS);
+			if( shaderManager->linkProgram("skeletalAnimation") ){
+				shaderManager->setActiveProgram("skeletalAnimation");
+				shaderManager->getActiveProgram()->setUniform1i("tex", 0);
+				shaderManager->getActiveProgram()->setUniform1i("shadow", 7);
+			}else success = false;
+		}else success = false;
+
 		ShaderManager::ShaderProgram* MD2Shader = shaderManager->makeShaderProgram("shadowTextureLightningMD2", "shaders/shadowtexturelightningmd2.vsh", "shaders/shadowtexturelightningmd2.fsh");
         if( MD2Shader ){
 			MD2Shader->bindAttrib(AT_TEXCOORD, "textureCoordinate");
@@ -640,7 +657,7 @@ namespace Motor {
 		fov = 100.0f * (float)M_PI/180.0f;
 		xmax = near * (float)tan(0.5f*fov);
 		xmin = -xmax;
-		far = 50.0f;
+		far = 80.0f;
         projectionMatrixShadow.setPerspective(xmin, xmax, xmin, xmax, near, far);
     }
 }

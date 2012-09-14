@@ -132,7 +132,6 @@ namespace Motor {
 				delete[] infoLog;
 
 				Logger::getSingleton() << endLog;
-
 			}
 		}
 		return linked;

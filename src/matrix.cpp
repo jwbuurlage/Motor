@@ -60,6 +60,11 @@ Vector3 mat::multiplyVecDivideW(const Vector3& vec){
 	return result;
 }
 
+mat& mat::operator += (const mat& m){
+	for( unsigned int i = 0; i < 16; ++i ) value[i] += m.value[i];
+	return *this;
+}
+
 mat& mat::translate(float x, float y, float z) {
     e[3][0] += x;
     e[3][1] += y;
@@ -226,4 +231,18 @@ mat& mat::setInversePerspective(float left, float right, float bottom, float top
     e[2][3] = (near-far)/(2*far*near);
     e[3][2] = -1.0;
 	return *this;
+}
+
+#include <iomanip>
+
+std::ostream& operator<<(std::ostream& stream, const mat& mat){
+	std::streamsize old_precision = stream.precision(1);
+	stream.fill(' ');
+	stream.setf(std::ios::fixed, std::ios::floatfield);
+	stream << std::setw(5) << mat.e[0][0] << ' ' << std::setw(5) << mat.e[1][0] << ' ' << std::setw(5) << mat.e[2][0] << ' ' << std::setw(5) << mat.e[3][0] << '\n';
+	stream << std::setw(5) << mat.e[0][1] << ' ' << std::setw(5) << mat.e[1][1] << ' ' << std::setw(5) << mat.e[2][1] << ' ' << std::setw(5) << mat.e[3][1] << '\n';
+	stream << std::setw(5) << mat.e[0][2] << ' ' << std::setw(5) << mat.e[1][2] << ' ' << std::setw(5) << mat.e[2][2] << ' ' << std::setw(5) << mat.e[3][2] << '\n';
+	stream << std::setw(5) << mat.e[0][3] << ' ' << std::setw(5) << mat.e[1][3] << ' ' << std::setw(5) << mat.e[2][3] << ' ' << std::setw(5) << mat.e[3][3] << '\n';
+	stream.precision(old_precision);
+	return stream;
 }

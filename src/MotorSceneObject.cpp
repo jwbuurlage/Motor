@@ -11,13 +11,13 @@ namespace Motor {
 		visible = true;
 		scale = 1.0f;
 		model = 0;
-        state = 0;
+        animationState = 0;
 	}
 
 	SceneObject::~SceneObject(){
-		//Note: child note deletion is done by Scene
-        if(state) {
-            delete state;
+		//Note: child node deletion is done by Scene
+        if(animationState) {
+            delete animationState;
         }
 	}
 
@@ -47,23 +47,26 @@ namespace Motor {
 	}
     
     void SceneObject::setModel(const Motor::Model *_model) {
-        model = _model;
-        if( model && model->isAnimated() ) {
-            setAnimation(0);
-        }
+		if( model != _model ){ //Only if new model
+			model = _model;
+			//We might need a different subclass of AnimStateBase
+			if( animationState ) delete animationState;
+			animationState = 0;
+			if( model && model->isAnimated() ) {
+				animationState = model->createAnimationState();
+				setAnimation(0);
+			}
+		}
     }
     
     void SceneObject::setAnimation(int anim) {
-        if(!state)
-            state = new AnimState;
-        if( model )
-			model->setAnimation(state, anim);
+		if( model && animationState )
+			model->setAnimation(animationState, anim);
     }
 
     void SceneObject::update(float timeElapsed) {
-        if(state && model) {
-            model->updateAnimationState(state, timeElapsed);
-        }
+		if( model && animationState )
+			model->updateAnimationState(animationState, timeElapsed);
     }
 
 	const mat& SceneObject::getMoveMatrix(){

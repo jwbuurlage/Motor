@@ -5,7 +5,8 @@
 #include "MotorMaterial.h"
 
 namespace Motor {
-    struct AnimState;
+
+	class AnimStateBase;
 
 	class Model{
 	public:
@@ -36,10 +37,16 @@ namespace Motor {
 		}
 		Material* getMaterial() const { return material; }
         
-        virtual void updateAnimationState(struct AnimState* state, float timeElapsed) const { };
-        virtual void setAnimation(struct AnimState* state, int _type) const { };
+		//This will create a specific subclass of AnimStateBase
+		virtual AnimStateBase* createAnimationState() const { return 0; };
+        virtual void updateAnimationState(AnimStateBase* state, float timeElapsed) const { };
+        virtual void setAnimation(AnimStateBase* state, int _type) const { };
         
         virtual int verticesPerFrame() const { return 0; }
+
+		virtual float getInterpolation(AnimStateBase* state) const { return 0; }
+		virtual int getVertexOffset(AnimStateBase* state) const { return 0; }
+		virtual int getNextFrameVertexOffset(AnimStateBase* state) const { return 0; }
         
         bool isAnimated() const { return animated; }
         bool animated;

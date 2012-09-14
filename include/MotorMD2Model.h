@@ -7,9 +7,21 @@
 //
 
 #pragma once
+#include "MotorSceneObject.h"
 
 namespace Motor {
-    struct AnimState;
+
+    class MD2AnimState : public AnimStateBase {
+	public:
+        int     startframe;              // first frame
+        int     endframe;                // last frame
+        int     fps;                     // frame per second for this animation
+        int     type;                    // animation type
+		int		currentFrame;
+		int		nextFrame;
+		float	timer;
+	};
+
     
     typedef GLfloat vec3[3];
     
@@ -112,11 +124,16 @@ namespace Motor {
         int triangleCount;
         int textureHandle;
         
-        virtual void updateAnimationState(struct AnimState* state, float timeElapsed) const;
-        virtual void setAnimation(struct AnimState* state, int _type) const;
+		AnimStateBase* createAnimationState() const { return new MD2AnimState; }
+        virtual void updateAnimationState(AnimStateBase* state, float timeElapsed) const;
+        virtual void setAnimation(AnimStateBase* state, int _type) const;
         
         virtual int verticesPerFrame() const { return triangleCount * 3; }
         
+		float getInterpolation(AnimStateBase* state) const;
+		int getVertexOffset(AnimStateBase* state) const;
+		int getNextFrameVertexOffset(AnimStateBase* state) const;
+
         static vec3 anorms[162];
         
     private:

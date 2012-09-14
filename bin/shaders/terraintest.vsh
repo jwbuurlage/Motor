@@ -25,6 +25,7 @@ void main() {
 	pos4.z = texCooVarying.t;
 	pos4.w = 1.0;
 	vec4 position = mMatrix * pos4;
+	position.y -= 10.0;
 	
 	//The texture coordinates of this vertex on the shadow map.
 	//Still have to divide by w but this is done in the fragment shader

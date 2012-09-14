@@ -58,9 +58,12 @@ namespace Demo {
 		localPlayer->sceneObj = motorRoot->getScene()->createObject();
 		Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(localPlayer->sceneObj);
 		jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
-		jeepObject->setScale(0.001f);
+		jeepObject->setScale(0.01f);
 		jeepObject->setYaw(1.5708f);
-		localPlayer->sceneObj->setPosition( Vector3(0.0f,-3.0f,0.0f) );
+		//localPlayer->sceneObj->setPosition( Vector3(0.0f,-3.0f,0.0f) );
+		//localPlayer->sceneObj->setModel(Motor::ModelManager::getSingleton().getModel("models/tiefighter.dae"));
+		//localPlayer->sceneObj->setScale(0.08f);
+
         
 //        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
 //        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
@@ -74,15 +77,40 @@ namespace Demo {
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
 		cubeModel->setMaterial( derpMat );
         
-        Motor::SceneObject* colladaModel = motorRoot->getScene()->createObject();
-        colladaModel->setScale(2.0f);
-        colladaModel->setModel( Motor::ModelManager::getSingleton().getModel("models/astroBoy_walk.dae"));
-        colladaModel->setPosition( Vector3( 5.0f, -0.7f, -5.0f ) );
+		Motor::SceneObject* colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/cow.dae"));
+		colladaModel->setScale(2.0f);
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, -20.0f ) );
+		
+		colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/astroBoy_walk.dae"));
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 0.0f ) );
+		colladaModel->setPitch(-(float)M_PI*0.5f);
 
-        Motor::SceneObject* colladaModel2 = motorRoot->getScene()->createObject();
-        colladaModel2->setScale(2.0f);
-        colladaModel2->setModel(Motor::ModelManager::getSingleton().getModel("models/cow.dae"));
-        colladaModel2->setPosition( Vector3( -10.0f, 0.0f, -5.0f ) );
+		colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/duck_triangulate.dae"));
+		colladaModel->setScale(0.02f);
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 20.0f ) );
+
+		colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/guitar.dae"));
+		colladaModel->setScale(0.01f);
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 30.0f ) );
+		
+		colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/modelo.dae"));
+		colladaModel->setScale(0.01f);
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 40.0f ) );
+
+		colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/neuro.dae"));
+		colladaModel->setScale(0.01f);
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 50.0f ) );
+
+		colladaModel = motorRoot->getScene()->createObject();
+		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/tiefighter.dae"));
+		colladaModel->setScale(0.08f);
+		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 60.0f ) );
 
         Motor::SceneObject* hepModel = motorRoot->getScene()->createObject();
         hepModel->setScale(0.1f);
@@ -199,7 +227,7 @@ namespace Demo {
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
 			mainLights[0]->position.x = 20.0f*sin(2.0f*tempLightTimer);
-            mainLights[0]->position.y = 50.0f + 9.0f*cos(0.5f*tempLightTimer);
+            mainLights[0]->position.y = 9.0f + 2.0f*cos(0.5f*tempLightTimer);
 			mainLights[0]->position.z = 20.0f*cos(2.0f*tempLightTimer);
 			if( tempObjects[0] ){
 				tempObjects[0]->setPosition( mainLights[0]->position );
@@ -245,6 +273,8 @@ namespace Demo {
             case 'd': rotatingRight = keyDown;	break;
             case 'q': goingLeft = keyDown;		DirectionChanged = true; break;
             case 'e': goingRight = keyDown;		DirectionChanged = true; break;
+			case 'z': goingDown = keyDown;		DirectionChanged = true; break;
+			case 'x': goingUp = keyDown;		DirectionChanged = true; break;
 			case 'f': usingTurbo = keyDown;		break;
             case 't': motorRoot->stopRendering(); break;  
 			case 'r':
