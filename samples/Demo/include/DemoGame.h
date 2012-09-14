@@ -24,7 +24,7 @@ namespace Demo {
 		
 		void onFrame(float elapsedTime);
 
-		bool keyDown(int key, bool keyDown);
+		bool keyDown(sf::Keyboard::Key key, bool keyDown);
 		bool mouseDown(Motor::MOUSEBUTTON button, bool buttonDown, int x, int y);
 		bool mouseWheelMoved(int delta);
 		bool mouseMoved(int x, int y, int dx, int dy);

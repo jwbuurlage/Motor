@@ -64,24 +64,24 @@ namespace Demo {
 		//localPlayer->sceneObj->setModel(Motor::ModelManager::getSingleton().getModel("models/tiefighter.dae"));
 		//localPlayer->sceneObj->setScale(0.08f);
 
-        
-//        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
-//        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
-//        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
-//        planeCopy->setMaterial(baanMat);
-//        plane->setModel(planeCopy);
-//        plane->setScale(3.0f);
-//        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
-        
+
+		//        Motor::SceneObject* plane = motorRoot->getScene()->createObject();
+		//        Motor::Model* planeCopy = Motor::ModelManager::getSingleton().createModelCopy("plane", "planecopy");
+		//        Motor::Material* baanMat = Motor::MaterialManager::getSingleton().getMaterial("textures/stone.tga");
+		//        planeCopy->setMaterial(baanMat);
+		//        plane->setModel(planeCopy);
+		//        plane->setScale(3.0f);
+		//        plane->setPosition( Vector3(0.0f,-3.0f,0.0f) );
+
 		Motor::Model* cubeModel = Motor::ModelManager::getSingleton().createModelCopy("sphere", "derpcube");
 		Motor::Material* derpMat = Motor::MaterialManager::getSingleton().getMaterial("textures/wood.tga");
 		cubeModel->setMaterial( derpMat );
-        
+
 		Motor::SceneObject* colladaModel = motorRoot->getScene()->createObject();
 		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/cow.dae"));
 		colladaModel->setScale(2.0f);
 		colladaModel->setPosition( Vector3( -20.0f, 5.0f, -20.0f ) );
-		
+
 		colladaModel = motorRoot->getScene()->createObject();
 		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/astroBoy_walk.dae"));
 		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 0.0f ) );
@@ -96,7 +96,7 @@ namespace Demo {
 		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/guitar.dae"));
 		colladaModel->setScale(0.01f);
 		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 30.0f ) );
-		
+
 		colladaModel = motorRoot->getScene()->createObject();
 		colladaModel->setModel(Motor::ModelManager::getSingleton().getModel("models/modelo.dae"));
 		colladaModel->setScale(0.01f);
@@ -112,36 +112,36 @@ namespace Demo {
 		colladaModel->setScale(0.08f);
 		colladaModel->setPosition( Vector3( -20.0f, 5.0f, 60.0f ) );
 
-        Motor::SceneObject* hepModel = motorRoot->getScene()->createObject();
-        hepModel->setScale(0.1f);
-        hepModel->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
-        hepModel->setPosition( Vector3( 5.0f, -0.7f, 5.0f ) );
+		Motor::SceneObject* hepModel = motorRoot->getScene()->createObject();
+		hepModel->setScale(0.1f);
+		hepModel->setModel( Motor::ModelManager::getSingleton().getModel("Hep"));
+		hepModel->setPosition( Vector3( 5.0f, -0.7f, 5.0f ) );
 
-        Motor::SceneObject* archvileModel = motorRoot->getScene()->createObject();
-        archvileModel->setScale(0.1f);
-        archvileModel->setModel( Motor::ModelManager::getSingleton().getModel("Imp"));
-        archvileModel->setPosition( Vector3( -5.0f, -0.7f, 5.0f ) );
+		Motor::SceneObject* archvileModel = motorRoot->getScene()->createObject();
+		archvileModel->setScale(0.1f);
+		archvileModel->setModel( Motor::ModelManager::getSingleton().getModel("Imp"));
+		archvileModel->setPosition( Vector3( -5.0f, -0.7f, 5.0f ) );
 
-        Motor::SceneObject* bosscubeModel = motorRoot->getScene()->createObject();
-        bosscubeModel->setScale(0.2f);
-        bosscubeModel->setModel( Motor::ModelManager::getSingleton().getModel("Bosscube"));
-        bosscubeModel->setPosition( Vector3( -10.0f, -0.7f, 5.0f ) );
-        
-        Motor::SceneObject* cyberModel = motorRoot->getScene()->createObject();
-        cyberModel->setScale(0.05f);
-        cyberModel->setModel( Motor::ModelManager::getSingleton().getModel("Cyber"));
-        cyberModel->setPosition( Vector3( 10.0f, -0.7f, 5.0f ) );
+		Motor::SceneObject* bosscubeModel = motorRoot->getScene()->createObject();
+		bosscubeModel->setScale(0.2f);
+		bosscubeModel->setModel( Motor::ModelManager::getSingleton().getModel("Bosscube"));
+		bosscubeModel->setPosition( Vector3( -10.0f, -0.7f, 5.0f ) );
 
-        Motor::SceneObject* lostSoulModel = motorRoot->getScene()->createObject();
-        lostSoulModel->setScale(0.2f);
-        lostSoulModel->setModel( Motor::ModelManager::getSingleton().getModel("Lost_Soul"));
-        lostSoulModel->setPosition( Vector3( 0.0f, 6.0f, -25.0f ) );
+		Motor::SceneObject* cyberModel = motorRoot->getScene()->createObject();
+		cyberModel->setScale(0.05f);
+		cyberModel->setModel( Motor::ModelManager::getSingleton().getModel("Cyber"));
+		cyberModel->setPosition( Vector3( 10.0f, -0.7f, 5.0f ) );
+
+		Motor::SceneObject* lostSoulModel = motorRoot->getScene()->createObject();
+		lostSoulModel->setScale(0.2f);
+		lostSoulModel->setModel( Motor::ModelManager::getSingleton().getModel("Lost_Soul"));
+		lostSoulModel->setPosition( Vector3( 0.0f, 6.0f, -25.0f ) );
 		lostSoulModel->setYaw((float)M_PI); //rotated 180 degrees
 
-        Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
-        md2model2->setScale(0.1f);
-        md2model2->setModel(Motor::ModelManager::getSingleton().getModel("Ogros"));
-        md2model2->setPosition( Vector3( -5.0f, -0.7f, -5.0f ) );
+		Motor::SceneObject* md2model2 = motorRoot->getScene()->createObject();
+		md2model2->setScale(0.1f);
+		md2model2->setModel(Motor::ModelManager::getSingleton().getModel("Ogros"));
+		md2model2->setPosition( Vector3( -5.0f, -0.7f, -5.0f ) );
 
 
 		for( int i = 0; i < ballCount; ++i ){
@@ -193,14 +193,14 @@ namespace Demo {
 		doNetworkStuff(elapsedTime);
 
 		if( localPlayer ){
-            Motor::Camera* cam = motorRoot->getScene()->getCamera();
+			Motor::Camera* cam = motorRoot->getScene()->getCamera();
 			const Vector3& playerPos = localPlayer->sceneObj->getPosition();
 
 			if( effects[0] ){
 				effects[0]->origin = playerPos;
 				effects[0]->emitRate = (usingTurbo ? 50.0f : 5.0f);
 			}
-			
+
 			//For normal speeds, friction force proportional to the speed
 			if( localPlayer->movement.squaredLength() > 1.0f ){
 				Vector3 frictionVec( - 3.0f * localPlayer->movement );
@@ -209,7 +209,7 @@ namespace Demo {
 				Vector3 frictionVec( - 3.0f * localPlayer->movement.normalisedCopy() );
 				localPlayer->movement += frictionVec * elapsedTime;
 			}
-			
+
 			if( cam ){
 				cam->setTargetLocation(playerPos, false);
 				if( rotatingLeft && !rotatingRight ){
@@ -227,7 +227,7 @@ namespace Demo {
 		tempLightTimer += elapsedTime;
 		if( mainLights[0] ){
 			mainLights[0]->position.x = 20.0f*sin(2.0f*tempLightTimer);
-            mainLights[0]->position.y = 9.0f + 2.0f*cos(0.5f*tempLightTimer);
+			mainLights[0]->position.y = 9.0f + 2.0f*cos(0.5f*tempLightTimer);
 			mainLights[0]->position.z = 20.0f*cos(2.0f*tempLightTimer);
 			if( tempObjects[0] ){
 				tempObjects[0]->setPosition( mainLights[0]->position );
@@ -261,31 +261,32 @@ namespace Demo {
 		return;
 	}
 
-	bool Game::keyDown(int key, bool keyDown){
+	bool Game::keyDown(sf::Keyboard::Key key, bool keyDown){
 		bool keyHandled = true;
 
 		bool DirectionChanged = false;
 
 		switch( key ){
-            case 'w': goingForward = keyDown;	DirectionChanged = true; break;
-            case 's': goingBackward = keyDown;	DirectionChanged = true; break;
-            case 'a': rotatingLeft = keyDown;	break;
-            case 'd': rotatingRight = keyDown;	break;
-            case 'q': goingLeft = keyDown;		DirectionChanged = true; break;
-            case 'e': goingRight = keyDown;		DirectionChanged = true; break;
-			case 'z': goingDown = keyDown;		DirectionChanged = true; break;
-			case 'x': goingUp = keyDown;		DirectionChanged = true; break;
-			case 'f': usingTurbo = keyDown;		break;
-            case 't': motorRoot->stopRendering(); break;  
-			case 'r':
-				if( keyDown && effects[0] ){
-					if( effects[0]->isEnabled() ) effects[0]->disable();
-					else effects[0]->enable();
-				}
-				break;
-		default:
-			keyHandled = false;
-			break;
+			case sf::Keyboard::W: goingForward = keyDown;	DirectionChanged = true; break;
+			case sf::Keyboard::S: goingBackward = keyDown;	DirectionChanged = true; break;
+			case sf::Keyboard::A: rotatingLeft = keyDown;	break;
+			case sf::Keyboard::D: rotatingRight = keyDown;	break;
+			case sf::Keyboard::Q: goingLeft = keyDown;		DirectionChanged = true; break;
+			case sf::Keyboard::E: goingRight = keyDown;		DirectionChanged = true; break;
+			case sf::Keyboard::Z: goingDown = keyDown;		DirectionChanged = true; break;
+			case sf::Keyboard::X: goingUp = keyDown;		DirectionChanged = true; break;
+			case sf::Keyboard::F: usingTurbo = keyDown;		break;
+			case sf::Keyboard::Escape:
+			case sf::Keyboard::T: motorRoot->stopRendering(); break;
+			case sf::Keyboard::C:
+								  if( keyDown && effects[0] ){
+									  if( effects[0]->isEnabled() ) effects[0]->disable();
+									  else effects[0]->enable();
+								  }
+								  break;
+			default:
+								  keyHandled = false;
+								  break;
 		}
 
 		if( DirectionChanged ){
@@ -342,12 +343,12 @@ namespace Demo {
 		return false;
 	}
 
-//PACKET COMMAND CODES
-const int YOURCLIENTID		= 999;
-const int PLAYERLIST		= 1000;
-const int NEWPLAYER			= 1001;
-const int PLAYERDISCONNECT	= 1002;
-const int MOVEMENTUPDATE	= 1003;
+	//PACKET COMMAND CODES
+	const int YOURCLIENTID		= 999;
+	const int PLAYERLIST		= 1000;
+	const int NEWPLAYER			= 1001;
+	const int PLAYERDISCONNECT	= 1002;
+	const int MOVEMENTUPDATE	= 1003;
 
 	void Game::doNetworkStuff(float elapsedTime){
 		if( !connected ){
@@ -410,21 +411,40 @@ const int MOVEMENTUPDATE	= 1003;
 		unsigned int packetCmd;
 		*pak >> packetCmd;
 		switch( packetCmd ){
-		case YOURCLIENTID:
-			*pak >> myClientID;
-			break;
-		case PLAYERLIST:
-			{
-				//clear old list:
-				for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
-					if( remotePlayers[i].sceneObj )
-						motorRoot->getScene()->deleteObject(remotePlayers[i].sceneObj);
-				}
-				remotePlayers.clear();
+			case YOURCLIENTID:
+				*pak >> myClientID;
+				break;
+			case PLAYERLIST:
+				{
+					//clear old list:
+					for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+						if( remotePlayers[i].sceneObj )
+							motorRoot->getScene()->deleteObject(remotePlayers[i].sceneObj);
+					}
+					remotePlayers.clear();
 
-				unsigned int playerCount;
-				*pak >> playerCount;
-				for( unsigned int i = 0; i < playerCount; ++i ){
+					unsigned int playerCount;
+					*pak >> playerCount;
+					for( unsigned int i = 0; i < playerCount; ++i ){
+						int clientID;
+						*pak >> clientID;
+						if( clientID != myClientID ){
+							Player newPlayer;
+							newPlayer.sceneObj = motorRoot->getScene()->createObject();
+							newPlayer.clientID = clientID;
+
+							Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(newPlayer.sceneObj);
+							jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+							jeepObject->setScale(0.01f);
+							jeepObject->setYaw(1.5708f);
+
+							remotePlayers.push_back(newPlayer);
+						}
+					}
+				}
+				break;
+			case NEWPLAYER:
+				{
 					int clientID;
 					*pak >> clientID;
 					if( clientID != myClientID ){
@@ -440,60 +460,41 @@ const int MOVEMENTUPDATE	= 1003;
 						remotePlayers.push_back(newPlayer);
 					}
 				}
-			}
-			break;
-		case NEWPLAYER:
-			{
-				int clientID;
-				*pak >> clientID;
-				if( clientID != myClientID ){
-					Player newPlayer;
-					newPlayer.sceneObj = motorRoot->getScene()->createObject();
-					newPlayer.clientID = clientID;
-
-					Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(newPlayer.sceneObj);
-					jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
-					jeepObject->setScale(0.01f);
-					jeepObject->setYaw(1.5708f);
-
-					remotePlayers.push_back(newPlayer);
-				}
-			}
-			break;
-		case PLAYERDISCONNECT:
-			{
-				int clientID;
-				*pak >> clientID;
-				for( std::vector<Player>::iterator iter = remotePlayers.begin(); iter != remotePlayers.end(); ++iter ){
-					if( iter->clientID == clientID ){
-						if( iter->sceneObj ) motorRoot->getScene()->deleteObject(iter->sceneObj);
-						remotePlayers.erase(iter);
-						break;
+				break;
+			case PLAYERDISCONNECT:
+				{
+					int clientID;
+					*pak >> clientID;
+					for( std::vector<Player>::iterator iter = remotePlayers.begin(); iter != remotePlayers.end(); ++iter ){
+						if( iter->clientID == clientID ){
+							if( iter->sceneObj ) motorRoot->getScene()->deleteObject(iter->sceneObj);
+							remotePlayers.erase(iter);
+							break;
+						}
 					}
 				}
-			}
-			break;
-		case MOVEMENTUPDATE:
-			{
-				int clientID;
-				float x,y,z;
-				float pitch, yaw, roll;
-				float movX, movY, movZ;
-				*pak >> clientID >> x >> y >> z >> pitch >> yaw >> roll >> movX >> movY >> movZ;
-				for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
-					if( remotePlayers[i].clientID == clientID ){
-						remotePlayers[i].sceneObj->setPosition( Vector3(x,y,z) );
-						remotePlayers[i].sceneObj->setPitch(pitch);
-						remotePlayers[i].sceneObj->setYaw(yaw);
-						remotePlayers[i].sceneObj->setRoll(roll);
-						remotePlayers[i].movement = Vector3( movX, movY, movZ );
-						break;
+				break;
+			case MOVEMENTUPDATE:
+				{
+					int clientID;
+					float x,y,z;
+					float pitch, yaw, roll;
+					float movX, movY, movZ;
+					*pak >> clientID >> x >> y >> z >> pitch >> yaw >> roll >> movX >> movY >> movZ;
+					for( unsigned int i = 0; i < remotePlayers.size(); ++i ){
+						if( remotePlayers[i].clientID == clientID ){
+							remotePlayers[i].sceneObj->setPosition( Vector3(x,y,z) );
+							remotePlayers[i].sceneObj->setPitch(pitch);
+							remotePlayers[i].sceneObj->setYaw(yaw);
+							remotePlayers[i].sceneObj->setRoll(roll);
+							remotePlayers[i].movement = Vector3( movX, movY, movZ );
+							break;
+						}
 					}
 				}
-			}
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		};
 	}
 

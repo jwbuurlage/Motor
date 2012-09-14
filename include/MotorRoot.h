@@ -10,6 +10,7 @@
 #pragma once
 #include "MotorSingleton.h"
 #include <vector>
+#include <SFML/Window/Keyboard.hpp> //key code constants
 
 //forward declarations to avoid unnecessary includes
 struct SDL_Surface;
@@ -35,7 +36,7 @@ namespace Motor {
 	class InputListener{
 	public:
 		//When returning false, next listener will be called. When returning true, the chain stops.
-		virtual bool keyDown(int key, bool keyDown){ return false; }
+		virtual bool keyDown(sf::Keyboard::Key key, bool keyDown){ return false; }
 		virtual bool mouseDown(MOUSEBUTTON button, bool buttonDown, int x, int y){ return false; }
 		virtual bool mouseWheelMoved(int delta){ return false; }
 		virtual bool mouseMoved(int x, int y, int dx, int dy){ return false; }
@@ -86,7 +87,7 @@ namespace Motor {
 
 		std::vector<FrameListener*> frameListeners;
 		std::vector<InputListener*> inputListeners;
-		void keyDown(int key, bool KeyDown);
+		void keyDown(sf::Keyboard::Key key, bool KeyDown);
 		void mouseDown(MOUSEBUTTON button, bool KeyDown, int x, int y);
 		void mouseWheelMoved(int delta);
 		void mouseMoved(int x, int y);

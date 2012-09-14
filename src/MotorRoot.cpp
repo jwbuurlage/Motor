@@ -130,7 +130,7 @@ namespace Motor {
 				case sf::Event::KeyReleased:
 					keyDown( Event.key.code , false ); break;
 				case sf::Event::MouseMoved:
-					mouseMoved( Event.mouseMove.x, Event.mouseMove.x );
+					mouseMoved( Event.mouseMove.x, Event.mouseMove.y );
 					//mRenderer->SetMousePosition( Event.motion.x, Event.motion.y );
 					break;
 				case sf::Event::MouseWheelMoved:
@@ -219,7 +219,7 @@ namespace Motor {
 		}
 	}
 
-	void Root::keyDown(int key, bool KeyDown){
+	void Root::keyDown(sf::Keyboard::Key key, bool KeyDown){
 		for( std::vector<InputListener*>::iterator it = inputListeners.begin(); it != inputListeners.end(); ++it )
 			if( (*it)->keyDown(key, KeyDown) == true ) break;
 
