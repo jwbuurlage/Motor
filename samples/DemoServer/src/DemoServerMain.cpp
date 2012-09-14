@@ -5,13 +5,13 @@
 using namespace std;
 
 struct GameClient{
-	sf::SocketTCP socket;
+	sf::TcpSocket socket;
 	int clientID;
 };
 
 int clientIDCounter = 100;
 
-vector<GameClient> clients;
+vector<GameClient*> clients;
 
 //PACKET COMMAND CODES
 const int YOURCLIENTID		= 999;
@@ -23,97 +23,93 @@ const int POSITIONUPDATE	= 1003;
 int main(){
 	//Set up a listening socket
 	cout << "Starting server on port 1337\n";
-	sf::SocketTCP listener;
-	if( !listener.Listen(1337) ){
+	sf::TcpListener listener;
+	if( !listener.listen(1337) ){
 		cout << "Unable to listen on port 1337!\n";
 	}else{
 		//Create a selector object
 		//This will allow us to wait for any socket to be ready
-		sf::SelectorTCP selector;
-		selector.Add(listener);
-		
+		sf::SocketSelector selector;
+		selector.add(listener);
+
 		clients.clear();
 
 		bool running = true;
 		while(running){
 			//Wait for a socket to be ready
-			unsigned int readySocketsCount = selector.Wait();
-			for( unsigned int i = 0; i < readySocketsCount; ++i ){
-				sf::SocketTCP socket = selector.GetSocketReady(i);
-
-				//If its the listener, then a new client is connecting
-				if( socket == listener ){
-					GameClient client;
-					sf::IPAddress clientAddr;
-					if( listener.Accept(client.socket, &clientAddr) != sf::Socket::Done ){
-						cout << "Error while accepting client.\n";
-					}else{
-						selector.Add(client.socket);
-						client.clientID = clientIDCounter++;
-
-						cout << "Client connected from " << clientAddr << endl;
-
-						//Send the other players a notification
-						sf::Packet newPlayerPak;
-						newPlayerPak << NEWPLAYER << client.clientID;
-						for( unsigned int i = 0; i < clients.size(); ++i ){
-							clients[i].socket.Send(newPlayerPak);
-						}
-
-						//Now add the player to the list
-						clients.push_back(client);
-
-						//Send the player his new ID
-						sf::Packet idPak;
-						idPak << YOURCLIENTID << client.clientID;
-						client.socket.Send(idPak);
-
-						//Send the player the list of other players
-						unsigned int playerCount = clients.size();
-						sf::Packet playerPak;
-						playerPak << PLAYERLIST << playerCount;
-						for( unsigned int i = 0; i < playerCount; ++i ){
-							playerPak << clients[i].clientID;
-						}
-						client.socket.Send(playerPak);
-					}
+			selector.wait();
+			//If its the listener, then a new client is connecting
+			if( selector.isReady(listener) ){
+				GameClient *client = new GameClient;
+				if( listener.accept(client->socket) != sf::Socket::Done ){
+					cout << "Error while accepting client.\n";
+					delete client;
 				}else{
-					//A client has sent data
-					sf::Packet packet;
-					if( socket.Receive(packet) != sf::Socket::Done ){
-						cout << "Error on a socket. (Client disconnected?)\n";
-						selector.Remove(socket);
+					selector.add(client->socket);
+					client->clientID = clientIDCounter++;
 
-						int closeClientID = 0;
-						for( vector<GameClient>::iterator iter = clients.begin(); iter != clients.end(); ++iter ){
-							if( iter->socket == socket ){
-								closeClientID = iter->clientID;
-								clients.erase(iter);
-								break;
+					cout << "Client connected from " << client->socket.getRemoteAddress() << endl;
+
+					//Send the other players a notification
+					sf::Packet newPlayerPak;
+					newPlayerPak << NEWPLAYER << client->clientID;
+					for( unsigned int i = 0; i < clients.size(); ++i ){
+						clients[i]->socket.send(newPlayerPak);
+					}
+
+					//Now add the player to the list
+					clients.push_back(client);
+
+					//Send the player his new ID
+					sf::Packet idPak;
+					idPak << YOURCLIENTID << client->clientID;
+					client->socket.send(idPak);
+
+					//Send the player the list of other players
+					unsigned int playerCount = clients.size();
+					sf::Packet playerPak;
+					playerPak << PLAYERLIST << playerCount;
+					for( unsigned int i = 0; i < playerCount; ++i ){
+						playerPak << clients[i]->clientID;
+					}
+					client->socket.send(playerPak);
+				}
+			}else{
+				for( unsigned int i = 0; i < clients.size(); ++i ){
+					if( selector.isReady(clients[i]->socket) ){
+						sf::TcpSocket& socket = clients[i]->socket;
+
+						sf::Packet packet;
+						if( socket.receive(packet) != sf::Socket::Done ){
+							cout << "Error on a socket. (Client disconnected?)\n";
+							selector.remove(socket);
+							socket.disconnect();
+
+							int clientID = clients[i]->clientID;
+							clients.erase(clients.begin()+i);
+							--i; //so the index is fixed after the loop
+
+							//Send the other players a notification
+							sf::Packet dcPak;
+							dcPak << PLAYERDISCONNECT << clientID;
+							for( unsigned int j = 0; j < clients.size(); ++j ){
+								clients[j]->socket.send(dcPak);
 							}
-						}
-						socket.Close();
 
-						//Send the other players a notification
-						sf::Packet dcPak;
-						dcPak << PLAYERDISCONNECT << closeClientID;
-						for( unsigned int i = 0; i < clients.size(); ++i ){
-							clients[i].socket.Send(dcPak);
-						}
-
-					}else{
-						//Send the packet to all other clients
-						for( unsigned int i = 0; i < clients.size(); ++i ){
-							if( clients[i].socket != socket ){ //Do not send to the one we received from
-								clients[i].socket.Send(packet);
+						}else{
+							//Send the packet to all other clients
+							for( unsigned int j = 0; j < clients.size(); ++j ){
+								if( j != i ){ //Do not send to the one we received from
+									clients[j]->socket.send(packet);
+								}
 							}
 						}
 					}
 				}
 			}
-
 		}
 	}
+
 	cout << "Press any key to quit.\n";
 	cin.sync();
 	cin.ignore();

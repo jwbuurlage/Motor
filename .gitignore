@@ -1,6 +1,13 @@
-/build/
-/obj/
-/bin/*
+build/*
+obj/
+bin/*
 
+!/build/CMakeLists.txt
 !/bin/shaders
+
+samples/Demo/build/*
+samples/DemoServer/build/*
+!samples/Demo/build/CMakeLists.txt
+!samples/DemoServer/build/CMakeLists.txt
+
 Motor.tmproj

@@ -182,7 +182,7 @@ namespace Demo {
 		connected = false;
 		timeUntilRetry = 0.0f;
 		timeUntilPosUpdate = 0.0f;
-		socket.SetBlocking(false);
+		socket.setBlocking(false);
 
 		motorRoot->startRendering();
 		motorRoot->cleanup();
@@ -353,18 +353,18 @@ const int MOVEMENTUPDATE	= 1003;
 		if( !connected ){
 			timeUntilRetry -= elapsedTime;
 			if( timeUntilRetry <= 0.0f ){
-				if( socket.Connect(1337, "127.0.0.1") == sf::Socket::Done ){
+				if( socket.connect("127.0.0.1", 1337) == sf::Socket::Done ){
 					connected = true;
 					std::cout << "Instantly connected!\n";
 				}
 				timeUntilRetry = 8.0f;
 			}else{
-				sf::SelectorTCP selector;
-				selector.Add(socket);
-				if( selector.Wait(0.001f) ){
+				sf::SocketSelector selector;
+				selector.add(socket);
+				if( selector.wait(sf::seconds(0.001f)) ){
 					//To check if the socket is connected, we try to read from it:
 					sf::Packet pak;
-					sf::Socket::Status status = socket.Receive(pak);
+					sf::Socket::Status status = socket.receive(pak);
 					if( status == sf::Socket::Done ){
 						connected = true;
 						handlePacket(&pak);
@@ -388,16 +388,16 @@ const int MOVEMENTUPDATE	= 1003;
 					packet << localPlayer->movement.x;
 					packet << localPlayer->movement.y;
 					packet << localPlayer->movement.z;
-					socket.Send(packet);
+					socket.send(packet);
 				}
 				timeUntilPosUpdate = 0.050f;
 			}
 
-			sf::Socket::Status status = socket.Receive(packet);
+			sf::Socket::Status status = socket.receive(packet);
 			if( status == sf::Socket::Done ){
 				handlePacket(&packet);
 			}else if( status != sf::Socket::NotReady ){
-				socket.Close();
+				socket.disconnect();
 				connected = false;
 				timeUntilRetry = 2.0f;
 				std::cout << "Disconnected from server.\n";
@@ -475,7 +475,7 @@ const int MOVEMENTUPDATE	= 1003;
 			break;
 		case MOVEMENTUPDATE:
 			{
-				unsigned int clientID;
+				int clientID;
 				float x,y,z;
 				float pitch, yaw, roll;
 				float movX, movY, movZ;

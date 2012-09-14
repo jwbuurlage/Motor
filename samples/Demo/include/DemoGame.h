@@ -32,7 +32,7 @@ namespace Demo {
 	private:
 		Motor::Root* motorRoot;
 
-		sf::SocketTCP socket;
+		sf::TcpSocket socket;
 		bool connected;
 		float timeUntilRetry;
 		float timeUntilPosUpdate;

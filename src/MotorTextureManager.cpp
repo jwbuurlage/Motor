@@ -29,18 +29,18 @@ namespace Motor {
 		if( imagefile == 0 ) return 0;
 		Texture* texture = 0;
 		sf::Image image;
-		if( image.LoadFromMemory(imagefile->data, imagefile->size) ){
+		if( image.loadFromMemory(imagefile->data, imagefile->size) ){
 
 			texture = new Texture;
-			texture->width = image.GetWidth();
-			texture->height = image.GetHeight();
+			texture->width = image.getSize().x;
+			texture->height = image.getSize().y;
 
 			glGenTextures(1, &texture->handle);
 			glBindTexture( GL_TEXTURE_2D, texture->handle );
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
-			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetPixelsPtr() );
+			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr() );
 
 			addResource(filename, texture);
 		}

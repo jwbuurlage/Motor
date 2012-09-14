@@ -1,25 +1,25 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
-
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../../bin")
+CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 
 SET(
 	PROJECT_NAME
-	"DemoServer"
+	"Demo"
 )
 
 SET(
 	PROJECT_SOURCES
-	"src/DemoServerMain.cpp"
+	"../src/DemoGame.cpp"
+	"../src/DemoMain.cpp"
 )
 
 SET(
 	PROJECT_INCLUDES
-	"../../include"
-	"include"
+	"../../../include"
+	"../include"
 )
 
 SET(
 	PROJECT_LIBRARIES
+	"motor"
 	"sfml-network"
 	"sfml-system"
 )
@@ -29,3 +29,4 @@ SET(
 INCLUDE_DIRECTORIES( ${PROJECT_INCLUDES} )
 ADD_EXECUTABLE( ${PROJECT_NAME} ${PROJECT_SOURCES} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${PROJECT_LIBRARIES} )
+

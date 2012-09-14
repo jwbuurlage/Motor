@@ -51,15 +51,15 @@ namespace Motor {
 		
 		//TODO: Get window width/height from setting file
 		if( !window ){
-			sf::WindowSettings Settings;
-			Settings.DepthBits         = 24; // Request a 24 bits depth buffer
-			Settings.StencilBits       = 8;  // Request a 8 bits stencil buffer
-			Settings.AntialiasingLevel = 2;  // Request 2 levels of antialiasing
+			sf::ContextSettings Settings;
+			Settings.depthBits         = 24; // Request a 24 bits depth buffer
+			Settings.stencilBits       = 8;  // Request a 8 bits stencil buffer
+			Settings.antialiasingLevel = 2;  // Request 2 levels of antialiasing
 			//window = new sf::Window(sf::VideoMode(1024, 768, 32), "OpenGL Window", sf::Style::Close, Settings);
-            window = new sf::Window(sf::VideoMode::GetDesktopMode(), "Motor Project", sf::Style::Close, Settings);
+            window = new sf::Window(sf::VideoMode::getDesktopMode(), "Motor Project", sf::Style::Close, Settings);
 		}
 
-		if( !renderer->initialize(window->GetWidth(), window->GetHeight()) ){
+		if( !renderer->initialize(window->getSize().x, window->getSize().y) ){
 			cleanup();
 			return 0;
 		}
@@ -122,25 +122,25 @@ namespace Motor {
 		int frameCount = 0;
 		float frameTime = 0;
 		timer->getElapsedTime(); //t=0
-		while(running && window->IsOpened() ){
-			while(window->GetEvent(Event)) {
-				switch( Event.Type ){
+		while(running && window->isOpen() ){
+			while(window->pollEvent(Event)) {
+				switch( Event.type ){
 				case sf::Event::KeyPressed:
-					keyDown( Event.Key.Code , true ); break;
+					keyDown( Event.key.code , true ); break;
 				case sf::Event::KeyReleased:
-					keyDown( Event.Key.Code , false ); break;
+					keyDown( Event.key.code , false ); break;
 				case sf::Event::MouseMoved:
-					mouseMoved( Event.MouseMove.X, Event.MouseMove.Y );
+					mouseMoved( Event.mouseMove.x, Event.mouseMove.x );
 					//mRenderer->SetMousePosition( Event.motion.x, Event.motion.y );
 					break;
 				case sf::Event::MouseWheelMoved:
-					mouseWheelMoved( Event.MouseWheel.Delta );
+					mouseWheelMoved( Event.mouseWheel.delta );
 					break;
 				case sf::Event::MouseButtonPressed:
-					mouseDown( (MOUSEBUTTON)Event.MouseButton.Button, true, Event.MouseButton.X, Event.MouseButton.Y );
+					mouseDown( (MOUSEBUTTON)Event.mouseButton.button, true, Event.mouseButton.x, Event.mouseButton.y );
 					break;
 				case sf::Event::MouseButtonReleased:
-					mouseDown( (MOUSEBUTTON)Event.MouseButton.Button, false, Event.MouseButton.X, Event.MouseButton.Y );
+					mouseDown( (MOUSEBUTTON)Event.mouseButton.button, false, Event.mouseButton.x, Event.mouseButton.y );
 					break;
 				case sf::Event::Closed:
 					running = false;
@@ -189,7 +189,7 @@ namespace Motor {
 		}
 		
 		renderer->renderFrame();
-		window->Display();
+		window->display();
 		return renderer->checkErrors();
 	}
 
