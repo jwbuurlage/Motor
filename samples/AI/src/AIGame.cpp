@@ -116,7 +116,17 @@ namespace Demo
 		{
 			Motor::Camera* cam = motorRoot->getScene()->getCamera();
 			const Vector3& specPos = spectatorNode->getPosition();
-			if( cam )
+
+			//For normal speeds, friction force proportional to the speed
+			if( spectatorMovement.squaredLength() > 1.0f ){
+				Vector3 frictionVec( - 3.0f * spectatorMovement );
+				spectatorMovement += frictionVec * elapsedTime;
+			}else{ //For low speeds, constant friction force
+				Vector3 frictionVec( - 3.0f * spectatorMovement.normalisedCopy() );
+				spectatorMovement += frictionVec * elapsedTime;
+			}
+
+			if( cam != 0 )
 			{
 				cam->setTargetLocation(specPos, false);
 
@@ -242,7 +252,10 @@ namespace Demo
 	//	PLAYERDISCONNECT <UID>
 	//
 	// Every turn the server sends to all clients
-	//	GAMESTATE <full game state>
+	//	GAMESTATE <turn> <full game state>
+	//
+	// Clients can, once per turn, do a single move and send
+	//	MOVELIST <Move Type>
 	//
 	//
 
@@ -251,6 +264,7 @@ namespace Demo
 	const int NEWPLAYER			= 1001;
 	const int PLAYERDISCONNECT	= 1002;
 	const int GAMESTATE			= 1003;
+	const int MOVELIST			= 1004;
 
 	void AIGame::networkUpdate(float elapsedTime)
 	{
@@ -305,6 +319,13 @@ namespace Demo
 				playerPak << players[i].UID;
 			}
 			player.socket->send(playerPak);
+
+			//Set up the visuals for the new player
+			player.heroObj = motorRoot->getScene()->createObject();
+			Motor::SceneObject* jeepObject = motorRoot->getScene()->createChildObject(player.heroObj);
+			jeepObject->setModel( Motor::ModelManager::getSingleton().getModel("Jeep") );
+			jeepObject->setScale(0.01f);
+			jeepObject->setYaw(1.5708f);
 		}
 
 		//Check if any client has sent something

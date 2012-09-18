@@ -265,11 +265,11 @@ namespace Motor {
 		//
 		// Terrain test
 		//
-		shaderManager->setActiveProgram("terrain");
-        shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
-        shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);  
-		shaderManager->getActiveProgram()->setUniform1i("shadowMap", 7);
-		drawTerrain();
+		//shaderManager->setActiveProgram("terrain");
+        //shaderManager->getActiveProgram()->setUniform3fv("lightPosition", lightPos.ptr());
+        //shaderManager->getActiveProgram()->setUniformMatrix4fv("lightViewProjMatrix", lightningProjection);  
+		//shaderManager->getActiveProgram()->setUniform1i("shadowMap", 7);
+		//drawTerrain();
 		
 		//Particle effects
 		
