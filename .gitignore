@@ -7,7 +7,9 @@ bin/*
 
 samples/Demo/build/*
 samples/DemoServer/build/*
+samples/AI/build/*
 !samples/Demo/build/CMakeLists.txt
 !samples/DemoServer/build/CMakeLists.txt
+!samples/AI/build/CMakeLists.txt
 
 Motor.tmproj

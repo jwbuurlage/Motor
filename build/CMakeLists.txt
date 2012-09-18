@@ -61,3 +61,4 @@ TARGET_LINK_LIBRARIES( ${LIB_NAME} ${LIB_LIBRARIES} )
 #-- Then build each sample respectively
 add_subdirectory(../samples/Demo/build ../samples/Demo/build)
 add_subdirectory(../samples/DemoServer/build ../samples/DemoServer/build)
+add_subdirectory(../samples/AI/build ../samples/AI/build)
